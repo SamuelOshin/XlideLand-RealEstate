@@ -1,0 +1,46 @@
+<!-- Placeholder SVG for About Office Image -->
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="buildingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:0.3" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f8fafc"/>
+  
+  <!-- Building Silhouette -->
+  <rect x="100" y="200" width="120" height="300" fill="#334155" opacity="0.8"/>
+  <rect x="240" y="150" width="140" height="350" fill="#475569" opacity="0.8"/>
+  <rect x="400" y="180" width="160" height="320" fill="#334155" opacity="0.8"/>
+  <rect x="580" y="220" width="120" height="280" fill="#475569" opacity="0.8"/>
+  
+  <!-- Windows -->
+  <rect x="115" y="220" width="20" height="25" fill="#fbbf24" opacity="0.7"/>
+  <rect x="145" y="220" width="20" height="25" fill="#fbbf24" opacity="0.7"/>
+  <rect x="175" y="220" width="20" height="25" fill="#fbbf24" opacity="0.7"/>
+  
+  <rect x="255" y="180" width="20" height="25" fill="#fbbf24" opacity="0.7"/>
+  <rect x="285" y="180" width="20" height="25" fill="#fbbf24" opacity="0.7"/>
+  <rect x="315" y="180" width="20" height="25" fill="#fbbf24" opacity="0.7"/>
+  <rect x="345" y="180" width="20" height="25" fill="#fbbf24" opacity="0.7"/>
+  
+  <!-- XlideLand Sign -->
+  <rect x="420" y="450" width="120" height="30" fill="#10b981" rx="5"/>
+  <text x="480" y="470" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">XlideLand</text>
+  
+  <!-- Ground -->
+  <rect x="0" y="500" width="800" height="100" fill="#065f46" opacity="0.1"/>
+  
+  <!-- Trees -->
+  <circle cx="50" cy="480" r="30" fill="#065f46" opacity="0.6"/>
+  <rect x="45" y="480" width="10" height="40" fill="#92400e" opacity="0.8"/>
+  
+  <circle cx="750" cy="470" r="35" fill="#065f46" opacity="0.6"/>
+  <rect x="745" y="470" width="10" height="45" fill="#92400e" opacity="0.8"/>
+  
+  <!-- Logo Overlay -->
+  <circle cx="480" cy="300" r="80" fill="url(#buildingGrad)"/>
+  <text x="480" y="315" text-anchor="middle" fill="#10b981" font-family="Arial, sans-serif" font-size="32" font-weight="bold">XL</text>
+</svg>

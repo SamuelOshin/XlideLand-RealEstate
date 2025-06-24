@@ -1,0 +1,9 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- This will be replaced with the actual world map SVG -->
+  <defs>
+    <pattern id="dots" patternUnits="userSpaceOnUse" width="4" height="4">
+      <circle cx="2" cy="2" r="0.5" fill="#e5e7eb" opacity="0.6"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="800" fill="url(#dots)"/>
+</svg>
