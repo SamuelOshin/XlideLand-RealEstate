@@ -1,0 +1,245 @@
+/*
+ * XlideLand Text Contrast Guidelines
+ * See COPILOT_TEXT_INSTRUCTIONS.md for complete guidelines
+ * 
+ * Key Rules:
+ * - Always use readable text colors (never text-gray-400 or lighter for body text)
+ * - Prefer semantic classes: text-text-primary, text-text-secondary, text-text-muted
+ * - Maintain WCAG AA contrast ratios (4.5:1 minimum for body text)
+ * - Use Typography component when available for consistency
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --primary: #22c55e; /* XlideLand brand green */
+  --secondary: #f59e0b; /* XlideLand orange */
+  --radius: 0.75rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --font-sans: "Inter", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #312e2e;
+  }
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-feature-settings: "rlig" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(34, 197, 94, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 197, 94, 0.8);
+}
+
+/* Glass morphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Premium button styles */
+.btn-primary {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px 0 rgba(34, 197, 94, 0.3);
+  transition: all 0.3s ease;
+  transform: translateY(0);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 20px 0 rgba(34, 197, 94, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px 0 rgba(245, 158, 11, 0.3);
+  transition: all 0.3s ease;
+  transform: translateY(0);
+}
+
+.btn-secondary:hover {
+  box-shadow: 0 6px 20px 0 rgba(245, 158, 11, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Typography improvements */
+.text-gradient {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Card styles */
+.card-premium {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.card-premium:hover {
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 20px 40px -2px rgba(0, 0, 0, 0.05);
+  transform: translateY(-4px);
+}
+
+/* Animation classes */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Mesh gradient background */
+.mesh-bg {
+  background: linear-gradient(45deg, 
+    rgba(34, 197, 94, 0.1) 0%, 
+    rgba(34, 197, 94, 0.05) 25%, 
+    rgba(21, 128, 61, 0.05) 50%, 
+    rgba(34, 197, 94, 0.03) 75%, 
+    rgba(134, 239, 172, 0.02) 100%);
+}
+
+/* Custom text colors for better readability */
+.text-primary-content {
+  color: #1f2937; /* Better contrast than default gray-800 */
+}
+
+.text-secondary-content {
+  color: #374151; /* Better contrast than default gray-700 */
+}
+
+.text-muted-content {
+  color: #4b5563; /* Better contrast than default gray-600 */
+}
+
+.text-subtle-content {
+  color: #6b7280; /* Better contrast than default gray-500 */
+}
+
+/* Global overrides for better text contrast */
+.text-gray-500 {
+  color: #4b5563 !important; /* Darker than default gray-500 */
+}
+
+.text-gray-600 {
+  color: #374151 !important; /* Darker than default gray-600 */
+}
+
+.text-gray-700 {
+  color: #1f2937 !important; /* Darker than default gray-700 */
+}
+
+.text-gray-400 {
+  color: #6b7280 !important; /* Darker than default gray-400 */
+}
+
+.text-gray-300 {
+  color: #9ca3af !important; /* Slightly darker than default gray-300 */
+}
+
+/* Specific overrides for common patterns */
+.placeholder\:text-gray-500::placeholder {
+  color: #6b7280 !important;
+}
+
+/* Improved text hierarchy */
+.text-heading {
+  color: #111827; /* Very dark for headings */
+  font-weight: 600;
+}
+
+.text-body {
+  color: #1f2937; /* Dark but readable for body text */
+}
+
+.text-caption {
+  color: #4b5563; /* Medium gray for captions */
+  font-size: 0.875rem;
+}
+
+.text-label {
+  color: #374151; /* Good contrast for labels */
+  font-weight: 500;
+}
+
+/* High contrast mode utilities */
+@media (prefers-contrast: high) {
+  .text-gray-500,
+  .text-gray-600,
+  .text-gray-400,
+  .text-muted-content,
+  .text-subtle-content {
+    color: #1f2937 !important;
+  }
+}
+
+/* Dark mode considerations */
+/* @media (prefers-color-scheme: dark) {
+  .text-gray-500 {
+    color: #d1d5db !important;
+  }
+  
+  .text-gray-600 {
+    color: #e5e7eb !important;
+  }
+  
+  .text-gray-700 {
+    color: #f3f4f6 !important;
+  }
+  
+  .text-gray-400 {
+    color: #9ca3af !important;
+  }
+} */

@@ -1,0 +1,157 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-*
+.vs/
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.nyc_output
+
+# Cache directories
+__pycache__/
+.cache/
+.pytest_cache/
+.npm/
+.yarn/cache/
+.eslintcache
+.stylelintcache
+
+# Build directories
+build/
+dist/
+out/
+.next/
+
+# Django specific (backend)
+*.pyc
+*.pyo
+*.pyd
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+static/
+local_settings.py
+celerybeat-schedule
+celerybeat.pid
+
+# Python virtual environments
+venv/
+env/
+ENV/
+.venv/
+.env/
+pipenv/
+.virtualenv
+
+# Node.js specific (frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.tsbuildinfo
+next-env.d.ts
+
+# Package managers
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Testing
+.pytest_cache/
+test-results/
+playwright-report/
+coverage/
+
+# Documentation builds
+docs/_build/
+site/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Optional runtime files
+.sass-cache/
+.connect.lock
+.typings/
+
+# Deployment
+.vercel
+.netlify/
+
+# Local development
+.local/
+tmp/
+temp/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.suo
+*.ntvs*
+.njsproj
+*.sln
+*.sw?
+
+# Archive files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip

@@ -1,0 +1,27 @@
+{"count": 8, "next": null, "previous": null, "results": [
+        {"user": {"id": 1, "username": "admin", "email": "admin@xlideland.com", "first_name": "", "last_name": "", "date_joined": "2025-06-20T00: 49: 40.907168Z"
+            }, "role": "admin", "avatar": null, "phone": "", "bio": "", "is_verified": false, "joined_date": "2025-06-24T02: 37: 36.159582Z", "last_login_date": null
+        },
+        {"user": {"id": 2, "username": "testuser", "email": "test@example.com", "first_name": "Test", "last_name": "User", "date_joined": "2025-06-21T21: 38: 12.713515Z"
+            }, "role": "buyer", "avatar": null, "phone": "", "bio": "", "is_verified": false, "joined_date": "2025-06-24T03: 20: 00.690592Z", "last_login_date": null
+        },
+        {"user": {"id": 3, "username": "realtor1", "email": "realtor@example.com", "first_name": "Jane", "last_name": "Realtor", "date_joined": "2025-06-21T21: 39: 03.816823Z"
+            }, "role": "seller", "avatar": null, "phone": "", "bio": "", "is_verified": false, "joined_date": "2025-06-24T03: 20: 00.706590Z", "last_login_date": null
+        },
+        {"user": {"id": 4, "username": "realtor@example.com", "email": "realtor@example.com", "first_name": "", "last_name": "", "date_joined": "2025-06-21T21: 39: 05.118963Z"
+            }, "role": "admin", "avatar": null, "phone": "", "bio": "", "is_verified": false, "joined_date": "2025-06-24T03: 20: 00.734586Z", "last_login_date": null
+        },
+        {"user": {"id": 5, "username": "samueloshin@email.com", "email": "samueloshin@email.com", "first_name": "", "last_name": "", "date_joined": "2025-06-23T18: 20: 30.280850Z"
+            }, "role": "admin", "avatar": null, "phone": "", "bio": "", "is_verified": false, "joined_date": "2025-06-24T03: 20: 00.751586Z", "last_login_date": null
+        },
+        {"user": {"id": 6, "username": "john@example.com", "email": "john@example.com", "first_name": "", "last_name": "", "date_joined": "2025-06-24T02: 21: 21.270220Z"
+            }, "role": "admin", "avatar": null, "phone": "", "bio": "", "is_verified": false, "joined_date": "2025-06-24T03: 20: 00.772588Z", "last_login_date": null
+        },
+        {"user": {"id": 7, "username": "testbuyer", "email": "buyer@test.com", "first_name": "Test", "last_name": "Buyer", "date_joined": "2025-06-24T03: 20: 37.455318Z"
+            }, "role": "buyer", "avatar": null, "phone": "", "bio": "", "is_verified": false, "joined_date": "2025-06-24T03: 20: 38.875978Z", "last_login_date": null
+        },
+        {"user": {"id": 8, "username": "testseller", "email": "seller@test.com", "first_name": "Test", "last_name": "Seller", "date_joined": "2025-06-24T03: 20: 38.919982Z"
+            }, "role": "seller", "avatar": null, "phone": "", "bio": "", "is_verified": false, "joined_date": "2025-06-24T03: 20: 40.241075Z", "last_login_date": null
+        }
+    ]
+}
