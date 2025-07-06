@@ -1,6 +1,17 @@
-# Project Structure Guide
+# XlideLand Project Structure - Monorepo Guide
 
-## Directory Overview
+## Overview
+
+XlideLand is a full-stack real estate platform built with Django REST API backend and Next.js frontend using a **monorepo structure**. This document outlines the complete project structure and architecture.
+
+## 🏗️ Monorepo Benefits
+
+- **Unified Development**: Frontend and backend in one repository
+- **Simplified Dependency Management**: Shared tooling and configurations
+- **Atomic Commits**: Changes across both frontend and backend in single commits
+- **Consistent Versioning**: Synchronized releases
+- **Improved Collaboration**: Better coordination between teams
+- **Streamlined CI/CD**: Single pipeline for both applications
 
 ```
 XlideLand/
