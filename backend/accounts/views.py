@@ -13,7 +13,8 @@ import logging
 
 from .models import (
     UserProfile, UserFavorite, Tour, Conversation, Message, 
-    PropertyAlert, Document, Notification, UserActivity
+    PropertyAlert, Document, Notification, UserActivity,
+    FileUpload, FileUploadSession
 )
 from .serializers import (
     UserRegistrationSerializer,    UserSerializer, 
@@ -31,7 +32,8 @@ from .serializers import (
     UserActivitySerializer,
     DashboardStatsSerializer,
     AdminUserRegistrationSerializer,
-    AdminUserManagementSerializer
+    AdminUserManagementSerializer,
+    FileUploadSerializer
 )
 from listings.models import Listing
 from listings.serializers import ListingSerializer
@@ -749,3 +751,337 @@ def logout(request):
 def dashboard(request):
     """Legacy Django view - kept for backwards compatibility"""
     return render(request, 'accounts/dashboard.html')
+
+
+# ================== FILE UPLOAD API ENDPOINTS ==================
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def store_file_metadata(request):
+    """
+    Store file metadata after successful Vercel Blob upload
+    """
+    try:
+        data = request.data
+        
+        # Create file upload record
+        file_upload = FileUpload.objects.create(
+            user=request.user,
+            file_name=data.get('file_name'),
+            original_name=data.get('original_name'),
+            file_type=data.get('file_type'),
+            mime_type=data.get('mime_type'),
+            file_size=int(data.get('file_size', 0)),
+            blob_url=data.get('blob_url'),
+            blob_key=data.get('blob_key'),
+            category=data.get('category', ''),
+            property_id=data.get('property_id', ''),
+            listing_id=data.get('listing_id') if data.get('listing_id') else None,
+        )
+        
+        # Update user profile avatar if this is an avatar upload
+        if data.get('file_type') == 'avatar':
+            profile, created = UserProfile.objects.get_or_create(user=request.user)
+            profile.avatar = data.get('blob_url')
+            profile.save()
+        
+        serializer = FileUploadSerializer(file_upload)
+        return Response({
+            'success': True,
+            'file': serializer.data,
+            'message': 'File metadata stored successfully'
+        }, status=status.HTTP_201_CREATED)
+        
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': str(e)
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_avatar(request):
+    """
+    Get the user's current avatar from uploaded files
+    """
+    try:
+        # Get user's most recent avatar from FileUpload model
+        avatar_file = FileUpload.objects.filter(
+            user=request.user,
+            file_type='avatar',
+            upload_status='completed'
+        ).order_by('-uploaded_at').first()
+        
+        if avatar_file:
+            return Response({
+                'avatar_url': avatar_file.blob_url,
+                'has_avatar': True,
+                'uploaded_at': avatar_file.uploaded_at,
+                'file_size': avatar_file.file_size
+            })
+        else:
+            return Response({
+                'avatar_url': None,
+                'has_avatar': False
+            })
+    except Exception as e:
+        logger.error(f"Error fetching user avatar: {e}")
+        return Response({'error': 'Failed to fetch avatar'}, status=500)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_files(request):
+    """
+    Get all files uploaded by the user with optional filtering
+    """
+    try:
+        file_type = request.GET.get('file_type')
+        category = request.GET.get('category')
+        
+        queryset = FileUpload.objects.filter(
+            user=request.user,
+            upload_status='completed'
+        ).order_by('-uploaded_at')
+        
+        if file_type:
+            queryset = queryset.filter(file_type=file_type)
+        
+        if category:
+            queryset = queryset.filter(category=category)
+        
+        files = FileUploadSerializer(queryset, many=True).data
+        return Response({
+            'files': files, 
+            'count': len(files),
+            'filters': {
+                'file_type': file_type,
+                'category': category
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error fetching user files: {e}")
+        return Response({'error': 'Failed to fetch files'}, status=500)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def get_property_images(request, property_id):
+    """
+    Get all images for a specific property with pagination
+    """
+    try:
+        # Get pagination parameters
+        page = int(request.GET.get('page', 1))
+        limit = int(request.GET.get('limit', 10))
+        max_limit = 50  # Prevent excessive requests
+        limit = min(limit, max_limit)
+        
+        # Calculate offset
+        offset = (page - 1) * limit
+        
+        # Get all property images from FileUpload model with pagination
+        property_images_queryset = FileUpload.objects.filter(
+            property_id=property_id,
+            file_type='property-image',
+            upload_status='completed'
+        ).order_by('uploaded_at')
+        
+        # Get total count before applying pagination
+        total_uploaded_images = property_images_queryset.count()
+        
+        # Apply pagination to uploaded images
+        paginated_property_images = property_images_queryset[offset:offset + limit]
+        
+        # Also check if property exists in listings
+        traditional_photos = []
+        total_traditional_photos = 0
+        try:
+            from listings.models import Listing
+            property_obj = Listing.objects.get(id=property_id)
+            
+            # Get traditional photo fields as backup
+            all_traditional_photos = []
+            if property_obj.photo_main:
+                all_traditional_photos.append({
+                    'url': property_obj.photo_main,
+                    'is_main': True,
+                    'type': 'main'
+                })
+            
+            for i in range(1, 7):  # photo_1 through photo_6
+                photo_field = getattr(property_obj, f'photo_{i}', None)
+                if photo_field:
+                    all_traditional_photos.append({
+                        'url': photo_field,
+                        'is_main': False,
+                        'type': f'photo_{i}'
+                    })
+            
+            total_traditional_photos = len(all_traditional_photos)
+            
+            # If we need to include traditional photos in this page
+            remaining_slots = limit - len(paginated_property_images)
+            if remaining_slots > 0 and offset < total_uploaded_images + total_traditional_photos:
+                traditional_offset = max(0, offset - total_uploaded_images)
+                if traditional_offset < len(all_traditional_photos):
+                    traditional_photos = all_traditional_photos[traditional_offset:traditional_offset + remaining_slots]
+                    
+        except Exception as e:
+            logger.warning(f"Could not fetch traditional photos for property {property_id}: {e}")
+            traditional_photos = []
+            total_traditional_photos = 0
+        
+        uploaded_images = FileUploadSerializer(paginated_property_images, many=True).data
+        
+        # Calculate pagination metadata
+        total_images = total_uploaded_images + total_traditional_photos
+        total_pages = (total_images + limit - 1) // limit  # Ceiling division
+        has_next = page < total_pages
+        has_previous = page > 1
+        
+        return Response({
+            'uploaded_images': uploaded_images,
+            'traditional_photos': traditional_photos,
+            'pagination': {
+                'page': page,
+                'limit': limit,
+                'total_images': total_images,
+                'total_uploaded_images': total_uploaded_images,
+                'total_traditional_photos': total_traditional_photos,
+                'total_pages': total_pages,
+                'has_next': has_next,
+                'has_previous': has_previous,
+                'next_page': page + 1 if has_next else None,
+                'previous_page': page - 1 if has_previous else None
+            },
+            'property_id': property_id
+        })
+    except ValueError as e:
+        return Response({'error': 'Invalid pagination parameters'}, status=400)
+    except Exception as e:
+        logger.error(f"Error fetching property images: {e}")
+        return Response({'error': 'Failed to fetch property images'}, status=500)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_user_file(request, file_id):
+    """
+    Delete a user's uploaded file (mark as deleted, don't actually delete from blob)
+    """
+    try:
+        file_obj = FileUpload.objects.get(
+            id=file_id,
+            user=request.user
+        )
+        
+        # Mark as deleted instead of actual deletion
+        file_obj.upload_status = 'deleted'
+        file_obj.save()
+        
+        return Response({
+            'success': True,
+            'message': 'File marked as deleted'
+        })
+    except FileUpload.DoesNotExist:
+        return Response({'error': 'File not found'}, status=404)
+    except Exception as e:
+        logger.error(f"Error deleting file: {e}")
+        return Response({'error': 'Failed to delete file'}, status=500)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_upload_session(request):
+    """
+    Create a file upload session for bulk operations
+    """
+    try:
+        data = request.data
+        
+        session = FileUploadSession.objects.create(
+            user=request.user,
+            session_name=data.get('session_name', ''),
+            upload_type=data.get('upload_type'),
+            total_files=int(data.get('total_files', 0)),
+            property_id=data.get('property_id', ''),
+            listing_id=data.get('listing_id') if data.get('listing_id') else None,
+        )
+        
+        return Response({
+            'success': True,
+            'session_id': str(session.id),
+            'message': 'Upload session created successfully'
+        }, status=status.HTTP_201_CREATED)
+        
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': str(e)
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_upload_session(request, session_id):
+    """
+    Get upload session details
+    """
+    try:
+        session = FileUploadSession.objects.get(
+            id=session_id,
+            user=request.user
+        )
+        
+        return Response({
+            'success': True,
+            'session': {
+                'id': str(session.id),
+                'session_name': session.session_name,
+                'upload_type': session.upload_type,
+                'total_files': session.total_files,
+                'uploaded_files': session.uploaded_files,
+                'failed_files': session.failed_files,
+                'session_status': session.session_status,
+                'property_id': session.property_id,
+                'created_at': session.created_at,
+                'updated_at': session.updated_at,
+            }
+        })
+        
+    except FileUploadSession.DoesNotExist:
+        return Response({
+            'success': False,
+            'error': 'Upload session not found'
+        }, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_realtor_info(request):
+    """
+    Get the current user's realtor information if they are a seller
+    """
+    user = request.user
+    
+    try:
+        # Check if user has a realtor profile
+        from realtors.models import Realtor
+        realtor = Realtor.objects.get(user=user)
+        
+        return Response({
+            'realtor_id': realtor.id,
+            'name': realtor.name,
+            'title': realtor.title,
+            'email': realtor.email,
+            'phone': realtor.phone,
+            'is_active': realtor.is_active
+        })
+    except Realtor.DoesNotExist:
+        return Response(
+            {'error': 'No realtor profile found for this user'}, 
+            status=status.HTTP_404_NOT_FOUND
+        )

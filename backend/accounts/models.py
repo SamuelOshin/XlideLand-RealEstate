@@ -246,3 +246,109 @@ class UserActivity(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.activity_type} ({self.created_at})"
+
+
+class FileUpload(models.Model):
+    """Track files uploaded to Vercel Blob storage"""
+    FILE_TYPE_CHOICES = [
+        ('property-image', 'Property Image'),
+        ('document', 'Document'),
+        ('avatar', 'Avatar'),
+    ]
+    
+    UPLOAD_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+        ('deleted', 'Deleted'),
+    ]
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='file_uploads')
+    
+    # File metadata
+    file_name = models.CharField(max_length=255)
+    original_name = models.CharField(max_length=255)
+    file_type = models.CharField(max_length=20, choices=FILE_TYPE_CHOICES)
+    mime_type = models.CharField(max_length=100)
+    file_size = models.BigIntegerField()  # Size in bytes
+    
+    # Vercel Blob storage details
+    blob_url = models.URLField(max_length=500)  # Vercel Blob URL
+    blob_key = models.CharField(max_length=255)  # Blob storage key
+    
+    # Upload metadata
+    upload_status = models.CharField(max_length=10, choices=UPLOAD_STATUS_CHOICES, default='completed')
+    category = models.CharField(max_length=50, blank=True)  # Additional categorization
+    tags = models.JSONField(default=list, blank=True)  # Custom tags
+    
+    # Associations
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, null=True, blank=True, related_name='uploaded_files')
+    property_id = models.CharField(max_length=50, blank=True)  # For associating with properties
+    
+    # Timestamps
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-uploaded_at']
+        indexes = [
+            models.Index(fields=['user', 'file_type']),
+            models.Index(fields=['listing']),
+            models.Index(fields=['upload_status']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.file_name} ({self.file_type})"
+    
+    @property
+    def is_image(self):
+        """Check if file is an image"""
+        return self.mime_type.startswith('image/')
+    
+    @property
+    def file_size_mb(self):
+        """Get file size in MB"""
+        return round(self.file_size / (1024 * 1024), 2)
+    
+    def soft_delete(self):
+        """Mark file as deleted without removing record"""
+        self.upload_status = 'deleted'
+        self.deleted_at = datetime.now()
+        self.save()
+
+
+class FileUploadSession(models.Model):
+    """Track file upload sessions for bulk operations"""
+    SESSION_STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+    ]
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='upload_sessions')
+    session_name = models.CharField(max_length=255, blank=True)
+    upload_type = models.CharField(max_length=20)  # property-images, documents, etc.
+    
+    # Session metadata
+    total_files = models.IntegerField(default=0)
+    uploaded_files = models.IntegerField(default=0)
+    failed_files = models.IntegerField(default=0)
+    session_status = models.CharField(max_length=10, choices=SESSION_STATUS_CHOICES, default='active')
+    
+    # Related data
+    property_id = models.CharField(max_length=50, blank=True)
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, null=True, blank=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.upload_type} session ({self.session_status})"

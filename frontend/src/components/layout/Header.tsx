@@ -24,6 +24,7 @@ import {
   Settings,
   BarChart3
 } from 'lucide-react';
+import { UserAvatar } from '@/components/ui/UserAvatar';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -194,8 +195,12 @@ const Header = () => {
                     }`}
                   >
                     <div className="flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                        {user?.first_name?.[0]?.toUpperCase() || user?.username?.[0]?.toUpperCase()}
+                      <div className="rounded-full border-2 border-green-500 p-0.5">
+                        <UserAvatar 
+                          size="sm" 
+                          className="rounded-full"
+                          showLoadingState={false}
+                        />
                       </div>
                       <div className="hidden md:block text-left">
                         <div className="text-sm font-medium">
@@ -353,9 +358,11 @@ const Header = () => {
               {isAuthenticated ? (
                 <>
                   <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold">
-                      {user?.first_name?.[0]?.toUpperCase() || user?.username?.[0]?.toUpperCase()}
-                    </div>
+                    <UserAvatar 
+                      size="md" 
+                      className="ring-2 ring-white"
+                      showLoadingState={false}
+                    />
                     <div className="flex-1">
                       <div className="font-medium text-gray-900">
                         {user?.first_name} {user?.last_name}

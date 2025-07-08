@@ -1,79 +1,227 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { listingsAPI } from '@/lib/api'
-import { Listing, Property } from '@/types'
+import { Listing, Property, PaginationInfo, PaginatedResponse } from '@/types'
+import { usePagination, createPaginationParams } from './usePagination'
 
-// Hook for fetching all listings with optional filters
-export const useListings = (filters?: any) => {
+interface PaginationOptions {
+  page?: number;
+  limit?: number;
+  enabled?: boolean;
+}
+
+// Hook for fetching all listings with optional filters and pagination
+export const useListings = (filters?: any, options: PaginationOptions = {}) => {
+  const { page: initialPage = 1, limit: initialLimit = 12, enabled = true } = options;
+  
   const [listings, setListings] = useState<Listing[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [totalCount, setTotalCount] = useState(0)
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null)
+  const [currentPage, setCurrentPage] = useState(initialPage)
+  const [currentLimit, setCurrentLimit] = useState(initialLimit)
 
-  const fetchListings = async () => {
+  // 🔧 FIX: Memoize filters to prevent unnecessary recreations
+  const memoizedFilters = useMemo(() => filters || {}, [filters])
+
+  const fetchListings = useCallback(async (pageNum = currentPage, limitNum = currentLimit) => {
+    if (!enabled) {
+      setListings([])
+      setPagination(null)
+      setLoading(false)
+      return
+    }
+
     try {
       setLoading(true)
       setError(null)
-      const response = await listingsAPI.getListings(filters)
+      
+      // Add pagination parameters to filters
+      const paginatedFilters = createPaginationParams(pageNum, limitNum, memoizedFilters)
+      
+      const response = await listingsAPI.getListings(paginatedFilters) as PaginatedResponse<Listing>
       setListings(response.results)
-      setTotalCount(response.count)
+      
+      // Set pagination from backend response if available
+      if (response.pagination) {
+        setPagination(response.pagination)
+      } else {
+        // Create pagination info manually if not provided by backend
+        const totalPages = Math.ceil(response.count / limitNum)
+        setPagination({
+          page: pageNum,
+          limit: limitNum,
+          total: response.count,
+          pages: totalPages,
+          has_next: pageNum < totalPages,
+          has_previous: pageNum > 1,
+          next_page: pageNum < totalPages ? pageNum + 1 : null,
+          previous_page: pageNum > 1 ? pageNum - 1 : null
+        })
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to fetch listings')
       console.error('Error fetching listings:', err)
+      setListings([])
+      setPagination(null)
     } finally {
       setLoading(false)
     }
-  }
+  }, [enabled, memoizedFilters]) // 🔧 FIX: Remove currentPage and currentLimit from dependencies
 
+  const goToPage = useCallback((pageNum: number) => {
+    if (pageNum >= 1 && (pagination?.pages === undefined || pageNum <= pagination.pages)) {
+      setCurrentPage(pageNum)
+      // fetchListings will be called by useEffect when currentPage changes
+    }
+  }, [pagination?.pages]); // 🔧 FIX: Remove fetchListings dependency
+
+  const nextPage = useCallback(() => {
+    if (pagination?.has_next) {
+      setCurrentPage(prev => prev + 1);
+    }
+  }, [pagination?.has_next]); // 🔧 FIX: Remove goToPage dependency
+
+  const previousPage = useCallback(() => {
+    if (pagination?.has_previous) {
+      setCurrentPage(prev => prev - 1);
+    }
+  }, [pagination?.has_previous]); // 🔧 FIX: Remove goToPage dependency
+
+  const setLimit = useCallback((newLimit: number) => {
+    setCurrentLimit(newLimit)
+    setCurrentPage(1) // Reset to first page when changing limit
+    // fetchListings will be called by useEffect when currentLimit changes
+  }, []) // 🔧 FIX: Remove fetchListings dependency
+
+  const reset = useCallback(() => {
+    setCurrentPage(initialPage)
+    setCurrentLimit(initialLimit)
+    setPagination(null)
+    // fetchListings will be called by useEffect when currentPage/currentLimit change
+  }, [initialPage, initialLimit]) // 🔧 FIX: Remove fetchListings dependency
+
+  // 🔧 FIX: Only trigger initial fetch, not on every fetchListings change
   useEffect(() => {
-    fetchListings()
-  }, [JSON.stringify(filters)]) // Re-fetch when filters change
+    fetchListings(currentPage, currentLimit)
+  }, [enabled, memoizedFilters]) // 🔧 FIX: Remove fetchListings from dependencies
 
-  const refetch = () => {
-    fetchListings()
-  }
+  // 🔧 FIX: Separate effect for page/limit changes to avoid infinite loops
+  useEffect(() => {
+    if (enabled) {
+      fetchListings(currentPage, currentLimit)
+    }
+  }, [currentPage, currentLimit])
+
+  const refetch = useCallback(() => {
+    fetchListings(currentPage, currentLimit)
+  }, [currentPage, currentLimit, fetchListings]) // Keep fetchListings for manual refetch
 
   return {
     listings,
     loading,
     error,
-    totalCount,
-    refetch
+    pagination,
+    refetch,
+    goToPage,
+    nextPage,
+    previousPage,
+    setLimit,
+    reset,
+    // Legacy support
+    totalCount: pagination?.total || 0,
   }
 }
 
-// Hook for fetching featured listings
-export const useFeaturedListings = () => {
+// Hook for fetching featured listings with pagination
+export const useFeaturedListings = (options: PaginationOptions = {}) => {
+  const { page = 1, limit = 6, enabled = true } = options; // Default 6 for featured
+  
   const [featuredListings, setFeaturedListings] = useState<Listing[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null)
 
-  const fetchFeaturedListings = async () => {
+  const fetchFeaturedListings = async (pageNum = page, limitNum = limit) => {
+    if (!enabled) {
+      setFeaturedListings([])
+      setPagination(null)
+      setLoading(false)
+      return
+    }
+
     try {
       setLoading(true)
       setError(null)
-      const listings = await listingsAPI.getFeaturedListings()
-      setFeaturedListings(listings)
+      
+      // Use paginated featured listings API
+      const response = await listingsAPI.getFeaturedListings({
+        page: pageNum,
+        limit: limitNum
+      }) as PaginatedResponse<Listing>
+      setFeaturedListings(response.results)
+      
+      // Set pagination from backend response if available
+      if (response.pagination) {
+        setPagination(response.pagination)
+      } else {
+        // Create pagination info manually if not provided by backend
+        const totalPages = Math.ceil(response.count / limitNum)
+        setPagination({
+          page: pageNum,
+          limit: limitNum,
+          total: response.count,
+          pages: totalPages,
+          has_next: pageNum < totalPages,
+          has_previous: pageNum > 1,
+          next_page: pageNum < totalPages ? pageNum + 1 : null,
+          previous_page: pageNum > 1 ? pageNum - 1 : null
+        })
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to fetch featured listings')
       console.error('Error fetching featured listings:', err)
+      setFeaturedListings([])
+      setPagination(null)
     } finally {
       setLoading(false)
     }
   }
 
+  const goToPage = (pageNum: number) => {
+    if (pageNum >= 1 && (pagination?.pages === undefined || pageNum <= pagination.pages)) {
+      fetchFeaturedListings(pageNum, limit);
+    }
+  };
+
+  const nextPage = () => {
+    if (pagination?.has_next) {
+      goToPage(pagination.page + 1);
+    }
+  };
+
+  const previousPage = () => {
+    if (pagination?.has_previous) {
+      goToPage(pagination.page - 1);
+    }
+  };
+
   useEffect(() => {
-    fetchFeaturedListings()
-  }, [])
+    fetchFeaturedListings(page, limit)
+  }, [page, limit, enabled])
 
   const refetch = () => {
-    fetchFeaturedListings()
+    fetchFeaturedListings(page, limit)
   }
 
   return {
     featuredListings,
     loading,
     error,
-    refetch
+    pagination,
+    refetch,
+    goToPage,
+    nextPage,
+    previousPage,
   }
 }
 
@@ -117,6 +265,35 @@ export const useListing = (listingId: number | null) => {
 
 // Utility function to convert Listing to Property format for components
 export const convertListingToProperty = (listing: any): Property => {
+  // Helper function to validate and filter photo URLs
+  const validatePhotoUrl = (url: string): boolean => {
+    if (!url || typeof url !== 'string' || url.trim().length === 0) {
+      return false;
+    }
+    
+    // Remove common invalid values
+    const invalidValues = ['null', 'undefined', 'None', '', ' '];
+    if (invalidValues.includes(url.trim())) {
+      return false;
+    }
+    
+    // Check if it's a valid URL format
+    try {
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        new URL(url);
+        return true;
+      }
+      // If it's a relative path, it should start with / or be a relative path
+      if (url.startsWith('/') || !url.includes('://')) {
+        return true;
+      }
+    } catch {
+      return false;
+    }
+    
+    return false;
+  };
+
   return {
     id: parseInt(listing.id),
     title: listing.title,
@@ -154,7 +331,7 @@ export const convertListingToProperty = (listing: any): Property => {
       listing.photo_4,
       listing.photo_5,
       listing.photo_6
-    ].filter((photo): photo is string => Boolean(photo)),
+    ].filter((photo): photo is string => Boolean(photo) && validatePhotoUrl(photo)),
     features: listing.features || [],
     realtor: listing.realtor || {
       id: 0,
@@ -186,33 +363,138 @@ export const convertListingToProperty = (listing: any): Property => {
   }
 }
 
-// Hook for search functionality
-export const useListingSearch = () => {
+// Hook for search functionality with pagination
+export const useListingSearch = (options: PaginationOptions = {}) => {
+  const { page = 1, limit = 15, enabled = true } = options; // Default 15 for search results
+  
   const [searchResults, setSearchResults] = useState<Listing[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [totalCount, setTotalCount] = useState(0)
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null)
+  const [lastSearchParams, setLastSearchParams] = useState<any>(null)
 
-  const searchListings = async (searchParams: any) => {
+  const searchListings = async (searchParams: any, pageNum = page, limitNum = limit) => {
+    if (!enabled) {
+      setSearchResults([])
+      setPagination(null)
+      return
+    }
+
     try {
       setLoading(true)
       setError(null)
-      const response = await listingsAPI.searchListings(searchParams)
+      
+      // Add pagination to search params
+      const paginatedSearchParams = {
+        ...searchParams,
+        page: pageNum,
+        limit: limitNum
+      }
+      
+      // Store last search params for pagination navigation
+      setLastSearchParams(searchParams)
+      
+      const response = await listingsAPI.searchListings(paginatedSearchParams)
       setSearchResults(response.results)
-      setTotalCount(response.count)
+      
+      // Set pagination from backend response if available
+      if (response.pagination) {
+        setPagination(response.pagination)
+      } else {
+        // Create pagination info manually if not provided by backend
+        const totalPages = Math.ceil(response.count / limitNum)
+        setPagination({
+          page: pageNum,
+          limit: limitNum,
+          total: response.count,
+          pages: totalPages,
+          has_next: pageNum < totalPages,
+          has_previous: pageNum > 1,
+          next_page: pageNum < totalPages ? pageNum + 1 : null,
+          previous_page: pageNum > 1 ? pageNum - 1 : null
+        })
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to search listings')
       console.error('Error searching listings:', err)
+      setSearchResults([])
+      setPagination(null)
     } finally {
       setLoading(false)
     }
   }
 
+  const goToPage = (pageNum: number) => {
+    if (pageNum >= 1 && (pagination?.pages === undefined || pageNum <= pagination.pages) && lastSearchParams) {
+      searchListings(lastSearchParams, pageNum, limit);
+    }
+  };
+
+  const nextPage = () => {
+    if (pagination?.has_next && lastSearchParams) {
+      searchListings(lastSearchParams, pagination.page + 1, limit);
+    }
+  };
+
+  const previousPage = () => {
+    if (pagination?.has_previous && lastSearchParams) {
+      searchListings(lastSearchParams, pagination.page - 1, limit);
+    }
+  };
+
   return {
     searchResults,
     loading,
     error,
-    totalCount,
-    searchListings
+    pagination,
+    searchListings,
+    goToPage,
+    nextPage,
+    previousPage,
+    // Legacy support
+    totalCount: pagination?.total || 0,
+  }
+}
+
+// Legacy hooks for backward compatibility (non-paginated)
+export const useAllListings = (filters?: any) => {
+  return useListings(filters, { limit: 100 }); // Get up to 100 listings at once
+}
+
+export const useAllFeaturedListings = () => {
+  const [featuredListings, setFeaturedListings] = useState<Listing[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchFeaturedListings = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      // Use legacy API for backward compatibility
+      const listings = await listingsAPI.getFeaturedListingsLegacy()
+      setFeaturedListings(listings)
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch featured listings')
+      console.error('Error fetching featured listings:', err)
+      setFeaturedListings([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchFeaturedListings()
+  }, [])
+
+  const refetch = () => {
+    fetchFeaturedListings()
+  }
+
+  return {
+    featuredListings,
+    loading,
+    error,
+    refetch,
   }
 }

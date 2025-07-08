@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Property } from '@/types';
-import { listingsAPI } from '@/lib/api';
+import { listingsAPI, authAPI } from '@/lib/api';
 import {
   Building2,
   Search,
@@ -69,10 +69,26 @@ export default function ListedPropertiesPage() {
       
       console.log('Loading properties for user role:', role);
       
+      let realtorId = null;
+      
+      // For sellers, get their realtor ID first
+      if (role === 'seller') {
+        try {
+          const realtorInfo = await authAPI.getUserRealtorInfo();
+          realtorId = realtorInfo.realtor_id;
+          console.log('Found realtor ID:', realtorId);
+        } catch (error) {
+          console.error('Error getting realtor info:', error);
+          setError('You need to have a realtor profile to view listings. Please contact support.');
+          setLoading(false);
+          return;
+        }
+      }
+      
       // Fetch real data from backend
       const response = await listingsAPI.getListings({
         // Add filters for user's own listings if needed
-        ...(role === 'seller' && { realtor: user?.id }),
+        ...(role === 'seller' && realtorId && { realtor: realtorId }),
         ordering: '-list_date'
       });
       

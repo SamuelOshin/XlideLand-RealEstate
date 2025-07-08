@@ -111,6 +111,11 @@ export const authAPI = {
     return profileData
   },
 
+  getUserRealtorInfo: async (): Promise<{ realtor_id: number; name: string; title: string; email: string; phone: string; is_active: boolean }> => {
+    const response = await api.get('/api/accounts/realtor-info/')
+    return response.data
+  },
+
   updateUserProfile: async (data: Partial<User>): Promise<User> => {
     const response = await api.patch('/api/accounts/profile/update/', data)
     return response.data
@@ -377,9 +382,16 @@ export const listingsAPI = {
     return response.data
   },
 
-  // Get featured listings only
-  getFeaturedListings: async (): Promise<Listing[]> => {
-    const response = await api.get('/api/listings/featured/')
+  // Get featured listings with pagination
+  getFeaturedListings: async (params?: any): Promise<{ results: Listing[]; count: number; pagination?: any }> => {
+    const queryParams = params ? new URLSearchParams(params).toString() : ''
+    const response = await api.get(`/api/listings/featured/?${queryParams}`)
+    return response.data
+  },
+
+  // Get legacy featured listings (non-paginated)
+  getFeaturedListingsLegacy: async (): Promise<Listing[]> => {
+    const response = await api.get('/api/listings/featured/legacy/')
     return response.data.results || response.data
   },
 
@@ -389,9 +401,17 @@ export const listingsAPI = {
     return response.data
   },
 
-  // Search listings with filters
-  searchListings: async (searchParams: any): Promise<{ results: Listing[]; count: number }> => {
-    const response = await api.post('/api/listings/search/', searchParams)
+  // Search listings with filters and pagination
+  searchListings: async (searchParams: any): Promise<{ results: Listing[]; count: number; pagination?: any }> => {
+    const queryParams = new URLSearchParams(searchParams).toString()
+    const response = await api.get(`/api/listings/search/?${queryParams}`)
+    return response.data
+  },
+
+  // Legacy search (non-paginated)
+  searchListingsLegacy: async (searchParams: any): Promise<{ results: Listing[]; count: number }> => {
+    const queryParams = new URLSearchParams(searchParams).toString()
+    const response = await api.get(`/api/listings/search/legacy/?${queryParams}`)
     return response.data
   },
 

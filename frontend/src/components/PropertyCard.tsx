@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
-import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
+import SafeImage from '@/components/ui/SafeImage';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Tooltip from '@/components/ui/tooltip';
 import InstantLoadingLink from '@/components/ui/InstantLoadingLink';
+import { useAllPropertyImages } from '@/hooks/usePropertyImages';
 import { 
   Heart, 
   Share2, 
@@ -39,6 +40,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
 }) => {
   const [isFavorited, setIsFavorited] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  
+  // Use the property images hook
+  const { images: uploadedImages, loading: imagesLoading } = useAllPropertyImages(property.id?.toString() || null);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -51,13 +55,67 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
 
   const formatArea = (area: number) => {
     return new Intl.NumberFormat('en-US').format(area);
-  };  const getImageUrl = (photo: string) => {
-    if (!photo) return '/images/property-placeholder.jpg';
-    if (photo.startsWith('http')) return photo;
+  };
+
+  const isValidUrl = (string: string): boolean => {
+    try {
+      const url = new URL(string);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+
+  const getImageUrl = () => {
+    console.log('PropertyCard getImageUrl - Property ID:', property.id);
+    console.log('PropertyCard getImageUrl - Uploaded images:', uploadedImages);
+    console.log('PropertyCard getImageUrl - Property images:', property.images);
     
-    // Get API URL from environment, fallback to port 8000
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000';
-    return `${apiUrl}${photo}`;
+    // First try to use uploaded images from Vercel Blob
+    if (uploadedImages && uploadedImages.length > 0) {
+      const mainImage = uploadedImages.find(img => img.is_main) || uploadedImages[0];
+      if (mainImage?.blob_url && isValidUrl(mainImage.blob_url)) {
+        console.log('PropertyCard getImageUrl - Using blob URL:', mainImage.blob_url);
+        return mainImage.blob_url;
+      }
+    }
+
+    // Fallback to traditional property photos
+    if (property.images && property.images.length > 0) {
+      // Filter out empty, null, or invalid images
+      const validImages = property.images.filter(img => 
+        img && 
+        typeof img === 'string' && 
+        img.trim().length > 0 &&
+        img !== 'null' &&
+        img !== 'undefined' &&
+        !img.includes('None')
+      );
+      
+      if (validImages.length > 0) {
+        const photo = validImages[0];
+        
+        // If it's already a full URL, validate and return it
+        if (isValidUrl(photo)) {
+          console.log('PropertyCard getImageUrl - Using valid URL:', photo);
+          return photo;
+        }
+        
+        // If it's a relative path, construct the full URL
+        if (!photo.startsWith('http')) {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000';
+          const fullUrl = `${apiUrl}${photo.startsWith('/') ? '' : '/'}${photo}`;
+          if (isValidUrl(fullUrl)) {
+            console.log('PropertyCard getImageUrl - Using constructed URL:', fullUrl);
+            return fullUrl;
+          }
+        }
+      }
+    }
+
+    // Ultimate fallback to placeholder
+    console.log('PropertyCard getImageUrl - Using placeholder');
+    return '/img/mock-property/1.jpg';
   };
 
   const cardVariants = {
@@ -73,15 +131,22 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
     <Card className={`group overflow-hidden bg-white border border-gray-200 hover:border-green-300 transition-all duration-300 ease-out hover:shadow-xl will-change-transform h-full flex flex-col ${cardVariants[variant]}`}>
       {/* Image Container */}
       <div className={`relative overflow-hidden bg-gray-100 ${imageVariants[variant]}`}>          
-        <Image
-          src={getImageUrl(property.images?.[0] || '')}
+        <SafeImage
+          src={getImageUrl()}
           alt={property.title}
           fill
           className={`object-cover transition-transform duration-500 ease-out group-hover:scale-105 will-change-transform ${
             imageLoaded ? 'opacity-100' : 'opacity-0'
           }`}
-          onLoad={() => setImageLoaded(true)}
-          onError={() => setImageLoaded(true)} // Show placeholder on error
+          onLoad={() => {
+            console.log('PropertyCard SafeImage loaded successfully');
+            setImageLoaded(true);
+          }}
+          onError={() => {
+            console.error('PropertyCard SafeImage failed to load');
+            setImageLoaded(true);
+          }}
+          fallbackSrc="/img/mock-property/1.jpg"
         />
           {/* Loading placeholder */}
         {!imageLoaded && (

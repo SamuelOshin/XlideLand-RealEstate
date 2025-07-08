@@ -6,6 +6,9 @@ import DashboardLayout from '@/components/layout/DashboardLayout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import FileUpload from '@/components/ui/FileUpload'
+import { UserAvatar } from '@/components/ui/UserAvatar'
+import { useUserAvatar } from '@/hooks/useUserAvatar'
 import {
   Settings,
   User,
@@ -76,11 +79,32 @@ interface UserSettings {
 
 export default function SettingsPage() {
   const { user, role } = useAuth()
+  const { avatar, loading: avatarLoading, refetch: refetchAvatar } = useUserAvatar()
   const [activeTab, setActiveTab] = useState<'profile' | 'notifications' | 'privacy' | 'preferences' | 'security' | 'billing'>('profile')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [showAvatarUpload, setShowAvatarUpload] = useState(false)
+
+  // Handle avatar removal
+  const handleRemoveAvatar = async () => {
+    try {
+      setLoading(true);
+      // TODO: Implement actual avatar removal API call
+      // For now, just simulate the removal
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Refetch to update the display
+      refetchAvatar();
+      toast.success('Profile picture removed successfully!');
+    } catch (error) {
+      console.error('Error removing avatar:', error);
+      toast.error('Failed to remove profile picture. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const [settings, setSettings] = useState<UserSettings>({
     profile: {
@@ -262,38 +286,137 @@ export default function SettingsPage() {
                   <div className="p-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-6">Profile Information</h3>
                     
-                    {/* Avatar */}
-                    <div className="flex items-center space-x-6 mb-6">
-                      <div className="relative">
-                        <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center">
-                          {settings.profile.avatar ? (
-                            <img
-                              src={settings.profile.avatar}
-                              alt="Profile"
-                              className="w-20 h-20 rounded-full object-cover"
+                    {/* Avatar Management */}
+                    <div className="mb-8">
+                      <h4 className="text-sm font-medium text-gray-900 mb-4">Profile Picture</h4>
+                      
+                      <div className="flex items-start space-x-6">
+                        {/* Current Avatar Display */}
+                        <div className="flex-shrink-0">
+                          <div className="relative group">
+                            <UserAvatar 
+                              size="2xl" 
+                              className="ring-4 ring-gray-100 shadow-lg transition-all duration-200 group-hover:ring-emerald-200"
+                              showLoadingState={true}
                             />
+                            {/* Overlay on hover */}
+                            <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                              <Camera className="w-6 h-6 text-white" />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Avatar Actions */}
+                        <div className="flex-1 min-w-0">
+                          <div className="mb-3">
+                            <p className="text-sm text-gray-600">
+                              {avatar ? 
+                                'Update your profile picture to help others recognize you.' : 
+                                'Add a profile picture to personalize your account.'
+                              }
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Recommended: Square image, at least 200×200 pixels. Max file size: 2MB.
+                            </p>
+                          </div>
+
+                          {/* Upload Toggle Button */}
+                          {!showAvatarUpload ? (
+                            <div className="flex items-center space-x-3">
+                              <Button
+                                onClick={() => setShowAvatarUpload(true)}
+                                disabled={loading || avatarLoading}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-50"
+                                size="sm"
+                              >
+                                <Upload className="w-4 h-4 mr-2" />
+                                {avatar ? 'Update Picture' : 'Upload Picture'}
+                              </Button>
+                              
+                              {avatar && (
+                                <Button
+                                  onClick={handleRemoveAvatar}
+                                  disabled={loading}
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-red-600 border-red-200 hover:bg-red-50 disabled:opacity-50"
+                                >
+                                  {loading ? (
+                                    <>
+                                      <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-red-600 border-t-transparent" />
+                                      Removing...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Trash2 className="w-4 h-4 mr-2" />
+                                      Remove
+                                    </>
+                                  )}
+                                </Button>
+                              )}
+                            </div>
                           ) : (
-                            <User className="w-8 h-8 text-emerald-600" />
+                            <div className="space-y-4">
+                              {/* Upload Component */}
+                              <FileUpload
+                                uploadType="avatar"
+                                onFilesUploaded={(files) => {
+                                  console.log('Avatar uploaded:', files);
+                                  if (files[0]) {
+                                    // Refetch avatar to update display
+                                    refetchAvatar();
+                                    setShowAvatarUpload(false);
+                                    toast.success('Profile picture updated successfully!');
+                                  }
+                                }}
+                                onError={(error) => {
+                                  console.error('Avatar upload error:', error);
+                                  toast.error('Failed to upload avatar. Please try again.');
+                                }}
+                                className="max-w-md"
+                              />
+                              
+                              {/* Cancel Button */}
+                              <Button
+                                onClick={() => setShowAvatarUpload(false)}
+                                variant="outline"
+                                size="sm"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
                           )}
                         </div>
-                        <button className="absolute bottom-0 right-0 p-1.5 bg-emerald-600 text-white rounded-full hover:bg-emerald-700">
-                          <Camera className="w-3 h-3" />
-                        </button>
                       </div>
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-900">Profile Photo</h4>
-                        <p className="text-sm text-gray-600">Upload a new profile picture</p>
-                        <div className="flex space-x-2 mt-2">
-                          <Button variant="outline" size="sm">
-                            <Upload className="w-4 h-4 mr-2" />
-                            Upload
-                          </Button>
-                          {settings.profile.avatar && (
-                            <Button variant="outline" size="sm" className="text-red-600">
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Remove
-                            </Button>
-                          )}
+                    </div>
+
+                    {/* Profile Preview */}
+                    <div className="mb-8 p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg border border-emerald-200">
+                      <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
+                        <Eye className="w-4 h-4 mr-2 text-emerald-600" />
+                        Profile Preview
+                      </h4>
+                      <p className="text-xs text-gray-600 mb-4">This is how your profile appears to other users</p>
+                      
+                      <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                        <div className="flex items-center space-x-3">
+                          <UserAvatar size="lg" className="ring-2 ring-white shadow-md" />
+                          <div className="flex-1 min-w-0">
+                            <h5 className="font-medium text-gray-900 truncate">
+                              {user?.first_name && user?.last_name ? 
+                                `${user.first_name} ${user.last_name}` : 
+                                user?.username || 'Your Name'
+                              }
+                            </h5>
+                            <p className="text-sm text-gray-500 truncate">{user?.email}</p>
+                            <div className="flex items-center mt-1">
+                              <Badge variant="secondary" className="text-xs">
+                                {role === 'admin' ? 'Administrator' : 
+                                 role === 'seller' ? 'Real Estate Agent' : 
+                                 role === 'buyer' ? 'Property Buyer' : 'User'}
+                              </Badge>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>

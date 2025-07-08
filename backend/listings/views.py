@@ -2,6 +2,7 @@ from rest_framework import generics, filters, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 from django.utils import timezone
@@ -16,14 +17,93 @@ from .serializers import (
 )
 
 
+class CustomPagination(PageNumberPagination):
+    """
+    Custom pagination class for property listings
+    """
+    page_size = 12  # Default listings per page
+    page_size_query_param = 'limit'
+    max_page_size = 100
+    page_query_param = 'page'
+
+    def get_paginated_response(self, data):
+        return Response({
+            'results': data,
+            'count': self.page.paginator.count,
+            'pagination': {
+                'page': self.page.number,
+                'limit': self.page_size,
+                'total': self.page.paginator.count,
+                'pages': self.page.paginator.num_pages,
+                'has_next': self.page.has_next(),
+                'has_previous': self.page.has_previous(),
+                'next_page': self.page.next_page_number() if self.page.has_next() else None,
+                'previous_page': self.page.previous_page_number() if self.page.has_previous() else None,
+            }
+        })
+
+
+class FeaturedListingsPagination(PageNumberPagination):
+    """
+    Custom pagination class for featured listings
+    """
+    page_size = 6  # Default 6 featured listings per page
+    page_size_query_param = 'limit'
+    max_page_size = 20
+    page_query_param = 'page'
+
+    def get_paginated_response(self, data):
+        return Response({
+            'results': data,
+            'count': self.page.paginator.count,
+            'pagination': {
+                'page': self.page.number,
+                'limit': self.page_size,
+                'total': self.page.paginator.count,
+                'pages': self.page.paginator.num_pages,
+                'has_next': self.page.has_next(),
+                'has_previous': self.page.has_previous(),
+                'next_page': self.page.next_page_number() if self.page.has_next() else None,
+                'previous_page': self.page.previous_page_number() if self.page.has_previous() else None,
+            }
+        })
+
+
+class SearchListingsPagination(PageNumberPagination):
+    """
+    Custom pagination class for search results
+    """
+    page_size = 15  # Default 15 search results per page
+    page_size_query_param = 'limit'
+    max_page_size = 50
+    page_query_param = 'page'
+
+    def get_paginated_response(self, data):
+        return Response({
+            'results': data,
+            'count': self.page.paginator.count,
+            'pagination': {
+                'page': self.page.number,
+                'limit': self.page_size,
+                'total': self.page.paginator.count,
+                'pages': self.page.paginator.num_pages,
+                'has_next': self.page.has_next(),
+                'has_previous': self.page.has_previous(),
+                'next_page': self.page.next_page_number() if self.page.has_next() else None,
+                'previous_page': self.page.previous_page_number() if self.page.has_previous() else None,
+            }
+        })
+
+
 class ListingListAPIView(generics.ListAPIView):
     """
-    List all published listings with search and filter capabilities
+    List all published listings with search, filter, and pagination capabilities
     """
     queryset = Listing.objects.filter(is_published=True).order_by('-list_date')
     serializer_class = ListingListSerializer
+    pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['city', 'state', 'bedrooms', 'bathrooms', 'realtor']
+    filterset_fields = ['city', 'state', 'bedrooms', 'bathrooms', 'realtor', 'is_featured']
     search_fields = ['title', 'description', 'address', 'city', 'state']
     ordering_fields = ['price', 'list_date', 'sqft']
     ordering = ['-list_date']
@@ -36,6 +116,8 @@ class ListingListAPIView(generics.ListAPIView):
         max_price = self.request.query_params.get('max_price')
         min_sqft = self.request.query_params.get('min_sqft')
         max_sqft = self.request.query_params.get('max_sqft')
+        property_type = self.request.query_params.get('property_type')
+        listing_type = self.request.query_params.get('listing_type')
         
         if min_price:
             queryset = queryset.filter(price__gte=min_price)
@@ -45,6 +127,10 @@ class ListingListAPIView(generics.ListAPIView):
             queryset = queryset.filter(sqft__gte=min_sqft)
         if max_sqft:
             queryset = queryset.filter(sqft__lte=max_sqft)
+        if property_type:
+            queryset = queryset.filter(property_type=property_type)
+        if listing_type:
+            queryset = queryset.filter(listing_type=listing_type)
             
         return queryset
 
@@ -90,26 +176,85 @@ class ListingDeleteAPIView(generics.DestroyAPIView):
     lookup_field = 'id'
 
 
+class FeaturedListingsAPIView(generics.ListAPIView):
+    """
+    Get featured listings with pagination
+    """
+    serializer_class = ListingListSerializer
+    pagination_class = FeaturedListingsPagination
+    
+    def get_queryset(self):
+        # Get listings marked as featured first, then MVP realtors, then latest
+        featured_queryset = Listing.objects.filter(
+            is_published=True,
+            is_featured=True
+        ).order_by('-list_date')
+        
+        if featured_queryset.count() < 6:
+            # If not enough featured listings, add MVP realtor listings
+            mvp_queryset = Listing.objects.filter(
+                is_published=True,
+                realtor__is_mvp=True
+            ).exclude(is_featured=True).order_by('-list_date')
+            
+            # Combine querysets
+            combined_ids = list(featured_queryset.values_list('id', flat=True)) + \
+                          list(mvp_queryset.values_list('id', flat=True))
+            
+            if len(combined_ids) < 6:
+                # If still not enough, add latest listings
+                latest_queryset = Listing.objects.filter(
+                    is_published=True
+                ).exclude(id__in=combined_ids).order_by('-list_date')
+                
+                combined_ids.extend(list(latest_queryset.values_list('id', flat=True)))
+            
+            # Return queryset preserving order
+            return Listing.objects.filter(id__in=combined_ids).order_by('-list_date')
+        
+        return featured_queryset
+
+
 @api_view(['GET'])
 def featured_listings(request):
     """
-    Get featured listings (MVP realtors or latest listings)
+    Legacy featured listings endpoint - kept for backward compatibility
     """
     try:
         # Get listings from MVP realtors or latest 6 listings
         featured = Listing.objects.filter(
             is_published=True,
-            realtor__is_mvp=True
+            is_featured=True
         ).order_by('-list_date')[:6]
         
         if featured.count() < 6:
-            # If not enough MVP listings, get latest listings
-            featured = Listing.objects.filter(
-                is_published=True
-            ).order_by('-list_date')[:6]
-        
-        serializer = ListingListSerializer(featured, many=True)
-        return Response(serializer.data)
+            # If not enough featured listings, get MVP listings
+            mvp_featured = Listing.objects.filter(
+                is_published=True,
+                realtor__is_mvp=True
+            ).exclude(is_featured=True).order_by('-list_date')[:6-featured.count()]
+            
+            # Combine results
+            all_featured = list(featured) + list(mvp_featured)
+            
+            if len(all_featured) < 6:
+                # If still not enough, get latest listings
+                latest = Listing.objects.filter(
+                    is_published=True
+                ).exclude(
+                    id__in=[listing.id for listing in all_featured]
+                ).order_by('-list_date')[:6-len(all_featured)]
+                
+                all_featured.extend(list(latest))
+            
+            serializer = ListingListSerializer(all_featured, many=True)
+        else:
+            serializer = ListingListSerializer(featured, many=True)
+            
+        return Response({
+            'results': serializer.data,
+            'count': len(serializer.data)
+        })
     except Exception as e:
         return Response(
             {'error': 'Failed to fetch featured listings'}, 
@@ -117,10 +262,43 @@ def featured_listings(request):
         )
 
 
+class SearchListingsAPIView(generics.ListAPIView):
+    """
+    Advanced search for listings with pagination
+    """
+    serializer_class = ListingListSerializer
+    pagination_class = SearchListingsPagination
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['city', 'state', 'bedrooms', 'bathrooms', 'realtor', 'is_featured', 'property_type', 'listing_type']
+    search_fields = ['title', 'description', 'address', 'city', 'state']
+    ordering_fields = ['price', 'list_date', 'sqft']
+    ordering = ['-list_date']
+
+    def get_queryset(self):
+        queryset = Listing.objects.filter(is_published=True)
+        
+        # Custom filters
+        min_price = self.request.query_params.get('min_price')
+        max_price = self.request.query_params.get('max_price')
+        min_sqft = self.request.query_params.get('min_sqft')
+        max_sqft = self.request.query_params.get('max_sqft')
+        
+        if min_price:
+            queryset = queryset.filter(price__gte=min_price)
+        if max_price:
+            queryset = queryset.filter(price__lte=max_price)
+        if min_sqft:
+            queryset = queryset.filter(sqft__gte=min_sqft)
+        if max_sqft:
+            queryset = queryset.filter(sqft__lte=max_sqft)
+            
+        return queryset.order_by('-list_date')
+
+
 @api_view(['GET'])
 def search_listings(request):
     """
-    Advanced search for listings
+    Legacy search endpoint - kept for backward compatibility
     """
     try:
         query = request.GET.get('q', '')
@@ -154,7 +332,10 @@ def search_listings(request):
         
         listings = listings.order_by('-list_date')
         serializer = ListingListSerializer(listings, many=True)
-        return Response(serializer.data)
+        return Response({
+            'results': serializer.data,
+            'count': listings.count()
+        })
     
     except Exception as e:
         return Response(

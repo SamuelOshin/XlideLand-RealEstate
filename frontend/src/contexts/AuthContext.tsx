@@ -151,9 +151,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
       localStorage.setItem('access_token', tokenResponse.access)
       localStorage.setItem('refresh_token', tokenResponse.refresh)
       
-      // Get user profile
-      const userData = await authAPI.getUserProfile()
+      // Get both user data and profile with role
+      const [userData, profileData] = await Promise.all([
+        authAPI.getUserProfile(),
+        authAPI.getUserProfileWithRole().catch(() => null) // Fallback if profile endpoint fails
+      ])
+      
       setUser(userData)
+      setUserProfile(profileData)
+      
+      console.log('Registration success:', { userData, profileData, role: profileData?.role })
       
       // Get the stored redirect URL or default to dashboard
       const redirectUrl = localStorage.getItem('auth_redirect') || '/dashboard'
