@@ -211,7 +211,7 @@ const ContactPage = () => {
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="border-emerald-200 text-white hover:bg-emerald-700 font-semibold px-8"
+                  className="border-emerald-200 text-emerald-700 hover:bg-emerald-700 font-semibold px-8"
                 >
                   <Calendar className="h-5 w-5 mr-2" />
                   Book Meeting

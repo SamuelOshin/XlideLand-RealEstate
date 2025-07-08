@@ -94,14 +94,14 @@ class Listing(models.Model):
     # Features and Amenities
     features = models.ManyToManyField(PropertyFeature, blank=True)
     
-    # Images
-    photo_main = models.ImageField(upload_to='photos/%Y/%m/%d/')
-    photo_1 = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True)
-    photo_2 = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True)
-    photo_3 = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True)
-    photo_4 = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True)
-    photo_5 = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True)
-    photo_6 = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True)
+    # Images - URLs to external blob storage
+    photo_main = models.URLField(max_length=500, blank=True)
+    photo_1 = models.URLField(max_length=500, blank=True)
+    photo_2 = models.URLField(max_length=500, blank=True)
+    photo_3 = models.URLField(max_length=500, blank=True)
+    photo_4 = models.URLField(max_length=500, blank=True)
+    photo_5 = models.URLField(max_length=500, blank=True)
+    photo_6 = models.URLField(max_length=500, blank=True)
     
     # Status and Metadata
     is_published = models.BooleanField(default=True)

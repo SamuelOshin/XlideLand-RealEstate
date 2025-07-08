@@ -35,6 +35,21 @@ urlpatterns = [
     # =================== UTILITY ENDPOINTS ===================
     path('log-activity/', views.log_user_activity, name='log-activity'),
     path('search-users/', views.search_users, name='search-users'),
+    path('realtor-info/', views.get_user_realtor_info, name='user-realtor-info'),
+    
+    # =================== FILE UPLOAD & RETRIEVAL ENDPOINTS ===================
+    path('files/store-metadata/', views.store_file_metadata, name='store-file-metadata'),
+    path('files/', views.get_user_files, name='get-user-files'),
+    path('upload-sessions/', views.create_upload_session, name='create-upload-session'),
+    path('upload-sessions/<uuid:session_id>/', views.get_upload_session, name='get-upload-session'),
+    
+    # File retrieval endpoints
+    path('profile/avatar/', views.get_user_avatar, name='user-avatar'),
+    path('files/user/', views.get_user_files, name='user-files-list'),
+    path('files/<uuid:file_id>/delete/', views.delete_user_file, name='delete-user-file'),
+    
+    # Property image endpoints  
+    path('properties/<str:property_id>/images/', views.get_property_images, name='property-images'),
     
     # =================== VIEWSET ENDPOINTS ===================
     path('', include(router.urls)),

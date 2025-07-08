@@ -15,7 +15,7 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #131212;
   --primary: #22c55e; /* XlideLand brand green */
   --secondary: #f59e0b; /* XlideLand orange */
   --radius: 0.75rem;
@@ -30,12 +30,7 @@
   --font-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #312e2e;
-  }
-}
+
 
 html {
   overflow-x: hidden;
