@@ -7,6 +7,7 @@ import { PasswordChangeData } from '@/types'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { UserAvatar } from '@/components/ui/UserAvatar'
 import { 
   User, 
   Mail, 
@@ -139,9 +140,10 @@ export default function ProfilePage() {
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 text-center">
               {/* Avatar */}
               <div className="relative inline-block mb-4">
-                <div className="w-24 h-24 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                  {user.first_name?.[0]?.toUpperCase()}{user.last_name?.[0]?.toUpperCase()}
-                </div>
+                <UserAvatar 
+                  size="2xl" 
+                  className="ring-4 ring-white shadow-lg"
+                />
                 <button className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">
                   <Camera className="h-4 w-4 text-gray-600" />
                 </button>

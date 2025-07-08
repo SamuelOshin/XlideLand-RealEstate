@@ -6,7 +6,7 @@ from listings.models import Listing
 from realtors.models import Realtor
 from .models import (
     UserProfile, UserFavorite, Tour, Conversation, Message, 
-    PropertyAlert, Document, Notification, UserActivity
+    PropertyAlert, Document, Notification, UserActivity, FileUpload, FileUploadSession
 )
 
 
@@ -47,6 +47,18 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         
         # Create user profile with selected role
         UserProfile.objects.create(user=user, role=role)
+        
+        # Create realtor record for sellers
+        if role == 'seller':
+            from realtors.models import Realtor
+            Realtor.objects.create(
+                user=user,
+                name=f"{user.first_name} {user.last_name}".strip() or user.username,
+                title="Real Estate Agent",
+                email=user.email,
+                phone="", # Will be filled later in profile
+                is_active=True
+            )
         
         return user
 
@@ -408,3 +420,36 @@ class AdminUserManagementSerializer(serializers.ModelSerializer):
             return Contact.objects.filter(user_id=obj.id).count()
         except:
             return 0
+
+
+class FileUploadSerializer(serializers.ModelSerializer):
+    """
+    Serializer for file upload metadata
+    """
+    file_size_mb = serializers.ReadOnlyField()
+    is_image = serializers.ReadOnlyField()
+    
+    class Meta:
+        model = FileUpload
+        fields = [
+            'id', 'file_name', 'original_name', 'file_type', 'mime_type', 
+            'file_size', 'file_size_mb', 'blob_url', 'blob_key', 
+            'upload_status', 'category', 'tags', 'listing', 'property_id',
+            'uploaded_at', 'updated_at', 'is_image'
+        ]
+        read_only_fields = ['id', 'uploaded_at', 'updated_at', 'file_size_mb', 'is_image']
+
+
+class FileUploadSessionSerializer(serializers.ModelSerializer):
+    """
+    Serializer for file upload sessions
+    """
+    
+    class Meta:
+        model = FileUploadSession
+        fields = [
+            'id', 'session_name', 'upload_type', 'total_files', 
+            'uploaded_files', 'failed_files', 'session_status',
+            'property_id', 'listing', 'created_at', 'updated_at', 'completed_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at', 'completed_at']

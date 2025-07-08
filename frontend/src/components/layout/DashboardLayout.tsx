@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import InstantLoadingLink from '@/components/ui/InstantLoadingLink';
+import { UserAvatar } from '@/components/ui/UserAvatar';
 import { 
   Home,
   Heart,
@@ -128,7 +129,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         description: 'Listing analytics',
         badge: null
       }
-    ];const adminItems = [
+    ];    const adminItems = [
       { 
         href: '/dashboard/analytics', 
         label: 'System Analytics', 
@@ -157,7 +158,24 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         description: 'Generate reports',
         badge: null
       }
-    ];    const bottomItems = [      { 
+    ];
+
+    const propertyManagementItems = [
+      { 
+        href: '/dashboard/properties/listed', 
+        label: 'My Listings', 
+        icon: Building2, 
+        description: 'Properties for sale',
+        badge: null
+      },
+      { 
+        href: '/dashboard/properties/new', 
+        label: 'Add Property', 
+        icon: PlusCircle, 
+        description: 'List new property',
+        badge: null
+      }
+    ];const bottomItems = [      { 
         href: '/dashboard/alerts', 
         label: 'Alerts', 
         icon: Bell, 
@@ -191,7 +209,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       case 'seller':
         return [...commonItems, ...sellerItems, ...bottomItems];
       case 'admin':
-        return [...commonItems, ...adminItems, ...bottomItems];
+        return [...commonItems, ...propertyManagementItems, ...adminItems, ...bottomItems];
       default: // buyer
         return [...commonItems, ...buyerItems, ...bottomItems];
     }
@@ -353,9 +371,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
                 className="flex items-center w-full p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
-              >                <div className="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white font-semibold">
-                  {user?.first_name?.[0]?.toUpperCase() || user?.username?.[0]?.toUpperCase() || 'U'}
-                </div>
+              >
+                <UserAvatar 
+                  size="md" 
+                  className="ring-2 ring-white"
+                  showLoadingState={false}
+                />
                 <AnimatePresence>
                   {isSidebarOpen && (
                     <motion.div

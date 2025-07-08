@@ -65,9 +65,11 @@ class RealtorListSerializer(serializers.ModelSerializer):
     """
     Lightweight serializer for realtor lists
     """
+    user = UserSerializer(read_only=True)
+    
     class Meta:
         model = Realtor
-        fields = ['id', 'name', 'photo', 'phone', 'email', 'is_mvp']
+        fields = ['id', 'user', 'name', 'photo', 'phone', 'email', 'is_mvp']
 
 
 class RealtorCreateSerializer(serializers.ModelSerializer):

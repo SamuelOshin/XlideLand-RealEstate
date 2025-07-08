@@ -10,8 +10,10 @@ urlpatterns = [
     path('create/', views.ListingCreateAPIView.as_view(), name='listing-create'),
     path('<int:id>/update/', views.ListingUpdateAPIView.as_view(), name='listing-update'),
     path('<int:id>/delete/', views.ListingDeleteAPIView.as_view(), name='listing-delete'),
-    path('featured/', views.featured_listings, name='featured-listings'),
-    path('search/', views.search_listings, name='search-listings'),
+    path('featured/', views.FeaturedListingsAPIView.as_view(), name='featured-listings-paginated'),
+    path('featured/legacy/', views.featured_listings, name='featured-listings-legacy'),
+    path('search/', views.SearchListingsAPIView.as_view(), name='search-listings-paginated'),
+    path('search/legacy/', views.search_listings, name='search-listings-legacy'),
     
     # Admin Moderation Endpoints
     path('admin/moderation/', views.PropertyModerationListAPIView.as_view(), name='moderation-list'),

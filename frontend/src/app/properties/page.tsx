@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import PropertyCard from '@/components/PropertyCard';
 import SearchForm from '@/components/SearchForm';
+import Pagination from '@/components/ui/Pagination';
 import { Button } from '@/components/ui/button';
 import { useListings, convertListingToProperty } from '@/hooks/useListings';
 import { Property } from '@/types';
@@ -27,11 +28,33 @@ const PropertiesPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState('newest');
   
-  // Fetch real data from backend
-  const { listings, loading, error, totalCount } = useListings();
+  // 🔧 FIX: Memoize filters to prevent object recreation on every render
+  const filters = useMemo(() => ({}), []);
+  
+  // 🔧 FIX: Memoize pagination options to prevent infinite re-renders
+  const paginationOptions = useMemo(() => ({
+    page: 1,
+    limit: 12,
+    enabled: true
+  }), []);
+  
+  // Fetch real data from backend with pagination
+  const { 
+    listings, 
+    loading, 
+    error, 
+    pagination,
+    goToPage,
+    nextPage,
+    previousPage,
+    setLimit,
+    totalCount 
+  } = useListings(filters, paginationOptions);
   
   // Convert listings to properties and apply sorting
   const properties: Property[] = useMemo(() => {
+    if (!listings || listings.length === 0) return [];
+    
     const convertedProperties = listings.map(convertListingToProperty);
     
     // Apply sorting
@@ -54,14 +77,23 @@ const PropertiesPage = () => {
     });
     
     return sorted;
-  }, [listings, sortBy]);
+  }, [listings, sortBy]); // 🔧 FIX: Added explicit dependencies
 
   // Calculate average price for stats
   const averagePrice = useMemo(() => {
-    if (properties.length === 0) return 0;
+    if (!properties || properties.length === 0) return 0;
     const total = properties.reduce((sum, property) => sum + property.price, 0);
     return Math.round(total / properties.length);
-  }, [properties]);
+  }, [properties]); // 🔧 FIX: More stable dependency
+
+  // 🔧 FIX: Memoize page change handlers to prevent unnecessary re-renders
+  const handlePageChange = useCallback((page: number) => {
+    goToPage(page);
+  }, [goToPage]);
+
+  const handleLimitChange = useCallback((newLimit: number) => {
+    setLimit(newLimit);
+  }, [setLimit]);
 
   // Loading state
   if (loading) {
@@ -167,7 +199,7 @@ const PropertiesPage = () => {
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="border-emerald-200 text-white hover:bg-emerald-700 font-semibold px-8"
+                  className="border-emerald-200 text-emerald-700 hover:bg-emerald-700 font-semibold px-8"
                 >
                   View Map
                 </Button>
@@ -352,6 +384,17 @@ const PropertiesPage = () => {
                   <option value="area">Largest Area</option>
                   <option value="featured">Featured First</option>
                 </select>
+
+                {/* Per Page Selector */}
+                <select 
+                  value={pagination?.limit || 12}
+                  onChange={(e) => handleLimitChange(parseInt(e.target.value))}
+                  className="bg-white border border-gray-200 rounded-xl px-4 py-2 text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                >
+                  <option value={12}>12 per page</option>
+                  <option value={24}>24 per page</option>
+                  <option value={48}>48 per page</option>
+                </select>
               </div>
             </div>
           </motion.div>
@@ -428,30 +471,26 @@ const PropertiesPage = () => {
             ))}
           </motion.div>
 
-          {/* Enhanced Load More */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="text-center mt-16"
-          >
-            <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 max-w-md mx-auto">
-              <Button 
-                size="lg" 
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-8 rounded-xl shadow-sm"
-              >
-                Load More Properties
-              </Button>              <p className="text-gray-600 mt-4">
-                Showing {properties.length} of {totalCount > 0 ? totalCount : properties.length} properties
-              </p>
-              <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
-                <div 
-                  className="bg-emerald-600 h-2 rounded-full transition-all duration-300" 
-                  style={{ width: `${totalCount > 0 ? (properties.length / totalCount) * 100 : 100}%` }}
-                ></div>
-              </div>
-            </div>
-          </motion.div>
+          {/* Pagination */}
+          {pagination && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="mt-16"
+            >
+              <Pagination
+                pagination={pagination}
+                onPageChange={handlePageChange}
+                onNext={nextPage}
+                onPrevious={previousPage}
+                loading={loading}
+                className="justify-center"
+                showInfo={true}
+                showPageNumbers={true}
+              />
+            </motion.div>
+          )}
         </div>
       </section>
 

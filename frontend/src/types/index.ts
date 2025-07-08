@@ -1,4 +1,23 @@
 // Updated types for the new XlideLand frontend
+
+// Pagination interfaces
+export interface PaginationInfo {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+  has_next: boolean;
+  has_previous: boolean;
+  next_page: number | null;
+  previous_page: number | null;
+}
+
+export interface PaginatedResponse<T> {
+  results: T[];
+  count: number;
+  pagination?: PaginationInfo;
+}
+
 export interface PropertyCategory {
   id: number;
   name: string;
