@@ -53,11 +53,11 @@ const SearchForm: React.FC<SearchFormProps> = ({
   ];
 
   const priceRanges = [
-    { value: '0-100000', label: 'Under $100K' },
-    { value: '100000-250000', label: '$100K - $250K' },
-    { value: '250000-500000', label: '$250K - $500K' },
-    { value: '500000-1000000', label: '$500K - $1M' },
-    { value: '1000000-', label: 'Over $1M' },
+    { value: '0-100000', label: 'Under ₦100K' },
+    { value: '100000-250000', label: '₦100K - ₦250K' },
+    { value: '250000-500000', label: '₦250K - ₦500K' },
+    { value: '500000-1000000', label: '₦500K - ₦1M' },
+    { value: '1000000-', label: 'Over ₦1M' },
   ];
 
   const handleInputChange = (key: keyof SearchFilters, value: string | number) => {

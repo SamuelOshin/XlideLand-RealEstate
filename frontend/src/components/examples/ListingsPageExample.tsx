@@ -85,7 +85,7 @@ const ListingsPage: React.FC<ListingsPageProps> = ({ searchQuery, filters }) => 
       <div key={listing.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">{property.title}</h3>
-          <span className="text-xl font-bold text-blue-600">${property.price.toLocaleString()}</span>
+          <span className="text-xl font-bold text-blue-600">₦{property.price.toLocaleString()}</span>
         </div>
         
         <div className="space-y-2 text-sm text-gray-600">
