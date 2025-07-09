@@ -36,6 +36,7 @@ interface PropertyFormData {
   state: string;
   zipcode: string;
   propertyType: string;
+  listingType: string;
   bedrooms: string;
   bathrooms: string;
   sqft: string;
@@ -58,6 +59,7 @@ export default function NewPropertyPage() {
     state: '',
     zipcode: '',
     propertyType: 'house',
+    listingType: 'sale',
     bedrooms: '',
     bathrooms: '',
     sqft: '',
@@ -432,6 +434,21 @@ export default function NewPropertyPage() {
                       {type.charAt(0).toUpperCase() + type.slice(1)}
                     </option>
                   ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Listing Type
+                </label>
+                <select
+                  name="listingType"
+                  value={formData.listingType}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  required
+                >
+                  <option value="sale">For Sale</option>
+                  <option value="rent">For Rent</option>
                 </select>
               </div>
             </div>
