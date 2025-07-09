@@ -279,7 +279,7 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
                   {formatPrice(property.price)}
                 </div>
                 <div className="text-emerald-100 text-lg mb-4">
-                  ${Math.round(property.price / property.area)}/sq ft
+                  ₦{Math.round(property.price / property.area)}/sq ft
                 </div>
                   <div className="grid grid-cols-3 gap-4 text-center border-t border-white/20 pt-4">
                   <div>
