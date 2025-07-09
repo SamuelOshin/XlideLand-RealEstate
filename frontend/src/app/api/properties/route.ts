@@ -18,6 +18,7 @@ interface PropertyData {
   state: string;
   zipcode: string;
   propertyType: string;
+  listingType: string;
   bedrooms: string;
   bathrooms: string;
   sqft: string;
@@ -71,7 +72,10 @@ function generateUniqueFilename(originalName: string, userId?: number | string):
   const userPrefix = userId ? `user-${userId}/` : '';
   const extension = originalName.split('.').pop() || 'jpg'; // Fallback extension
   // Ensure path is safe and doesn't allow directory traversal
-  const safeOriginalNameBase = originalName.substring(0, originalName.lastIndexOf('.')).replace(/[^a-zA-Z0-9-_]/g, '');
+  const lastDotIndex = originalName.lastIndexOf('.');
+  const safeOriginalNameBase = (lastDotIndex !== -1 
+    ? originalName.substring(0, lastDotIndex) 
+    : 'file').replace(/[^a-zA-Z0-9-_]/g, '');
   return `property-images/${userPrefix}${timestamp}-${randomStr}-${safeOriginalNameBase}.${extension}`;
 }
 
@@ -229,11 +233,12 @@ export async function POST(request: NextRequest) {
       realtor: realtorId,
       title: propertyDetails.title,
       description: propertyDetails.description || '',
-      price: parseInt(propertyDetails.price),
+      price: parseInt(propertyDetails.price, 10),
       address: propertyDetails.address,
       city: propertyDetails.city,
       state: propertyDetails.state,
       zipcode: propertyDetails.zipcode || '',
+      listing_type: propertyDetails.listingType || 'sale', // Map listingType to listing_type
       property_type: propertyDetails.propertyType || 'house',
       bedrooms: parseInt(propertyDetails.bedrooms),
       bathrooms: parseFloat(propertyDetails.bathrooms),
