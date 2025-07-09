@@ -232,7 +232,7 @@ export async function POST(request: NextRequest) {
       realtor: realtorId,
       title: propertyDetails.title,
       description: propertyDetails.description || '',
-      price: parseInt(propertyDetails.price),
+      price: parseInt(propertyDetails.price, 10),
       address: propertyDetails.address,
       city: propertyDetails.city,
       state: propertyDetails.state,
