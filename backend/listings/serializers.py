@@ -111,14 +111,37 @@ class ListingCreateSerializer(serializers.ModelSerializer):
     """
     Serializer for creating new listings
     """
+    features = serializers.ListField(
+        child=serializers.CharField(),
+        required=False,
+        write_only=True 
+    )
+    
+
     class Meta:
         model = Listing
         fields = [
-            'realtor', 'title', 'address', 'city', 'state', 'zipcode', 
-            'description', 'price', 'bedrooms', 'bathrooms', 'garage', 
-            'sqft', 'lot_size', 'photo_main', 'photo_1', 'photo_2', 
-            'photo_3', 'photo_4', 'photo_5', 'photo_6', 'is_published'
+            'realtor', 'title', 'address', 'city', 'state', 'zipcode',
+            'description', 'price', 'listing_type', 'property_type',
+            'bedrooms', 'bathrooms', 'sqft', 'lot_size', 'year_built',
+            'garage', 'parking_spaces', 'floors', 'fireplaces',
+            'heating', 'cooling', 'hoa_fee', 'property_taxes',
+            'features', 
+            # 'category', # Add if you intend to send category_id for creation
+            'photo_main', 'photo_1', 'photo_2', 'photo_3',
+            'photo_4', 'photo_5', 'photo_6',
+            'is_published', 'is_featured'
         ]
+
+    def create(self, validated_data):
+        feature_names = validated_data.pop('features', [])
+        listing = Listing.objects.create(**validated_data)
+
+        if feature_names:
+            for feature_name in feature_names:
+                feature, created = PropertyFeature.objects.get_or_create(name=feature_name)
+                listing.features.add(feature)
+        return listing
 
     def validate_price(self, value):
         """Validate that price is positive"""
