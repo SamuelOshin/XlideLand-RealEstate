@@ -111,42 +111,41 @@ class ListingCreateSerializer(serializers.ModelSerializer):
     """
     Serializer for creating new listings
     """
-    # Fields that are sent from the Next.js frontend based on PropertyFormData and route.ts
-    # property_type, year_built, features are notable additions.
-    # Assuming 'realtor' is passed as realtor_id, 'category' as category_id (if applicable)
-    # and 'features' as a list of PropertyFeature IDs.
-    features = serializers.PrimaryKeyRelatedField(
-        queryset=PropertyFeature.objects.all(),
-        many=True,
-        required=False
+    # features field will now accept a list of strings (feature names)
+    # and will be processed in the create() method.
+    features = serializers.ListField(
+        child=serializers.CharField(),
+        required=False,
+        write_only=True # It's write_only because the representation will be handled by PropertyFeatureSerializer if read
     )
-    # category = serializers.PrimaryKeyRelatedField(
-    #     queryset=PropertyCategory.objects.all(),
-    #     required=False, # Or True, depending on your model's null/blank status & requirements
-    #     allow_null=True # If category can be optional
-    # )
+    # To show features when reading a listing (if needed in this specific serializer context)
+    # you would typically use the default ModelSerializer behavior which uses the PropertyFeatureSerializer
+    # or define another features_display = PropertyFeatureSerializer(many=True, source='features', read_only=True)
 
     class Meta:
         model = Listing
-        # Added: property_type, year_built, features.
-        # Also included other fields from Listing model that might be relevant for creation.
         fields = [
-            'realtor', 'title', 'address', 'city', 'state', 'zipcode', 
+            'realtor', 'title', 'address', 'city', 'state', 'zipcode',
             'description', 'price', 'listing_type', 'property_type',
             'bedrooms', 'bathrooms', 'sqft', 'lot_size', 'year_built',
             'garage', 'parking_spaces', 'floors', 'fireplaces',
             'heating', 'cooling', 'hoa_fee', 'property_taxes',
-            'features', # This will now accept a list of PropertyFeature IDs
+            'features', # Input field for feature names
             # 'category', # Add if you intend to send category_id for creation
             'photo_main', 'photo_1', 'photo_2', 'photo_3',
             'photo_4', 'photo_5', 'photo_6',
-            'is_published', 'is_featured' # is_featured might be set by admin later
+            'is_published', 'is_featured'
         ]
-        # Ensure realtor is writable (expects an ID)
-        # extra_kwargs = {
-        #     'realtor': {'write_only': False} # Default is read_only=False for relational fields if not specified with (read_only=True)
-        # }
 
+    def create(self, validated_data):
+        feature_names = validated_data.pop('features', [])
+        listing = Listing.objects.create(**validated_data)
+
+        if feature_names:
+            for feature_name in feature_names:
+                feature, created = PropertyFeature.objects.get_or_create(name=feature_name)
+                listing.features.add(feature)
+        return listing
 
     def validate_price(self, value):
         """Validate that price is positive"""
