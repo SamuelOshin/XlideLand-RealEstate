@@ -11,8 +11,12 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView,
 )
+from .health import health_check
 
 urlpatterns = [
+    # Health Check
+    path('api/health/', health_check, name='health_check'),
+    
     # Admin
     path('admin/', admin.site.urls),
     
