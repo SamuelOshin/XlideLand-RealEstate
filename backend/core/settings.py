@@ -203,7 +203,7 @@ def str_to_bool(val):
     return str(val).lower() in ("true", "1", "yes")
 
 CORS_ALLOW_CREDENTIALS = str_to_bool(os.environ.get("CORS_ALLOW_CREDENTIALS", "False"))
-CORS_ALLOW_ALL_ORIGINS = str_to_bool(os.environ.get("CORS_ALLOW_ALL_ORIGINS", "False"))
+CORS_ALLOW_ALL_ORIGINS = str_to_bool(os.environ.get("CORS_ALLOW_ALL_ORIGINS", "True"))
 
 # API Documentation
 SPECTACULAR_SETTINGS = {
