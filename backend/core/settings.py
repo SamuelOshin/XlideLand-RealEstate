@@ -198,8 +198,12 @@ SIMPLE_JWT = {
 # CORS Settings
 CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
 
-CORS_ALLOW_CREDENTIALS = os.getenv("CORS_ALLOW_CREDENTIALS")
-CORS_ALLOW_ALL_ORIGINS = os.getenv("CORS_ALLOW_ALL_ORIGINS")
+
+def str_to_bool(val):
+    return str(val).lower() in ("true", "1", "yes")
+
+CORS_ALLOW_CREDENTIALS = str_to_bool(os.environ.get("CORS_ALLOW_CREDENTIALS", "False"))
+CORS_ALLOW_ALL_ORIGINS = str_to_bool(os.environ.get("CORS_ALLOW_ALL_ORIGINS", "False"))
 
 # API Documentation
 SPECTACULAR_SETTINGS = {
