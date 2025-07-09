@@ -132,126 +132,108 @@ export default function NewPropertyPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    const submissionId = 'property-submission';
 
     try {
-      // Get user token for authentication - try multiple sources
-      let token = localStorage.getItem('access_token');
-      
-      // Debug: Check all possible token locations
-      console.log('Debug - Token sources:', {
-        access_token: !!localStorage.getItem('access_token'),
-        token: !!localStorage.getItem('token'),
-        userContext: !!user,
-        isAuthenticated: isAuthenticated
-      });
-      
-      // If no token in localStorage, check if user is available
-      if (!token && !isAuthenticated) {
-        throw new Error('You are not logged in. Please log in and try again.');
-      }
-      
-      if (!token) {
-        throw new Error('Authentication token not found. Please log out and log in again.');
-      }
-
-      // Step 1: Upload images if any are selected
-      let uploadedImages: any[] = [];
-      if (selectedImages.length > 0) {
-        toast.loading('Uploading images...', { id: 'upload' });
-        
-        const uploadFormData = new FormData();
-        selectedImages.forEach((file, index) => {
-          uploadFormData.append('file', file);
+      // Get user token for authentication
+      if (!isAuthenticated) { // Rely on useAuth for isAuthenticated status
+        toast.error('Authentication Error', {
+          description: 'You are not logged in. Please log in and try again.',
+          id: submissionId,
         });
-
-        console.log('Uploading images...');
-
-        const uploadResponse = await authenticatedFetch('/api/upload/property-images', {
-          method: 'POST',
-          body: uploadFormData,
-        });
-
-        if (!uploadResponse.ok) {
-          const errorData = await uploadResponse.json();
-          
-          // Handle authentication errors specifically
-          if (uploadResponse.status === 401) {
-            toast.dismiss('upload');
-            throw new Error('Authentication failed. Please log in again.');
-          }
-          
-          toast.dismiss('upload');
-          throw new Error(`Failed to upload images: ${errorData.error || 'Unknown error'}`);
-        }
-
-        const uploadResult = await uploadResponse.json();
-        uploadedImages = uploadResult.files || [];
-        console.log('Images uploaded successfully:', uploadedImages.length);
-        
-        toast.success(`Successfully uploaded ${uploadedImages.length} image(s)`, { id: 'upload' });
-      }
-
-      // Step 2: Create property with form data and uploaded images
-      const propertyData = {
-        ...formData,
-        images: uploadedImages,
-      };
-
-      console.log('Creating property listing:', propertyData);
-      toast.loading('Creating property listing...', { id: 'create' });
-
-      // Submit property data to backend using authenticated fetch
-      const createResponse = await authenticatedFetch('/api/properties', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(propertyData),
-      });
-
-      if (!createResponse.ok) {
-        const errorData = await createResponse.json();
-        toast.dismiss('create');
-        
-        // Handle specific error cases
-        if (createResponse.status === 401) {
-          throw new Error('Authentication failed. Please log in again.');
-        } else if (createResponse.status === 400) {
-          throw new Error(errorData.error || 'Invalid property data. Please check your inputs.');
-        } else {
-          throw new Error(errorData.error || 'Failed to create property listing');
-        }
-      }
-
-      const result = await createResponse.json();
-      console.log('Property created successfully:', result);
-      
-      // Success message
-      toast.success('Property created successfully!', {
-        description: 'Your property listing has been created and will be reviewed shortly.',
-        duration: 4000,
-        id: 'create'
-      });
-      
-      // Redirect to properties list
-      router.push('/dashboard/properties/listed');
-    } catch (error) {
-      console.error('Error submitting property:', error);
-      
-      // Handle authentication errors by redirecting to login
-      if (error instanceof Error && error.message.includes('Authentication')) {
-        toast.error('Session expired', {
-          description: 'Your session has expired. Please log in again.',
-          duration: 5000,
-        });
-        router.push('/auth/login');
+        router.push('/auth/login'); // Redirect to login if not authenticated
         return;
       }
       
-      // Show error message to user
-      toast.error('Failed to create property', {
-        description: error instanceof Error ? error.message : 'Unknown error occurred',
+      // Check if token is actually available, even if isAuthenticated is true
+      // This is a safeguard, authenticatedFetch should handle token refresh/existence
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+          toast.error('Authentication Error', {
+              description: 'Authentication token not found. Please try logging out and logging in again.',
+              id: submissionId,
+          });
+          router.push('/auth/login');
+          return;
+      }
+
+      toast.loading('Submitting property...', { id: submissionId });
+
+      const submissionFormData = new FormData();
+
+      // Append property data as a JSON string
+      // Exclude images from formData before stringifying, as they are handled separately
+      const { images, ...propertyDetails } = formData;
+      submissionFormData.append('propertyData', JSON.stringify(propertyDetails));
+
+      // Append selected image files
+      selectedImages.forEach((file) => {
+        submissionFormData.append('images', file);
+      });
+
+      console.log('Submitting property with images...');
+
+      // Single API call to /api/properties
+      // authenticatedFetch will handle adding the Authorization header.
+      // Content-Type for FormData is set automatically by the browser.
+      const response = await authenticatedFetch('/api/properties', {
+        method: 'POST',
+        body: submissionFormData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
+        // It's good practice to dismiss the loading toast before showing an error
+        toast.dismiss(submissionId);
+        
+        let errorMessage = errorData.error || `Failed to submit property (status: ${response.status})`;
+        if (response.status === 401) {
+          errorMessage = 'Authentication failed. Please log in again.';
+          // Optionally redirect to login for 401 errors
+          // router.push('/auth/login');
+        } else if (response.status === 400) {
+          errorMessage = errorData.error || 'Invalid property data. Please check your inputs.';
+        }
+
+        toast.error('Submission Failed', {
+          description: errorMessage,
+          id: submissionId, // Use the same ID to replace the loading toast
+        });
+        // No automatic redirect to login here unless it's a 401 and you decide to enforce it.
+        // The error message should guide the user.
+        return; // Stop further execution
+      }
+
+      const result = await response.json();
+      console.log('Property submission successful:', result);
+      
+      toast.success('Property Created!', {
+        description: 'Your property listing has been successfully created.',
+        duration: 4000,
+        id: submissionId, // Replace the loading toast
+      });
+      
+      router.push('/dashboard/properties/listed');
+
+    } catch (error) {
+      console.error('Error submitting property:', error);
+      toast.dismiss(submissionId); // Ensure loading toast is dismissed on any catch
+
+      let description = 'An unexpected error occurred. Please try again.';
+      if (error instanceof Error) {
+        description = error.message;
+        // Specific check for authentication related errors not caught by status codes
+        if (error.message.includes('Authentication') || error.message.includes('token')) {
+          description = 'Your session might have expired. Please log in again.';
+          // Consider redirecting to login for critical auth errors caught here
+          // router.push('/auth/login');
+        }
+      }
+      
+      toast.error('Submission Error', {
+        description,
         duration: 5000,
+        id: submissionId,
       });
     } finally {
       setLoading(false);
