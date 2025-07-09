@@ -18,6 +18,7 @@ interface PropertyData {
   state: string;
   zipcode: string;
   propertyType: string;
+  listingType: string;
   bedrooms: string;
   bathrooms: string;
   sqft: string;
@@ -237,6 +238,7 @@ export async function POST(request: NextRequest) {
       city: propertyDetails.city,
       state: propertyDetails.state,
       zipcode: propertyDetails.zipcode || '',
+      listing_type: propertyDetails.listingType || 'sale', // Map listingType to listing_type
       property_type: propertyDetails.propertyType || 'house',
       bedrooms: parseInt(propertyDetails.bedrooms),
       bathrooms: parseFloat(propertyDetails.bathrooms),
