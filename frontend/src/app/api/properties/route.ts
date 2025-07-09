@@ -71,7 +71,10 @@ function generateUniqueFilename(originalName: string, userId?: number | string):
   const userPrefix = userId ? `user-${userId}/` : '';
   const extension = originalName.split('.').pop() || 'jpg'; // Fallback extension
   // Ensure path is safe and doesn't allow directory traversal
-  const safeOriginalNameBase = originalName.substring(0, originalName.lastIndexOf('.')).replace(/[^a-zA-Z0-9-_]/g, '');
+  const lastDotIndex = originalName.lastIndexOf('.');
+  const safeOriginalNameBase = (lastDotIndex !== -1 
+    ? originalName.substring(0, lastDotIndex) 
+    : 'file').replace(/[^a-zA-Z0-9-_]/g, '');
   return `property-images/${userPrefix}${timestamp}-${randomStr}-${safeOriginalNameBase}.${extension}`;
 }
 
