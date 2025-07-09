@@ -43,15 +43,15 @@ RUN chmod -R 755 /app
 # Switch to non-root user
 USER django
 
-# Expose port
-EXPOSE 8000
+# Expose port (Render uses PORT env var, default 10000)
+EXPOSE ${PORT:-10000}
 
-# Health check
+# Health check (use PORT env var)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/api/health/ || exit 1
+    CMD curl -f http://localhost:${PORT:-10000}/api/health/ || exit 1
 
 # Set entrypoint
 ENTRYPOINT ["/app/entrypoint.sh"]
 
-# Default command
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "60", "core.wsgi:application"]
+# Default command (use PORT env var for Render compatibility)
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-10000} --workers 3 --timeout 60 core.wsgi:application"]
