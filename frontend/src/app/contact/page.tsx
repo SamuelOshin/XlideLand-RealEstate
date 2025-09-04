@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { contactsAPI } from '@/lib/api';
 import { whatsApp } from '@/lib/whatsapp';
+import { validateContactForm, createFieldValidator, getFieldError, ValidationError } from '@/lib/validation';
 import { ContactFormData } from '@/types';
 import { 
   Phone,
@@ -116,6 +117,21 @@ const ContactPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const [fieldErrors, setFieldErrors] = useState<{[key: string]: string}>({});
+
+  // Helper function to get field error
+  const getFieldValidationError = (fieldName: string): string | null => {
+    return fieldErrors[fieldName] || getFieldError(validationErrors, fieldName);
+  };
+
+  // Helper function to get field styling
+  const getFieldClassName = (fieldName: string, baseClassName: string): string => {
+    const hasError = getFieldValidationError(fieldName);
+    return hasError 
+      ? baseClassName.replace('border-gray-300', 'border-red-300').replace('focus:ring-emerald-500', 'focus:ring-red-500').replace('focus:border-emerald-500', 'focus:border-red-500')
+      : baseClassName;
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -123,23 +139,48 @@ const ContactPage = () => {
       ...prev,
       [name]: value
     }));
-    // Clear error when user starts typing
+    
+    // Clear general error when user starts typing
     if (error) setError(null);
+    
+    // Real-time field validation
+    const validator = createFieldValidator(name);
+    const fieldError = validator(value);
+    
+    setFieldErrors(prev => ({
+      ...prev,
+      [name]: fieldError || ''
+    }));
+    
+    // Clear validation errors for this field
+    if (validationErrors.length > 0) {
+      setValidationErrors(prev => prev.filter(err => err.field !== name));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
+    setValidationErrors([]);
+    
+    // Validate form data
+    const validation = validateContactForm(formData);
+    
+    if (!validation.isValid) {
+      setValidationErrors(validation.errors);
+      setIsSubmitting(false);
+      return;
+    }
     
     try {
       // Map form data to API format
       const contactData: ContactFormData = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        subject: formData.subject || 'Contact Inquiry',
-        message: formData.message || '',
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone?.trim() || '',
+        subject: formData.subject?.trim() || 'Contact Inquiry',
+        message: formData.message?.trim() || '',
         property_type: formData.property_type || undefined,
         budget_range: formData.budget_range || undefined,
         timeline: formData.timeline || undefined,
@@ -165,9 +206,32 @@ const ContactPage = () => {
           timeline: '',
           contact_type: 'general'
         });
+        setFieldErrors({});
       }, 3000);
     } catch (err: any) {
       setIsSubmitting(false);
+      
+      // Handle validation errors from server
+      if (err.response?.status === 400 && err.response?.data) {
+        const serverErrors: ValidationError[] = [];
+        const errorData = err.response.data;
+        
+        Object.keys(errorData).forEach(field => {
+          if (Array.isArray(errorData[field])) {
+            errorData[field].forEach((message: string) => {
+              serverErrors.push({ field, message });
+            });
+          } else if (typeof errorData[field] === 'string') {
+            serverErrors.push({ field, message: errorData[field] });
+          }
+        });
+        
+        if (serverErrors.length > 0) {
+          setValidationErrors(serverErrors);
+          return;
+        }
+      }
+      
       const errorMessage = err.response?.data?.detail || 
                           err.response?.data?.message || 
                           'Failed to submit contact form. Please try again.';
@@ -377,9 +441,15 @@ const ContactPage = () => {
                           value={formData.name}
                           onChange={handleInputChange}
                           required
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 placeholder:text-gray-500 transition-colors"
+                          className={getFieldClassName("name", "w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 placeholder:text-gray-500 transition-colors")}
                           placeholder="Your full name"
                         />
+                        {getFieldValidationError("name") && (
+                          <p className="mt-1 text-sm text-red-600 flex items-center">
+                            <AlertCircle className="h-4 w-4 mr-1" />
+                            {getFieldValidationError("name")}
+                          </p>
+                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -391,9 +461,15 @@ const ContactPage = () => {
                           value={formData.email}
                           onChange={handleInputChange}
                           required
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 placeholder:text-gray-500 transition-colors"
+                          className={getFieldClassName("email", "w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 placeholder:text-gray-500 transition-colors")}
                           placeholder="your@email.com"
                         />
+                        {getFieldValidationError("email") && (
+                          <p className="mt-1 text-sm text-red-600 flex items-center">
+                            <AlertCircle className="h-4 w-4 mr-1" />
+                            {getFieldValidationError("email")}
+                          </p>
+                        )}
                       </div>
                     </div>
 
