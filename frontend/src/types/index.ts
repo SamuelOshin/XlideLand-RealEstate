@@ -168,15 +168,57 @@ export interface Realtor {
 }
 
 export interface Contact {
-  id?: number
-  listing: string
-  listing_id: number
+  id?: string | number
+  listing?: string
+  listing_id?: number
   name: string
   email: string
   phone: string
-  message: string
-  contact_date?: string
+  message?: string
   user_id?: number
+  contact_date?: string
+  
+  // Enhanced fields
+  property_type?: string
+  budget_range?: string
+  timeline?: string
+  contact_type?: string
+  status?: string
+  subject?: string
+  responded_at?: string
+  resolved_at?: string
+  notes?: string
+  
+  // Display fields (from serializer)
+  contact_type_display?: string
+  status_display?: string
+  property_type_display?: string
+  budget_range_display?: string
+  timeline_display?: string
+}
+
+export interface ContactFormData {
+  name: string
+  email: string
+  phone: string
+  subject?: string
+  message?: string
+  property_type?: string
+  budget_range?: string
+  timeline?: string
+  contact_type?: string
+  listing?: string
+  listing_id?: number
+}
+
+export interface ContactStats {
+  total_contacts: number
+  new_contacts: number
+  recent_contacts: number
+  status_breakdown: Array<{
+    status: string
+    count: number
+  }>
 }
 
 export interface ContactFormData {

@@ -4,8 +4,9 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { contactAPI } from '@/lib/api';
-import { whatsappUtils } from '@/lib/whatsapp';
+import { contactsAPI } from '@/lib/api';
+import { whatsApp } from '@/lib/whatsapp';
+import { validateContactForm, createFieldValidator, getFieldError, ValidationError } from '@/lib/validation';
 import { ContactFormData } from '@/types';
 import { 
   Phone,
@@ -39,6 +40,13 @@ const contactInfo = [
     primary: '+234 901 234 5678',
     secondary: 'Mon-Fri 8AM-7PM, Sat 9AM-5PM',
     color: 'emerald'
+  },
+  {
+    icon: MessageSquare,
+    title: 'WhatsApp',
+    primary: '+234 907 661 4145',
+    secondary: 'Quick response, 24/7 available',
+    color: 'green'
   },
   {
     icon: Mail,
@@ -95,20 +103,37 @@ const socialLinks = [
 ];
 
 const ContactPage = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
     phone: '',
     subject: '',
     message: '',
-    propertyType: '',
-    budget: '',
-    timeline: ''
+    property_type: '',
+    budget_range: '',
+    timeline: '',
+    contact_type: 'general'
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const [fieldErrors, setFieldErrors] = useState<{[key: string]: string}>({});
+
+  // Helper function to get field error
+  const getFieldValidationError = (fieldName: string): string | null => {
+    return fieldErrors[fieldName] || getFieldError(validationErrors, fieldName);
+  };
+
+  // Helper function to get field styling
+  const getFieldClassName = (fieldName: string, baseClassName: string): string => {
+    const hasError = getFieldValidationError(fieldName);
+    return hasError 
+      ? baseClassName.replace('border-gray-300', 'border-red-300').replace('focus:ring-emerald-500', 'focus:ring-red-500').replace('focus:border-emerald-500', 'focus:border-red-500')
+      : baseClassName;
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -116,6 +141,23 @@ const ContactPage = () => {
       ...prev,
       [name]: value
     }));
+    
+    // Clear general error when user starts typing
+    if (error) setError(null);
+    
+    // Real-time field validation
+    const validator = createFieldValidator(name);
+    const fieldError = validator(value);
+    
+    setFieldErrors(prev => ({
+      ...prev,
+      [name]: fieldError || ''
+    }));
+    
+    // Clear validation errors for this field
+    if (validationErrors.length > 0) {
+      setValidationErrors(prev => prev.filter(err => err.field !== name));
+    }
   };
 
   // WhatsApp handler
@@ -127,42 +169,81 @@ const ContactPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setSubmitError(null);
+    setError(null);
+    setValidationErrors([]);
+    
+    // Validate form data
+    const validation = validateContactForm(formData);
+    
+    if (!validation.isValid) {
+      setValidationErrors(validation.errors);
+      setIsSubmitting(false);
+      return;
+    }
     
     try {
-      // Prepare contact data
+      // Map form data to API format
       const contactData: ContactFormData = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        subject: formData.subject,
-        message: formData.message,
-        propertyType: formData.propertyType,
-        budget: formData.budget,
-        timeline: formData.timeline,
-        listing: formData.subject || 'General Inquiry',
-        listing_id: 0, // General contact
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone?.trim() || '',
+        subject: formData.subject?.trim() || 'Contact Inquiry',
+        message: formData.message?.trim() || '',
+        property_type: formData.property_type || undefined,
+        budget_range: formData.budget_range || undefined,
+        timeline: formData.timeline || undefined,
+        contact_type: formData.contact_type || 'general'
       };
 
-      // Submit to backend
-      const response = await contactAPI.submitContact(contactData);
+      const response = await contactsAPI.createContact(contactData);
       
+      setIsSubmitting(false);
       setIsSubmitted(true);
-      setFormData({
-        name: '', email: '', phone: '', subject: '', 
-        message: '', propertyType: '', budget: '', timeline: ''
-      });
       
-      // Reset success message after 5 seconds
+      // Reset form after success
       setTimeout(() => {
         setIsSubmitted(false);
-      }, 5000);
-      
-    } catch (error) {
-      console.error('Contact submission failed:', error);
-      setSubmitError('Failed to submit your message. Please try again.');
-    } finally {
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: '',
+          property_type: '',
+          budget_range: '',
+          timeline: '',
+          contact_type: 'general'
+        });
+        setFieldErrors({});
+      }, 3000);
+    } catch (err: any) {
       setIsSubmitting(false);
+      
+      // Handle validation errors from server
+      if (err.response?.status === 400 && err.response?.data) {
+        const serverErrors: ValidationError[] = [];
+        const errorData = err.response.data;
+        
+        Object.keys(errorData).forEach(field => {
+          if (Array.isArray(errorData[field])) {
+            errorData[field].forEach((message: string) => {
+              serverErrors.push({ field, message });
+            });
+          } else if (typeof errorData[field] === 'string') {
+            serverErrors.push({ field, message: errorData[field] });
+          }
+        });
+        
+        if (serverErrors.length > 0) {
+          setValidationErrors(serverErrors);
+          return;
+        }
+      }
+      
+      const errorMessage = err.response?.data?.detail || 
+                          err.response?.data?.message || 
+                          'Failed to submit contact form. Please try again.';
+      setError(errorMessage);
     }
   };
 
@@ -232,23 +313,23 @@ const ContactPage = () => {
                 <Button 
                   size="lg" 
                   className="bg-white text-emerald-700 hover:bg-emerald-50 font-semibold px-8"
+                  onClick={() => window.open('tel:+2349012345678')}
                 >
                   <Phone className="h-5 w-5 mr-2" />
                   Call Now
                 </Button>
                 <Button 
-                  variant="outline" 
                   size="lg" 
-                  className="border-emerald-200 text-white hover:bg-emerald-700 hover:text-white font-semibold px-8"
-                  onClick={handleWhatsAppClick}
+                  className="bg-green-500 text-white hover:bg-green-600 font-semibold px-8"
+                  onClick={() => whatsApp.contactNow()}
                 >
-                  <MessageCircle className="h-5 w-5 mr-2" />
-                  WhatsApp
+                  <MessageSquare className="h-5 w-5 mr-2" />
+                  WhatsApp Us
                 </Button>
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="border-emerald-200 text-emerald-700 hover:bg-emerald-700 font-semibold px-8"
+                  className="border-emerald-200 text-emerald-700 hover:bg-emerald-700 hover:text-white font-semibold px-8"
                 >
                   <Calendar className="h-5 w-5 mr-2" />
                   Book Meeting
@@ -316,24 +397,47 @@ const ContactPage = () => {
                       <CheckCircle className="h-8 w-8 text-emerald-600" />
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">Message Sent!</h3>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 mb-6">
                       Thank you for reaching out. We'll contact you within 24 hours.
                     </p>
+                    
+                    {/* Quick action buttons after form submission */}
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <Button
+                        size="sm"
+                        className="bg-green-500 text-white hover:bg-green-600"
+                        onClick={() => whatsApp.contactNow(formData.name)}
+                      >
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Continue on WhatsApp
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open('tel:+2349012345678')}
+                      >
+                        <Phone className="h-4 w-4 mr-2" />
+                        Call Now
+                      </Button>
+                    </div>
                   </motion.div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                  <div>
                     {/* Error Message */}
-                    {submitError && (
+                    {error && (
                       <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center"
+                        className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl"
                       >
-                        <AlertCircle className="h-5 w-5 text-red-500 mr-3" />
-                        <p className="text-red-700 text-sm">{submitError}</p>
+                        <div className="flex items-center">
+                          <AlertCircle className="h-5 w-5 text-red-500 mr-3" />
+                          <p className="text-red-700 text-sm">{error}</p>
+                        </div>
                       </motion.div>
                     )}
-                    
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -345,9 +449,15 @@ const ContactPage = () => {
                           value={formData.name}
                           onChange={handleInputChange}
                           required
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 placeholder:text-gray-500 transition-colors"
+                          className={getFieldClassName("name", "w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 placeholder:text-gray-500 transition-colors")}
                           placeholder="Your full name"
                         />
+                        {getFieldValidationError("name") && (
+                          <p className="mt-1 text-sm text-red-600 flex items-center">
+                            <AlertCircle className="h-4 w-4 mr-1" />
+                            {getFieldValidationError("name")}
+                          </p>
+                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -359,9 +469,15 @@ const ContactPage = () => {
                           value={formData.email}
                           onChange={handleInputChange}
                           required
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 placeholder:text-gray-500 transition-colors"
+                          className={getFieldClassName("email", "w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 placeholder:text-gray-500 transition-colors")}
                           placeholder="your@email.com"
                         />
+                        {getFieldValidationError("email") && (
+                          <p className="mt-1 text-sm text-red-600 flex items-center">
+                            <AlertCircle className="h-4 w-4 mr-1" />
+                            {getFieldValidationError("email")}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -382,19 +498,20 @@ const ContactPage = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Property Type
                         </label>                          <select
-                          name="propertyType"
-                          value={formData.propertyType}
+                          name="property_type"
+                          value={formData.property_type}
                           onChange={handleInputChange}
                           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 transition-colors appearance-none"
                         >
                           <option value="">Select property type</option>
-                          <option value="residential">Residential</option>
-                          <option value="luxury">Luxury</option>
-                          <option value="commercial">Commercial</option>
-                          <option value="duplex">Duplex</option>
-                          <option value="bungalow">Bungalow</option>
+                          <option value="house">House</option>
                           <option value="apartment">Apartment</option>
-                          <option value="estate">Estate</option>
+                          <option value="condo">Condo</option>
+                          <option value="townhouse">Townhouse</option>
+                          <option value="villa">Villa</option>
+                          <option value="land">Land</option>
+                          <option value="commercial">Commercial</option>
+                          <option value="other">Other</option>
                         </select>
                       </div>
                     </div>
@@ -404,17 +521,19 @@ const ContactPage = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Budget Range
                         </label>                        <select
-                          name="budget"
-                          value={formData.budget}
+                          name="budget_range"
+                          value={formData.budget_range}
                           onChange={handleInputChange}
                           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 transition-colors appearance-none"
                         >
                           <option value="">Select budget range</option>
-                          <option value="under-50m">Under ₦50M</option>
-                          <option value="50m-100m">₦50M - ₦100M</option>
-                          <option value="100m-250m">₦100M - ₦250M</option>
-                          <option value="250m-500m">₦250M - ₦500M</option>
-                          <option value="over-500m">Over ₦500M</option>
+                          <option value="under_50m">Under ₦50M</option>
+                          <option value="50m_100m">₦50M - ₦100M</option>
+                          <option value="100m_200m">₦100M - ₦200M</option>
+                          <option value="200m_500m">₦200M - ₦500M</option>
+                          <option value="500m_1b">₦500M - ₦1B</option>
+                          <option value="over_1b">Over ₦1B</option>
+                          <option value="not_specified">Not Specified</option>
                         </select>
                       </div>
                       <div>
@@ -427,11 +546,12 @@ const ContactPage = () => {
                           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 transition-colors appearance-none"
                         >
                           <option value="">Select timeline</option>
-                          <option value="asap">ASAP</option>
-                          <option value="1-3months">1-3 months</option>
-                          <option value="3-6months">3-6 months</option>
-                          <option value="6-12months">6-12 months</option>
-                          <option value="exploring">Just exploring</option>
+                          <option value="immediate">Immediately</option>
+                          <option value="1_month">Within 1 Month</option>
+                          <option value="3_months">Within 3 Months</option>
+                          <option value="6_months">Within 6 Months</option>
+                          <option value="1_year">Within 1 Year</option>
+                          <option value="flexible">Flexible</option>
                         </select>
                       </div>
                     </div>
@@ -481,6 +601,7 @@ const ContactPage = () => {
                       )}
                     </Button>
                   </form>
+                  </div>
                 )}
               </div>
             </motion.div>
@@ -650,8 +771,18 @@ const ContactPage = () => {
               <Button 
                 size="lg" 
                 className="bg-white text-emerald-700 hover:bg-emerald-50 font-semibold px-8 py-4 rounded-xl shadow-sm"
-              >                <Phone className="h-5 w-5 mr-2" />
+                onClick={() => window.open('tel:+2349012345678')}
+              >
+                <Phone className="h-5 w-5 mr-2" />
                 Call +234 901 234 5678
+              </Button>
+              <Button 
+                size="lg" 
+                className="bg-green-500 text-white hover:bg-green-600 font-semibold px-8 py-4 rounded-xl shadow-sm"
+                onClick={() => whatsApp.contactNow()}
+              >
+                <MessageSquare className="h-5 w-5 mr-2" />
+                WhatsApp Now
               </Button>
               <Button 
                 variant="outline" 
