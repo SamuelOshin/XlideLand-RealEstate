@@ -9,6 +9,7 @@ import { Toaster } from "sonner";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import LoadingBar from "@/components/ui/LoadingBar";
 import InstantLoadingBar from "@/components/ui/InstantLoadingBar";
+import { ChatBubble } from "@/components/chat/LiveChat";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -61,6 +62,7 @@ export default function RootLayout({
                 },
               }}
             />
+            <ChatBubble />
           </AuthProvider>
         </NavigationLoadingProvider>
       </body>
