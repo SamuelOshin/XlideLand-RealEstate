@@ -9,6 +9,7 @@ import { Toaster } from "sonner";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import LoadingBar from "@/components/ui/LoadingBar";
 import InstantLoadingBar from "@/components/ui/InstantLoadingBar";
+import LiveChat from "@/components/chat/LiveChat";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -60,6 +61,14 @@ export default function RootLayout({
                   color: '#065f46',
                 },
               }}
+            />
+            
+            {/* Live Chat Widget */}
+            <LiveChat 
+              enabled={true}
+              position="bottom-right"
+              primaryColor="#10b981"
+              greetingMessage="Hi! 👋 Welcome to XlideLand. How can we help you find your perfect property today?"
             />
           </AuthProvider>
         </NavigationLoadingProvider>

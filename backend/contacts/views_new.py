@@ -4,8 +4,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.core.mail import send_mail
 from django.conf import settings
+from django.db import models
 from .models import Contact
-from .serializers import ContactSerializer, ContactCreateSerializer
+from .serializers import ContactSerializer, ContactCreateSerializer, ContactUpdateSerializer
 
 
 class ContactCreateAPIView(generics.CreateAPIView):
@@ -20,17 +21,44 @@ class ContactCreateAPIView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         contact = serializer.save()
         
-        # Send email notification (optional)
+        # Send email notification to the specified email
         try:
+            # Build email content with all available information
+            email_subject = f'New Contact Inquiry - {contact.subject or contact.get_contact_type_display()}'
+            email_body = f"""
+New contact inquiry received:
+
+Name: {contact.name}
+Email: {contact.email}
+Phone: {contact.phone}
+Contact Type: {contact.get_contact_type_display()}
+
+Property Preferences:
+- Property Type: {contact.get_property_type_display() if contact.property_type else 'Not specified'}
+- Budget Range: {contact.get_budget_range_display() if contact.budget_range else 'Not specified'}
+- Timeline: {contact.get_timeline_display() if contact.timeline else 'Not specified'}
+
+Message: 
+{contact.message}
+
+Subject: {contact.subject or 'General Inquiry'}
+
+Property Reference: {contact.listing or 'General Contact'}
+Contact Date: {contact.contact_date.strftime('%B %d, %Y at %I:%M %p')}
+
+Please respond promptly to this inquiry.
+            """
+            
             send_mail(
-                f'New Contact Inquiry for {contact.listing}',
-                f'Name: {contact.name}\nEmail: {contact.email}\nPhone: {contact.phone}\nMessage: {contact.message}',
-                settings.DEFAULT_FROM_EMAIL,
-                ['admin@xlideland.com'],  # Replace with actual admin email
+                email_subject,
+                email_body,
+                settings.DEFAULT_FROM_EMAIL or 'noreply@xlideland.com',
+                ['Opeyemib117@gmail.com'],  # Send to specified email
                 fail_silently=True,
             )
         except Exception as e:
-            pass  # Continue even if email fails
+            # Log error but don't fail the request
+            print(f"Email notification failed: {e}")
         
         return Response(
             {
@@ -48,16 +76,46 @@ class ContactListAPIView(generics.ListAPIView):
     queryset = Contact.objects.all().order_by('-contact_date')
     serializer_class = ContactSerializer
     permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        """Filter contacts based on query parameters"""
+        queryset = super().get_queryset()
+        
+        # Filter by status
+        status_filter = self.request.query_params.get('status')
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+            
+        # Filter by contact type
+        contact_type_filter = self.request.query_params.get('contact_type')
+        if contact_type_filter:
+            queryset = queryset.filter(contact_type=contact_type_filter)
+            
+        # Search by name or email
+        search = self.request.query_params.get('search')
+        if search:
+            queryset = queryset.filter(
+                models.Q(name__icontains=search) | 
+                models.Q(email__icontains=search)
+            )
+            
+        return queryset
 
 
-class ContactDetailAPIView(generics.RetrieveAPIView):
+class ContactDetailAPIView(generics.RetrieveUpdateAPIView):
     """
-    Retrieve a specific contact by ID (authenticated users only)
+    Retrieve and update a specific contact by ID (authenticated users only)
     """
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
     permission_classes = [IsAuthenticated]
     lookup_field = 'id'
+    
+    def get_serializer_class(self):
+        """Use different serializer for updates"""
+        if self.request.method in ['PUT', 'PATCH']:
+            return ContactUpdateSerializer
+        return ContactSerializer
 
 
 @api_view(['GET'])
@@ -73,6 +131,43 @@ def user_contacts(request):
     except Exception as e:
         return Response(
             {'error': 'Failed to fetch user contacts'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def contact_stats(request):
+    """
+    Get contact statistics for admin dashboard
+    """
+    try:
+        from django.db.models import Count, Q
+        from datetime import datetime, timedelta
+        
+        # Get basic stats
+        total_contacts = Contact.objects.count()
+        new_contacts = Contact.objects.filter(status='new').count()
+        today = datetime.now().date()
+        this_week = today - timedelta(days=7)
+        
+        # Get status breakdown
+        status_stats = Contact.objects.values('status').annotate(count=Count('id'))
+        
+        # Get recent contacts (last 7 days)
+        recent_contacts = Contact.objects.filter(
+            contact_date__gte=this_week
+        ).count()
+        
+        return Response({
+            'total_contacts': total_contacts,
+            'new_contacts': new_contacts,
+            'recent_contacts': recent_contacts,
+            'status_breakdown': list(status_stats),
+        })
+    except Exception as e:
+        return Response(
+            {'error': 'Failed to fetch contact stats'}, 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
