@@ -160,11 +160,6 @@ const ContactPage = () => {
     }
   };
 
-  // WhatsApp handler
-  const handleWhatsAppClick = () => {
-    const message = whatsappUtils.generateContactMessage('general');
-    whatsappUtils.redirectToWhatsApp('+2349076614145', message);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
