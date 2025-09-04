@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { contactsAPI } from '@/lib/api';
+import { ContactFormData } from '@/types';
 import { 
   Phone,
   Mail,
@@ -23,7 +25,8 @@ import {
   Instagram,
   Linkedin,
   Youtube,
-  Globe
+  Globe,
+  AlertCircle
 } from 'lucide-react';
 
 // Contact information
@@ -90,19 +93,21 @@ const socialLinks = [
 ];
 
 const ContactPage = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
     phone: '',
     subject: '',
     message: '',
-    propertyType: '',
-    budget: '',
-    timeline: ''
+    property_type: '',
+    budget_range: '',
+    timeline: '',
+    contact_type: 'general'
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -110,32 +115,56 @@ const ContactPage = () => {
       ...prev,
       [name]: value
     }));
+    // Clear error when user starts typing
+    if (error) setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    
-    // Reset form after success
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: '',
-        propertyType: '',
-        budget: '',
-        timeline: ''
-      });
-    }, 3000);
+    try {
+      // Map form data to API format
+      const contactData: ContactFormData = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        subject: formData.subject || 'Contact Inquiry',
+        message: formData.message || '',
+        property_type: formData.property_type || undefined,
+        budget_range: formData.budget_range || undefined,
+        timeline: formData.timeline || undefined,
+        contact_type: formData.contact_type || 'general'
+      };
+
+      const response = await contactsAPI.createContact(contactData);
+      
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+      
+      // Reset form after success
+      setTimeout(() => {
+        setIsSubmitted(false);
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: '',
+          property_type: '',
+          budget_range: '',
+          timeline: '',
+          contact_type: 'general'
+        });
+      }, 3000);
+    } catch (err: any) {
+      setIsSubmitting(false);
+      const errorMessage = err.response?.data?.detail || 
+                          err.response?.data?.message || 
+                          'Failed to submit contact form. Please try again.';
+      setError(errorMessage);
+    }
   };
 
   return (
@@ -284,7 +313,22 @@ const ContactPage = () => {
                     </p>
                   </motion.div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                  <div>
+                    {/* Error Message */}
+                    {error && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl"
+                      >
+                        <div className="flex items-center">
+                          <AlertCircle className="h-5 w-5 text-red-500 mr-3" />
+                          <p className="text-red-700 text-sm">{error}</p>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -333,19 +377,20 @@ const ContactPage = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Property Type
                         </label>                          <select
-                          name="propertyType"
-                          value={formData.propertyType}
+                          name="property_type"
+                          value={formData.property_type}
                           onChange={handleInputChange}
                           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 transition-colors appearance-none"
                         >
                           <option value="">Select property type</option>
-                          <option value="residential">Residential</option>
-                          <option value="luxury">Luxury</option>
-                          <option value="commercial">Commercial</option>
-                          <option value="duplex">Duplex</option>
-                          <option value="bungalow">Bungalow</option>
+                          <option value="house">House</option>
                           <option value="apartment">Apartment</option>
-                          <option value="estate">Estate</option>
+                          <option value="condo">Condo</option>
+                          <option value="townhouse">Townhouse</option>
+                          <option value="villa">Villa</option>
+                          <option value="land">Land</option>
+                          <option value="commercial">Commercial</option>
+                          <option value="other">Other</option>
                         </select>
                       </div>
                     </div>
@@ -355,17 +400,19 @@ const ContactPage = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Budget Range
                         </label>                        <select
-                          name="budget"
-                          value={formData.budget}
+                          name="budget_range"
+                          value={formData.budget_range}
                           onChange={handleInputChange}
                           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 transition-colors appearance-none"
                         >
                           <option value="">Select budget range</option>
-                          <option value="under-50m">Under ₦50M</option>
-                          <option value="50m-100m">₦50M - ₦100M</option>
-                          <option value="100m-250m">₦100M - ₦250M</option>
-                          <option value="250m-500m">₦250M - ₦500M</option>
-                          <option value="over-500m">Over ₦500M</option>
+                          <option value="under_50m">Under ₦50M</option>
+                          <option value="50m_100m">₦50M - ₦100M</option>
+                          <option value="100m_200m">₦100M - ₦200M</option>
+                          <option value="200m_500m">₦200M - ₦500M</option>
+                          <option value="500m_1b">₦500M - ₦1B</option>
+                          <option value="over_1b">Over ₦1B</option>
+                          <option value="not_specified">Not Specified</option>
                         </select>
                       </div>
                       <div>
@@ -378,11 +425,12 @@ const ContactPage = () => {
                           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 transition-colors appearance-none"
                         >
                           <option value="">Select timeline</option>
-                          <option value="asap">ASAP</option>
-                          <option value="1-3months">1-3 months</option>
-                          <option value="3-6months">3-6 months</option>
-                          <option value="6-12months">6-12 months</option>
-                          <option value="exploring">Just exploring</option>
+                          <option value="immediate">Immediately</option>
+                          <option value="1_month">Within 1 Month</option>
+                          <option value="3_months">Within 3 Months</option>
+                          <option value="6_months">Within 6 Months</option>
+                          <option value="1_year">Within 1 Year</option>
+                          <option value="flexible">Flexible</option>
                         </select>
                       </div>
                     </div>
@@ -432,6 +480,7 @@ const ContactPage = () => {
                       )}
                     </Button>
                   </form>
+                  </div>
                 )}
               </div>
             </motion.div>
