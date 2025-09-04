@@ -62,7 +62,7 @@ export default function RootLayout({
                 },
               }}
             />
-            
+       
             {/* Live Chat Widget */}
             <LiveChat 
               enabled={true}

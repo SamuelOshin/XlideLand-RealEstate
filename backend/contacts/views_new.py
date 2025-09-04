@@ -15,6 +15,8 @@ class ContactCreateAPIView(generics.CreateAPIView):
     """
     queryset = Contact.objects.all()
     serializer_class = ContactCreateSerializer
+    # No authentication required for contact form submissions
+    permission_classes = []
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -50,6 +52,7 @@ Please respond promptly to this inquiry.
             """
             
             send_mail(
+
                 email_subject,
                 email_body,
                 settings.DEFAULT_FROM_EMAIL or 'noreply@xlideland.com',

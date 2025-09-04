@@ -62,6 +62,8 @@ class Contact(models.Model):
   message = models.TextField(blank=True)
   contact_date = models.DateTimeField(default=datetime.now, blank=True)
   user_id = models.IntegerField(blank=True, null=True)
+
+
   
   # New enhanced fields
   property_type = models.CharField(max_length=20, choices=PROPERTY_TYPE_CHOICES, blank=True)
@@ -81,5 +83,6 @@ class Contact(models.Model):
     verbose_name = "Contact Inquiry"
     verbose_name_plural = "Contact Inquiries"
   
+
   def __str__(self):
     return f"{self.name} - {self.get_contact_type_display()}" if self.contact_type else self.name

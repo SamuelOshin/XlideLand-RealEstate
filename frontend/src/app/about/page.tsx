@@ -47,8 +47,8 @@ const teamMembers = [
     image: '/img/realtor-2.jpg',
     bio: 'Specializing in residential properties and first-time homebuyers in the Greater Boston area.',
     specialties: ['Residential Sales', 'First-Time Buyers', 'Negotiation'],
-    phone: '(617) 555-0124',
-    email: 'michael@xlideland.com',
+    phone: '+234 907 661 4145',
+    email: 'Opeyemib117@gmail.com',
     sales: '$28M+',
     experience: '12+ Years'
   },
@@ -59,8 +59,8 @@ const teamMembers = [
     image: '/img/realtor-3.jpg',
     bio: 'Expert in waterfront and luxury condominiums with a track record of premium sales.',
     specialties: ['Waterfront Properties', 'Luxury Condos', 'Investment Properties'],
-    phone: '(617) 555-0125',
-    email: 'emily@xlideland.com',
+    phone: '+234 907 661 4145',
+    email: 'Opeyemib117@gmail.com',
     sales: '$35M+',
     experience: '10+ Years'
   },
@@ -71,8 +71,8 @@ const teamMembers = [
     image: '/img/realtor-4.jpg',
     bio: 'Leading commercial real estate transactions and development projects across New England.',
     specialties: ['Commercial Properties', 'Development', 'Investment Analysis'],
-    phone: '(617) 555-0126',
-    email: 'david@xlideland.com',
+    phone: '+234 907 661 4145',
+    email: 'Opeyemib117@gmail.com',
     sales: '$75M+',
     experience: '18+ Years'
   }
