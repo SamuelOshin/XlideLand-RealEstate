@@ -221,20 +221,6 @@ export interface ContactStats {
   }>
 }
 
-export interface ContactFormData {
-  name: string;
-  email: string;
-  phone: string;
-  subject: string;
-  message: string;
-  propertyType?: string;
-  budget?: string;
-  timeline?: string;
-  listing?: string;
-  listing_id?: number;
-  user_id?: number;
-}
-
 export interface ListingFilters {
   city?: string
   state?: string
