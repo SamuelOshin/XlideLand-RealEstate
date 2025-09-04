@@ -55,7 +55,7 @@ const CTASection = () => {
       icon: Phone,
       title: 'Call Us',
       description: 'Speak directly with our experts',
-      action: '(617) 555-5555',
+      action: '+234 907 661 4145',
       color: 'text-green-500',
       bgColor: 'bg-green-50'
     },
@@ -63,7 +63,7 @@ const CTASection = () => {
       icon: Mail,
       title: 'Email Us',
       description: 'Send us your questions anytime',
-      action: 'info@xlideland.com',
+      action: 'Opeyemib117@gmail.com',
       color: 'text-blue-500',
       bgColor: 'bg-blue-50'
     },
@@ -337,7 +337,7 @@ const CTASection = () => {
               className="border-white/30 text-white hover:bg-white hover:text-gray-900 backdrop-blur-sm px-10 py-4 text-lg font-semibold group"
             >
               <Phone className="mr-3 h-6 w-6 group-hover:scale-110 transition-transform" />
-              Call Now: (617) 555-5555
+              Call Now: +234 907 661 4145
             </Button>
           </div>
         </motion.div>
