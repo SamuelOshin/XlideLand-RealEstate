@@ -4,7 +4,7 @@ import {
   Notification, PropertyAlert, Document, UserActivity, DashboardStats,
   UserAnalytics, LoginCredentials, RegisterData, TokenResponse, 
   PasswordChangeData, TourCreateData, ConversationCreateData, 
-  MessageSendData, PropertyAlertCreateData, Listing
+  MessageSendData, PropertyAlertCreateData, Listing, Contact, ContactFormData
 } from '@/types'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
@@ -458,6 +458,44 @@ export const propertiesAPI = {
 
   deleteProperty: async (propertyId: number): Promise<void> => {
     await api.delete(`/api/listings/${propertyId}/`)
+  },
+}
+
+// =================== CONTACT API ===================
+export const contactAPI = {
+  // Submit contact form
+  submitContact: async (data: ContactFormData): Promise<{ contact: Contact; message: string }> => {
+    // Map form data to backend expected format
+    const contactData = {
+      listing: data.subject || 'General Inquiry',
+      listing_id: data.listing_id || 0,
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      message: data.message,
+      user_id: data.user_id || null,
+    }
+    
+    const response = await api.post('/api/contacts/', contactData)
+    return response.data
+  },
+
+  // Get all contacts (admin only)
+  getContacts: async (): Promise<Contact[]> => {
+    const response = await api.get('/api/contacts/list/')
+    return response.data
+  },
+
+  // Get user's own contacts
+  getUserContacts: async (): Promise<Contact[]> => {
+    const response = await api.get('/api/contacts/user-contacts/')
+    return response.data
+  },
+
+  // Get specific contact
+  getContact: async (contactId: number): Promise<Contact> => {
+    const response = await api.get(`/api/contacts/${contactId}/`)
+    return response.data
   },
 }
 

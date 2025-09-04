@@ -14,6 +14,8 @@ class ContactCreateAPIView(generics.CreateAPIView):
     """
     queryset = Contact.objects.all()
     serializer_class = ContactCreateSerializer
+    # No authentication required for contact form submissions
+    permission_classes = []
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -26,7 +28,7 @@ class ContactCreateAPIView(generics.CreateAPIView):
                 f'New Contact Inquiry for {contact.listing}',
                 f'Name: {contact.name}\nEmail: {contact.email}\nPhone: {contact.phone}\nMessage: {contact.message}',
                 settings.DEFAULT_FROM_EMAIL,
-                ['admin@xlideland.com'],  # Replace with actual admin email
+                ['Opeyemib117@gmail.com'],  # Updated email
                 fail_silently=True,
             )
         except Exception as e:

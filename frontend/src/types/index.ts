@@ -168,14 +168,29 @@ export interface Realtor {
 }
 
 export interface Contact {
-  id?: string
+  id?: number
   listing: string
   listing_id: number
   name: string
   email: string
   phone: string
   message: string
+  contact_date?: string
   user_id?: number
+}
+
+export interface ContactFormData {
+  name: string;
+  email: string;
+  phone: string;
+  subject: string;
+  message: string;
+  propertyType?: string;
+  budget?: string;
+  timeline?: string;
+  listing?: string;
+  listing_id?: number;
+  user_id?: number;
 }
 
 export interface ListingFilters {
