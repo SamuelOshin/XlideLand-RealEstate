@@ -4,7 +4,8 @@ import {
   Notification, PropertyAlert, Document, UserActivity, DashboardStats,
   UserAnalytics, LoginCredentials, RegisterData, TokenResponse, 
   PasswordChangeData, TourCreateData, ConversationCreateData, 
-  MessageSendData, PropertyAlertCreateData, Listing
+  MessageSendData, PropertyAlertCreateData, Listing, Contact, 
+  ContactFormData, ContactStats
 } from '@/types'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
@@ -458,6 +459,58 @@ export const propertiesAPI = {
 
   deleteProperty: async (propertyId: number): Promise<void> => {
     await api.delete(`/api/listings/${propertyId}/`)
+  },
+}
+
+// =================== CONTACTS API ===================
+
+export const contactsAPI = {
+  // Create a new contact inquiry
+  createContact: async (data: ContactFormData): Promise<{ contact: Contact; message: string }> => {
+    const response = await api.post('/api/contacts/', data)
+    return response.data
+  },
+
+  // Get all contacts (authenticated users only - admin/staff)
+  getContacts: async (params?: {
+    status?: string
+    contact_type?: string
+    search?: string
+    page?: number
+    limit?: number
+  }): Promise<{ results: Contact[]; count: number }> => {
+    const queryParams = params ? new URLSearchParams(params as any).toString() : ''
+    const response = await api.get(`/api/contacts/list/?${queryParams}`)
+    return response.data
+  },
+
+  // Get a specific contact by ID (authenticated users only)
+  getContact: async (contactId: number): Promise<Contact> => {
+    const response = await api.get(`/api/contacts/${contactId}/`)
+    return response.data
+  },
+
+  // Update contact status (admin use)
+  updateContact: async (contactId: number, data: {
+    status?: string
+    notes?: string
+    responded_at?: string
+    resolved_at?: string
+  }): Promise<Contact> => {
+    const response = await api.patch(`/api/contacts/${contactId}/`, data)
+    return response.data
+  },
+
+  // Get contacts for the current user
+  getUserContacts: async (): Promise<Contact[]> => {
+    const response = await api.get('/api/contacts/user/')
+    return response.data
+  },
+
+  // Get contact statistics for admin dashboard
+  getContactStats: async (): Promise<ContactStats> => {
+    const response = await api.get('/api/contacts/stats/')
+    return response.data
   },
 }
 
