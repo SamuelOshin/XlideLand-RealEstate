@@ -38,7 +38,7 @@ const contactInfo = [
   {
     icon: Mail,
     title: 'Email',
-    primary: 'hello@xlideland.com.ng',
+    primary: 'Opeyemib117@gmail.com',
     secondary: 'We respond within 24 hours',
     color: 'blue'
   },
@@ -63,8 +63,8 @@ const locations = [
   {
     name: 'Lagos Headquarters',
     address: '15 Adeola Odeku Street, Victoria Island, Lagos, Nigeria',
-    phone: '+234 901 234 5678',
-    email: 'lagos@xlideland.com.ng',
+    phone: '+234 907 661 4145',
+    email: 'Opeyemib117@gmail.com',
     hours: 'Mon-Fri 8AM-7PM, Sat 9AM-5PM',
     image: '/img/showcase.jpg',
     isMain: true
@@ -72,8 +72,8 @@ const locations = [
   {
     name: 'Abuja Office',
     address: '12 Muhammadu Buhari Way, Central Area, Abuja, Nigeria',
-    phone: '+234 902 345 6789',
-    email: 'abuja@xlideland.com.ng',
+    phone: '+234 907 661 4145',
+    email: 'Opeyemib117@gmail.com',
     hours: 'Mon-Fri 9AM-6PM, Sat 10AM-4PM',
     image: '/img/hero.jpg',
     isMain: false
