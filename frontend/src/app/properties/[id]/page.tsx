@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { notFound } from 'next/navigation';
 import InstantLoadingLink from '@/components/ui/InstantLoadingLink';
 import { useListing, convertListingToProperty } from '@/hooks/useListings';
+import { whatsApp } from '@/lib/whatsapp';
 import { Property, PropertyFeature } from '@/types';
 import { 
   ArrowLeft,
@@ -133,6 +134,17 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Contact form submitted:', contactForm);
+    // TODO: Integrate with real API
+    
+    // Show success message and offer WhatsApp follow-up
+    alert('Thank you for your inquiry! Our team will contact you soon.');
+    
+    // Optional: Open WhatsApp with inquiry details
+    const propertyInquiry = `Hi! I just submitted an inquiry for "${property.title}" and wanted to follow up. My contact details: Name: ${contactForm.name}, Email: ${contactForm.email}, Phone: ${contactForm.phone}. ${contactForm.message}`;
+    
+    if (confirm('Would you like to continue this conversation on WhatsApp for faster response?')) {
+      whatsApp.open(propertyInquiry);
+    }
   };
 
   const formatPrice = (price: number) => {
@@ -317,11 +329,23 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
                 <Button 
                   className="group relative overflow-hidden bg-white text-emerald-700 hover:text-emerald-800 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
                   size="lg"
+                  onClick={() => window.open('tel:+2349012345678')}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-emerald-50 to-green-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <Phone className="h-5 w-5 mr-3 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
                   <span className="font-semibold relative z-10">Contact Agent</span>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-100/20 to-transparent -skew-x-12 transform translate-x-full group-hover:translate-x-[-100%] transition-transform duration-700"></div>
+                </Button>
+                
+                <Button 
+                  className="group relative overflow-hidden bg-green-500 text-white hover:bg-green-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                  size="lg"
+                  onClick={() => whatsApp.inquireAboutProperty(property.title, property.id)}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-green-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <MessageSquare className="h-5 w-5 mr-3 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
+                  <span className="font-semibold relative z-10">WhatsApp Now</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 transform translate-x-full group-hover:translate-x-[-100%] transition-transform duration-700"></div>
                 </Button>
                 
                 <Button 
