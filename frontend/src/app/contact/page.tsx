@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { contactsAPI } from '@/lib/api';
+import { whatsApp } from '@/lib/whatsapp';
 import { ContactFormData } from '@/types';
 import { 
   Phone,
@@ -37,6 +38,13 @@ const contactInfo = [
     primary: '+234 901 234 5678',
     secondary: 'Mon-Fri 8AM-7PM, Sat 9AM-5PM',
     color: 'emerald'
+  },
+  {
+    icon: MessageSquare,
+    title: 'WhatsApp',
+    primary: '+234 907 661 4145',
+    secondary: 'Quick response, 24/7 available',
+    color: 'green'
   },
   {
     icon: Mail,
@@ -233,14 +241,23 @@ const ContactPage = () => {
                 <Button 
                   size="lg" 
                   className="bg-white text-emerald-700 hover:bg-emerald-50 font-semibold px-8"
+                  onClick={() => window.open('tel:+2349012345678')}
                 >
                   <Phone className="h-5 w-5 mr-2" />
                   Call Now
                 </Button>
                 <Button 
+                  size="lg" 
+                  className="bg-green-500 text-white hover:bg-green-600 font-semibold px-8"
+                  onClick={() => whatsApp.contactNow()}
+                >
+                  <MessageSquare className="h-5 w-5 mr-2" />
+                  WhatsApp Us
+                </Button>
+                <Button 
                   variant="outline" 
                   size="lg" 
-                  className="border-emerald-200 text-emerald-700 hover:bg-emerald-700 font-semibold px-8"
+                  className="border-emerald-200 text-emerald-700 hover:bg-emerald-700 hover:text-white font-semibold px-8"
                 >
                   <Calendar className="h-5 w-5 mr-2" />
                   Book Meeting
@@ -308,9 +325,29 @@ const ContactPage = () => {
                       <CheckCircle className="h-8 w-8 text-emerald-600" />
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">Message Sent!</h3>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 mb-6">
                       Thank you for reaching out. We'll contact you within 24 hours.
                     </p>
+                    
+                    {/* Quick action buttons after form submission */}
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <Button
+                        size="sm"
+                        className="bg-green-500 text-white hover:bg-green-600"
+                        onClick={() => whatsApp.contactNow(formData.name)}
+                      >
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Continue on WhatsApp
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open('tel:+2349012345678')}
+                      >
+                        <Phone className="h-4 w-4 mr-2" />
+                        Call Now
+                      </Button>
+                    </div>
                   </motion.div>
                 ) : (
                   <div>
@@ -650,8 +687,18 @@ const ContactPage = () => {
               <Button 
                 size="lg" 
                 className="bg-white text-emerald-700 hover:bg-emerald-50 font-semibold px-8 py-4 rounded-xl shadow-sm"
-              >                <Phone className="h-5 w-5 mr-2" />
+                onClick={() => window.open('tel:+2349012345678')}
+              >
+                <Phone className="h-5 w-5 mr-2" />
                 Call +234 901 234 5678
+              </Button>
+              <Button 
+                size="lg" 
+                className="bg-green-500 text-white hover:bg-green-600 font-semibold px-8 py-4 rounded-xl shadow-sm"
+                onClick={() => whatsApp.contactNow()}
+              >
+                <MessageSquare className="h-5 w-5 mr-2" />
+                WhatsApp Now
               </Button>
               <Button 
                 variant="outline" 
