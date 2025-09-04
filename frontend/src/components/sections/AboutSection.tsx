@@ -408,32 +408,7 @@ const AboutSection = () => {
           </div>
         </motion.div>
 
-        {/* CTA Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-center mt-20"
-        >
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-8 lg:p-12 text-white">
-            <Clock className="h-12 w-12 mx-auto mb-6 opacity-80" />
-            <h3 className="text-3xl lg:text-4xl font-bold mb-4">
-              Ready to Start Your Real Estate Journey?
-            </h3>
-            <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
-              Whether you're buying your first home, selling a property, or looking for investment opportunities, 
-              we're here to guide you every step of the way.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-white text-blue-600 hover:bg-gray-50 font-semibold px-8 py-3">
-                Get Started Today
-              </Button>
-              <Button variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-3">
-                Schedule Consultation
-              </Button>
-            </div>
-          </div>
-        </motion.div>
+        
       </div>
     </section>
   );
