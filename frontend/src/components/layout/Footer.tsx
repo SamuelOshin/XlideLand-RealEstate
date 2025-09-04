@@ -130,11 +130,11 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-3 text-gray-300 hover:text-white transition-colors">
                 <Phone className="h-5 w-5 text-primary-500" />
-                <span>+1 (555) 123-4567</span>
+                <span>+234 907 661 4145</span>
               </div>
               <div className="flex items-center space-x-3 text-gray-300 hover:text-white transition-colors">
                 <Mail className="h-5 w-5 text-primary-500" />
-                <span>hello@xlideland.com</span>
+                <span>Opeyemib117@gmail.com</span>
               </div>
               <div className="flex items-center space-x-3 text-gray-300 hover:text-white transition-colors">
                 <MapPin className="h-5 w-5 text-primary-500" />

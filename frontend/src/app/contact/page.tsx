@@ -4,6 +4,9 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { contactAPI } from '@/lib/api';
+import { whatsappUtils } from '@/lib/whatsapp';
+import { ContactFormData } from '@/types';
 import { 
   Phone,
   Mail,
@@ -11,6 +14,7 @@ import {
   Clock,
   Send,
   MessageSquare,
+  MessageCircle,
   Home,
   ChevronRight,
   CheckCircle,
@@ -23,7 +27,8 @@ import {
   Instagram,
   Linkedin,
   Youtube,
-  Globe
+  Globe,
+  AlertCircle
 } from 'lucide-react';
 
 // Contact information
@@ -38,7 +43,7 @@ const contactInfo = [
   {
     icon: Mail,
     title: 'Email',
-    primary: 'hello@xlideland.com.ng',
+    primary: 'Opeyemib117@gmail.com',
     secondary: 'We respond within 24 hours',
     color: 'blue'
   },
@@ -63,8 +68,8 @@ const locations = [
   {
     name: 'Lagos Headquarters',
     address: '15 Adeola Odeku Street, Victoria Island, Lagos, Nigeria',
-    phone: '+234 901 234 5678',
-    email: 'lagos@xlideland.com.ng',
+    phone: '+234 907 661 4145',
+    email: 'Opeyemib117@gmail.com',
     hours: 'Mon-Fri 8AM-7PM, Sat 9AM-5PM',
     image: '/img/showcase.jpg',
     isMain: true
@@ -72,8 +77,8 @@ const locations = [
   {
     name: 'Abuja Office',
     address: '12 Muhammadu Buhari Way, Central Area, Abuja, Nigeria',
-    phone: '+234 902 345 6789',
-    email: 'abuja@xlideland.com.ng',
+    phone: '+234 907 661 4145',
+    email: 'Opeyemib117@gmail.com',
     hours: 'Mon-Fri 9AM-6PM, Sat 10AM-4PM',
     image: '/img/hero.jpg',
     isMain: false
@@ -103,6 +108,7 @@ const ContactPage = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -112,30 +118,52 @@ const ContactPage = () => {
     }));
   };
 
+  // WhatsApp handler
+  const handleWhatsAppClick = () => {
+    const message = whatsappUtils.generateContactMessage('general');
+    whatsappUtils.redirectToWhatsApp('+2349076614145', message);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError(null);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    
-    // Reset form after success
-    setTimeout(() => {
-      setIsSubmitted(false);
+    try {
+      // Prepare contact data
+      const contactData: ContactFormData = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        subject: formData.subject,
+        message: formData.message,
+        propertyType: formData.propertyType,
+        budget: formData.budget,
+        timeline: formData.timeline,
+        listing: formData.subject || 'General Inquiry',
+        listing_id: 0, // General contact
+      };
+
+      // Submit to backend
+      const response = await contactAPI.submitContact(contactData);
+      
+      setIsSubmitted(true);
       setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: '',
-        propertyType: '',
-        budget: '',
-        timeline: ''
+        name: '', email: '', phone: '', subject: '', 
+        message: '', propertyType: '', budget: '', timeline: ''
       });
-    }, 3000);
+      
+      // Reset success message after 5 seconds
+      setTimeout(() => {
+        setIsSubmitted(false);
+      }, 5000);
+      
+    } catch (error) {
+      console.error('Contact submission failed:', error);
+      setSubmitError('Failed to submit your message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -207,6 +235,15 @@ const ContactPage = () => {
                 >
                   <Phone className="h-5 w-5 mr-2" />
                   Call Now
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="border-emerald-200 text-white hover:bg-emerald-700 hover:text-white font-semibold px-8"
+                  onClick={handleWhatsAppClick}
+                >
+                  <MessageCircle className="h-5 w-5 mr-2" />
+                  WhatsApp
                 </Button>
                 <Button 
                   variant="outline" 
@@ -285,6 +322,18 @@ const ContactPage = () => {
                   </motion.div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Error Message */}
+                    {submitError && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center"
+                      >
+                        <AlertCircle className="h-5 w-5 text-red-500 mr-3" />
+                        <p className="text-red-700 text-sm">{submitError}</p>
+                      </motion.div>
+                    )}
+                    
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
