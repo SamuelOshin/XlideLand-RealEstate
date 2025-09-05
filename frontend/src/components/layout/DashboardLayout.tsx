@@ -225,7 +225,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 lg:hidden"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
@@ -237,7 +237,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           width: isSidebarOpen ? 280 : 80
         }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
-        className={`fixed left-0 top-0 h-screen bg-white border-r border-gray-200 z-40 ${
+        className={`fixed left-0 top-0 h-screen bg-white border-r border-gray-200 z-50 ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
