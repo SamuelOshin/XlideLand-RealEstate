@@ -34,6 +34,19 @@ export const metadata: Metadata = {
     description: "Find your dream home with Lagos's #1 real estate agency",
     type: "website",
     locale: "en_NG",
+    images: [
+      {
+        url: "/img/xlidelogo.png",
+        width: 400,
+        height: 120,
+        alt: "XlideLand Logo",
+      },
+    ],
+  },
+  icons: {
+    icon: "/img/xlidelogo.png",
+    shortcut: "/img/xlidelogo.png",
+    apple: "/img/xlidelogo.png",
   },
 };
 

@@ -264,7 +264,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
                 {/* Custom Price Range */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Min Price ($)</label>                    <div className="relative">
+                    <label className="text-sm font-medium text-gray-700">Min Price (₦)</label>                    <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-emerald-500" />
                       <Input
                         type="number"
@@ -276,7 +276,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Max Price ($)</label>
+                    <label className="text-sm font-medium text-gray-700">Max Price (₦)</label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <Input

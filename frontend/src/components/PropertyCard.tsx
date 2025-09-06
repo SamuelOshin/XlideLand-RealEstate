@@ -45,9 +45,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   const { images: uploadedImages, loading: imagesLoading } = useAllPropertyImages(property.id?.toString() || null);
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-NG', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'NGN',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(price);
