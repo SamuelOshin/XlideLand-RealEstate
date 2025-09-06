@@ -7,6 +7,8 @@ import PropertyCard from '@/components/PropertyCard';
 import { ChevronLeft, ChevronRight, ArrowRight, Filter } from 'lucide-react';
 import { useFeaturedListings, convertListingToProperty } from '@/hooks/useListings';
 import { Property } from '@/types';
+import { useRouter } from 'next/navigation';
+import InstantLoadingLink from '@/components/ui/InstantLoadingLink';
 
 const FeaturedProperties = () => {
   const [currentPage, setCurrentPage] = useState(0);
@@ -195,13 +197,15 @@ const FeaturedProperties = () => {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="text-center mt-16"
         >
-          <Button
-            size="lg"
-            className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-8 py-4 rounded-full font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
-          >
-            View All Properties
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
+          <InstantLoadingLink href="/properties">
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-8 py-4 rounded-full font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+            >
+              View All Properties
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </InstantLoadingLink>
         </motion.div>
       </div>
     </section>

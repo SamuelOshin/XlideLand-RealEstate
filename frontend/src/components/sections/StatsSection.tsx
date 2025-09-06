@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import InstantLoadingLink from '@/components/ui/InstantLoadingLink';
 import { 
   TrendingUp, 
   Users, 
@@ -223,20 +224,24 @@ const StatsSection = () => {
               we're here to make your real estate journey a success.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-white text-green-600 font-semibold px-8 py-4 rounded-lg hover:bg-gray-50 transition-colors min-h-[52px] text-base shadow-lg"
-              >
-                Start Your Journey
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="border-2 border-white text-white font-semibold px-8 py-4 rounded-lg hover:bg-white hover:text-green-600 transition-colors min-h-[52px] text-base"
-              >
-                Learn More
-              </motion.button>
+              <InstantLoadingLink href="/properties">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-white text-green-600 font-semibold px-8 py-4 rounded-lg hover:bg-gray-50 transition-colors min-h-[52px] text-base shadow-lg"
+                >
+                  Start Your Journey
+                </motion.button>
+              </InstantLoadingLink>
+              <InstantLoadingLink href="/about">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="border-2 border-white text-white font-semibold px-8 py-4 rounded-lg hover:bg-white hover:text-green-600 transition-colors min-h-[52px] text-base"
+                >
+                  Learn More
+                </motion.button>
+              </InstantLoadingLink>
             </div>
           </div>
         </motion.div>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { listingsAPI } from '@/lib/api'
 import { Listing, Property, PaginationInfo, PaginatedResponse } from '@/types'
 import { usePagination, createPaginationParams } from './usePagination'
@@ -135,62 +136,39 @@ export const useListings = (filters?: any, options: PaginationOptions = {}) => {
 // Hook for fetching featured listings with pagination
 export const useFeaturedListings = (options: PaginationOptions = {}) => {
   const { page = 1, limit = 6, enabled = true } = options; // Default 6 for featured
-  
-  const [featuredListings, setFeaturedListings] = useState<Listing[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [pagination, setPagination] = useState<PaginationInfo | null>(null)
 
-  const fetchFeaturedListings = async (pageNum = page, limitNum = limit) => {
-    if (!enabled) {
-      setFeaturedListings([])
-      setPagination(null)
-      setLoading(false)
-      return
-    }
-
-    try {
-      setLoading(true)
-      setError(null)
-      
-      // Use paginated featured listings API
-      const response = await listingsAPI.getFeaturedListings({
-        page: pageNum,
-        limit: limitNum
-      }) as PaginatedResponse<Listing>
-      setFeaturedListings(response.results)
-      
-      // Set pagination from backend response if available
-      if (response.pagination) {
-        setPagination(response.pagination)
-      } else {
-        // Create pagination info manually if not provided by backend
-        const totalPages = Math.ceil(response.count / limitNum)
-        setPagination({
-          page: pageNum,
-          limit: limitNum,
-          total: response.count,
-          pages: totalPages,
-          has_next: pageNum < totalPages,
-          has_previous: pageNum > 1,
-          next_page: pageNum < totalPages ? pageNum + 1 : null,
-          previous_page: pageNum > 1 ? pageNum - 1 : null
-        })
+  const {
+    data: response,
+    isLoading: loading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['featured-listings', page, limit],
+    queryFn: async () => {
+      const result = await listingsAPI.getFeaturedListings({
+        page,
+        limit
+      }) as PaginatedResponse<Listing>;
+      return result;
+    },
+    enabled,
+    staleTime: 15 * 60 * 1000, // 15 minutes - increased to prevent continuous hits
+    gcTime: 30 * 60 * 1000, // 30 minutes
+    retry: (failureCount, err: any) => {
+      // Don't retry on 4xx errors
+      if (err?.response?.status >= 400 && err?.response?.status < 500) {
+        return false;
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch featured listings')
-      console.error('Error fetching featured listings:', err)
-      setFeaturedListings([])
-      setPagination(null)
-    } finally {
-      setLoading(false)
-    }
-  }
+      return failureCount < 3;
+    },
+  });
+
+  const featuredListings = response?.results || [];
+  const pagination = response?.pagination || null;
 
   const goToPage = (pageNum: number) => {
-    if (pageNum >= 1 && (pagination?.pages === undefined || pageNum <= pagination.pages)) {
-      fetchFeaturedListings(pageNum, limit);
-    }
+    // This will trigger a new query with the updated page
+    // React Query will handle deduplication automatically
   };
 
   const nextPage = () => {
@@ -205,24 +183,16 @@ export const useFeaturedListings = (options: PaginationOptions = {}) => {
     }
   };
 
-  useEffect(() => {
-    fetchFeaturedListings(page, limit)
-  }, [page, limit, enabled])
-
-  const refetch = () => {
-    fetchFeaturedListings(page, limit)
-  }
-
   return {
     featuredListings,
     loading,
-    error,
+    error: error?.message || null,
     pagination,
     refetch,
     goToPage,
     nextPage,
     previousPage,
-  }
+  };
 }
 
 // Hook for fetching a single listing

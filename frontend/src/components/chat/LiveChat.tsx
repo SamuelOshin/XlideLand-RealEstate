@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useChat } from '@/components/providers/ChatProvider';
 
 interface Message {
   id: string;
@@ -35,6 +36,10 @@ interface LiveChatProps {
   tidioKey?: string;
   /** Custom greeting message */
   greetingMessage?: string;
+  /** External control for chat open state */
+  externalIsOpen?: boolean;
+  /** Callback when chat is toggled */
+  onToggle?: (isOpen: boolean) => void;
 }
 
 const LiveChat: React.FC<LiveChatProps> = ({
@@ -42,9 +47,26 @@ const LiveChat: React.FC<LiveChatProps> = ({
   position = 'bottom-right',
   primaryColor = '#10b981', // emerald-500
   tidioKey,
-  greetingMessage = "Hi! 👋 How can we help you with your real estate needs today?"
+  greetingMessage = "Hi! 👋 How can we help you with your real estate needs today?",
+  externalIsOpen,
+  onToggle
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const chatContext = useChat();
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  
+  // Use external control if provided, otherwise use context, otherwise use internal state
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : 
+                 (chatContext ? chatContext.isChatOpen : internalIsOpen);
+  
+  const setIsOpen = (value: boolean) => {
+    if (externalIsOpen !== undefined && onToggle) {
+      onToggle(value);
+    } else if (chatContext) {
+      chatContext.setIsChatOpen(value);
+    } else {
+      setInternalIsOpen(value);
+    }
+  };
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');

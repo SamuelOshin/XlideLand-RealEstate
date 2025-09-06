@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import InstantLoadingLink from '@/components/ui/InstantLoadingLink';
 import { 
   Award,
   Users,
@@ -167,6 +168,7 @@ const AboutPage = () => {
               </h1>              <p className="text-xl text-emerald-100 mb-8 leading-relaxed">
                 Since 2004, XlideLand has been Lagos's premier real estate agency, 
                 helping thousands of families find their perfect homes and investment opportunities across Nigeria.
+                <span className="block mt-4 font-semibold">Learn more about us, meet our Team</span>
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4">
@@ -175,7 +177,7 @@ const AboutPage = () => {
                   className="bg-white text-emerald-700 hover:bg-emerald-50 font-semibold px-8"
                 >
                   <Phone className="h-5 w-5 mr-2" />
-                  Schedule Consultation
+                  Get free consultation
                 </Button>
                 <Button 
                   variant="outline" 
@@ -498,16 +500,18 @@ const AboutPage = () => {
                 className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8 py-4 rounded-xl shadow-sm"
               >
                 <Calendar className="h-5 w-5 mr-2" />
-                Schedule Consultation
+                Get free consultation
               </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 font-semibold px-8 py-4 rounded-xl"
-              >
-                <ArrowRight className="h-5 w-5 mr-2" />
-                Browse Properties
-              </Button>
+              <InstantLoadingLink href="/properties">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 font-semibold px-8 py-4 rounded-xl"
+                >
+                  <ArrowRight className="h-5 w-5 mr-2" />
+                  Start Property Search
+                </Button>
+              </InstantLoadingLink>
             </div>
           </motion.div>
         </div>
