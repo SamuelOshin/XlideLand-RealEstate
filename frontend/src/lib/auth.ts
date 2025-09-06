@@ -3,9 +3,11 @@
  */
 import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
-import type { NextAuthConfig } from "next-auth"
+import type { AuthConfig } from "@auth/core"
+import type { JWT } from "@auth/core/jwt"
+import type { Session, Account, Profile, User } from "@auth/core/types"
 
-export const authConfig: NextAuthConfig = {
+export const authConfig: AuthConfig = {
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -20,7 +22,11 @@ export const authConfig: NextAuthConfig = {
     }),
   ],
   callbacks: {
-    async jwt({ token, account, profile }) {
+    async jwt({ token, account, profile }: { 
+      token: JWT; 
+      account?: Account | null; 
+      profile?: Profile;
+    }) {
       // Persist Google OAuth tokens
       if (account) {
         token.accessToken = account.access_token
@@ -41,7 +47,10 @@ export const authConfig: NextAuthConfig = {
       
       return token
     },
-    async session({ session, token }) {
+    async session({ session, token }: { 
+      session: Session; 
+      token: JWT;
+    }) {
       // Send properties to the client
       session.accessToken = token.accessToken as string
       session.googleId = token.googleId as string
@@ -49,7 +58,11 @@ export const authConfig: NextAuthConfig = {
       
       return session
     },
-    async signIn({ account, profile, user }) {
+    async signIn({ account, profile, user }: { 
+      account?: Account | null; 
+      profile?: Profile; 
+      user: User;
+    }) {
       // Verify Google profile
       if (account?.provider === "google") {
         if (!profile?.email || !profile?.email_verified) {
