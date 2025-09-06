@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import InstantLoadingLink from '@/components/ui/InstantLoadingLink';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 import { Eye, EyeOff, Home, Lock, User, Mail, UserPlus, Building2, TrendingUp, Shield, Users, Award, CheckCircle } from 'lucide-react'
 
 export default function RegisterPage() {  const [formData, setFormData] = useState({
@@ -287,6 +288,26 @@ export default function RegisterPage() {  const [formData, setFormData] = useSta
                 )}
               </button>
             </form>
+
+            {/* Google Sign-In Section */}
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-white text-text-muted font-medium">Or get started with</span>
+                </div>
+              </div>
+              
+              <div className="mt-6">
+                <GoogleSignInButton 
+                  text="Sign up with Google"
+                  variant="outline"
+                  className="h-12 text-text-secondary border-2 border-gray-200 hover:border-gray-300 rounded-2xl font-semibold"
+                />
+              </div>
+            </div>
 
             {/* Divider */}
             <div className="mt-6 pt-6 border-t border-gray-200">

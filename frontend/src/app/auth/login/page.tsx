@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import InstantLoadingLink from '@/components/ui/InstantLoadingLink';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 import { Eye, EyeOff, Home, Lock, User, Building2, TrendingUp, Shield, Star } from 'lucide-react'
 
 export default function LoginPage() {  const [credentials, setCredentials] = useState({
@@ -115,7 +116,27 @@ export default function LoginPage() {  const [credentials, setCredentials] = use
                   'Sign In to XlideLand'
                 )}
               </button>
-            </form>            {/* Divider */}
+            </form>
+
+            {/* Google Sign-In Section */}
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-white text-text-muted font-medium">Or continue with</span>
+                </div>
+              </div>
+              
+              <div className="mt-6">
+                <GoogleSignInButton 
+                  text="Continue with Google"
+                  variant="outline"
+                  className="h-12 text-text-secondary border-2 border-gray-200 hover:border-gray-300 rounded-2xl font-semibold"
+                />
+              </div>
+            </div>            {/* Divider */}
             <div className="mt-8 pt-8 border-t border-gray-200">
               <p className="text-center text-gray-600">
                 Don't have an account?{' '}

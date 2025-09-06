@@ -199,8 +199,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = UserProfile
-        fields = ['user', 'role', 'avatar', 'phone', 'bio', 'is_verified', 'joined_date', 'last_login_date']
-        read_only_fields = ['user', 'joined_date']
+        fields = [
+            'user', 'role', 'avatar', 'phone', 'bio', 'is_verified', 
+            'joined_date', 'last_login_date',
+            'google_id', 'google_email', 'google_picture', 'is_google_user', 'google_verified'
+        ]
+        read_only_fields = ['user', 'joined_date', 'google_id', 'google_email', 'google_picture', 'is_google_user', 'google_verified']
 
 
 class ListingSerializer(serializers.ModelSerializer):

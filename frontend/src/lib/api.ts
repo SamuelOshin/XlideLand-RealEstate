@@ -153,6 +153,29 @@ export const dashboardAPI = {
     })
     return response.data
   },
+
+  // Google OAuth2 methods
+  googleLogin: async (tokens: { id_token?: string; access_token?: string }): Promise<TokenResponse & { user: User }> => {
+    const response = await api.post('/api/accounts/google/login/', tokens)
+    
+    // Store tokens
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('access_token', response.data.access)
+      localStorage.setItem('refresh_token', response.data.refresh)
+    }
+    
+    return response.data
+  },
+
+  linkGoogleAccount: async (tokens: { id_token?: string; access_token?: string }): Promise<{ message: string; google_email: string; google_verified: boolean }> => {
+    const response = await api.post('/api/accounts/google/link/', tokens)
+    return response.data
+  },
+
+  unlinkGoogleAccount: async (): Promise<{ message: string }> => {
+    const response = await api.post('/api/accounts/google/unlink/')
+    return response.data
+  },
 }
 
 export const userProfileAPI = {
