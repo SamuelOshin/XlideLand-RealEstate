@@ -229,7 +229,7 @@ const AboutSection = () => {
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">$847M</div>
+                  <div className="text-2xl font-bold text-blue-600">₦847M</div>
                   <div className="text-xs text-gray-600">Total Sales Volume</div>
                 </div>
                 <div className="text-center">

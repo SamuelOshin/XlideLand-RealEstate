@@ -179,7 +179,7 @@ const PropertiesPage = () => {
                   <div className="text-3xl font-bold text-white">{properties.length}+</div>
                   <div className="text-emerald-200 text-sm">Active Listings</div>
                 </div>                <div className="text-center">
-                  <div className="text-3xl font-bold text-white">$2.5M</div>
+                  <div className="text-3xl font-bold text-white">₦2.5M</div>
                   <div className="text-emerald-200 text-sm">Avg. Price</div>
                 </div>
                 <div className="text-center">
@@ -314,7 +314,7 @@ const PropertiesPage = () => {
                 <div className="hidden sm:flex items-center space-x-6 pl-6 border-l border-gray-200">
                   <div className="text-center">
                     <div className="text-lg font-bold text-emerald-600">
-                      ${averagePrice > 0 ? `${Math.round(averagePrice / 1000)}K` : '0'}
+                      ₦{averagePrice > 0 ? `${Math.round(averagePrice / 1000)}K` : '0'}
                     </div>
                     <div className="text-xs text-gray-500">Avg. Price</div>
                   </div>
@@ -600,10 +600,10 @@ const PropertiesPage = () => {
                 
                 <div className="space-y-4">
                   {[
-                    { area: "Back Bay", change: "+15.2%", price: "$1.2M", trend: "up" },
-                    { area: "Cambridge", change: "+12.8%", price: "$950K", trend: "up" },
-                    { area: "Beacon Hill", change: "+8.4%", price: "$1.8M", trend: "up" },
-                    { area: "South End", change: "+6.1%", price: "$875K", trend: "up" }
+                    { area: "Back Bay", change: "+15.2%", price: "₦1.2M", trend: "up" },
+                    { area: "Cambridge", change: "+12.8%", price: "₦950K", trend: "up" },
+                    { area: "Beacon Hill", change: "+8.4%", price: "₦1.8M", trend: "up" },
+                    { area: "South End", change: "+6.1%", price: "₦875K", trend: "up" }
                   ].map((neighborhood) => (
                     <div key={neighborhood.area} className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
                       <div className="flex items-center">
@@ -622,7 +622,7 @@ const PropertiesPage = () => {
               <div className="bg-white/5 rounded-2xl p-6">
                 <div className="text-center">
                   <div className="text-4xl font-bold text-emerald-300 mb-2">
-                    $1.1M
+                    ₦1.1M
                   </div>
                   <div className="text-white text-lg mb-1">Average Home Price</div>
                   <div className="text-gray-400 text-sm mb-6">Greater Boston Area</div>
@@ -631,7 +631,7 @@ const PropertiesPage = () => {
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-400">Price Range</span>
-                      <span className="text-white">$450K - $2.5M</span>
+                      <span className="text-white">₦450K - ₦2.5M</span>
                     </div>
                     <div className="w-full bg-gray-700 rounded-full h-2">
                       <div className="bg-gradient-to-r from-emerald-600 to-emerald-400 h-2 rounded-full" style={{width: '68%'}}></div>

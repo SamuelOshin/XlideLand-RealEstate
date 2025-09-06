@@ -34,7 +34,7 @@ const StatsSection = () => {
     },
     {
       icon: DollarSign,
-      number: '$2.5B+',
+      number: '₦2.5B+',
       label: 'Property Value',
       description: 'Total sales volume',
       color: 'text-purple-500',

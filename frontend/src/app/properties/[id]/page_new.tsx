@@ -104,7 +104,7 @@ const propertyData = {
     email: 'Opeyemib117@gmail.com',
     photo: '/img/realtor-1.jpg',
     bio: 'With over 15 years of experience in luxury real estate, Sarah leads XlideLand with passion and expertise.',
-    totalSales: '$45M+',
+    totalSales: '₦45M+',
     experience: '15+ Years',
     rating: 4.9,
     reviews: 127
@@ -184,9 +184,9 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-NG', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'NGN',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(price);
@@ -330,7 +330,7 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
                   {formatPrice(property.price)}
                 </div>
                 <div className="text-emerald-100 text-lg mb-4">
-                  ${Math.round(property.price / property.area)}/sq ft
+                  ₦{Math.round(property.price / property.area)}/sq ft
                 </div>
                 
                 <div className="grid grid-cols-3 gap-4 text-center border-t border-white/20 pt-4">

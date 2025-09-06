@@ -50,7 +50,7 @@ const teamMembers = [
     specialties: ['Residential Sales', 'First-Time Buyers', 'Negotiation'],
     phone: '+234 907 661 4145',
     email: 'Opeyemib117@gmail.com',
-    sales: '$28M+',
+    sales: '₦28M+',
     experience: '12+ Years'
   },
   {
@@ -62,7 +62,7 @@ const teamMembers = [
     specialties: ['Waterfront Properties', 'Luxury Condos', 'Investment Properties'],
     phone: '+234 907 661 4145',
     email: 'Opeyemib117@gmail.com',
-    sales: '$35M+',
+    sales: '₦35M+',
     experience: '10+ Years'
   },
   {
@@ -74,7 +74,7 @@ const teamMembers = [
     specialties: ['Commercial Properties', 'Development', 'Investment Analysis'],
     phone: '+234 907 661 4145',
     email: 'Opeyemib117@gmail.com',
-    sales: '$75M+',
+    sales: '₦75M+',
     experience: '18+ Years'
   }
   */
