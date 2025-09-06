@@ -25,6 +25,11 @@ urlpatterns = [
     path('profile/update/', views.UserUpdateAPIView.as_view(), name='user-update'),
     path('change-password/', views.change_password, name='change-password'),
     
+    # Google OAuth2 endpoints
+    path('google/login/', views.google_oauth_login, name='google-oauth-login'),
+    path('google/link/', views.link_google_account, name='link-google-account'),
+    path('google/unlink/', views.unlink_google_account, name='unlink-google-account'),
+    
     # =================== DASHBOARD ENDPOINTS ===================
     path('dashboard/stats/', views.dashboard_stats, name='dashboard-stats'),
     path('dashboard/analytics/', views.user_analytics, name='user-analytics'),

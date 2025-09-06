@@ -1085,3 +1085,239 @@ def get_user_realtor_info(request):
             {'error': 'No realtor profile found for this user'}, 
             status=status.HTTP_404_NOT_FOUND
         )
+
+
+# ================== GOOGLE OAUTH2 VIEWS ==================
+
+from .google_oauth import get_google_user_data
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.models import User
+from django.db import transaction
+
+
+@api_view(['POST'])
+@permission_classes([])
+def google_oauth_login(request):
+    """
+    Handle Google OAuth2 login/registration
+    
+    Expected payload:
+    {
+        "id_token": "google_id_token",
+        "access_token": "google_access_token"
+    }
+    """
+    try:
+        id_token = request.data.get('id_token')
+        access_token = request.data.get('access_token')
+        
+        if not id_token and not access_token:
+            return Response(
+                {'error': 'Either id_token or access_token is required'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Verify Google token and get user data
+        google_user_data = None
+        if id_token:
+            google_user_data = get_google_user_data(id_token, 'id_token')
+        elif access_token:
+            google_user_data = get_google_user_data(access_token, 'access_token')
+        
+        if not google_user_data:
+            return Response(
+                {'error': 'Invalid Google token'}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        # Check if user exists by Google ID or email
+        try:
+            # First try to find by Google ID
+            user_profile = UserProfile.objects.get(google_id=google_user_data['google_id'])
+            user = user_profile.user
+            
+            # Update Google user data
+            user_profile.google_email = google_user_data['email']
+            user_profile.google_picture = google_user_data['picture']
+            user_profile.google_verified = google_user_data['email_verified']
+            user_profile.last_login_date = timezone.now()
+            user_profile.save()
+            
+            logger.info(f"Existing Google user logged in: {user.email}")
+            
+        except UserProfile.DoesNotExist:
+            # Try to find by email
+            try:
+                user = User.objects.get(email=google_user_data['email'])
+                user_profile = user.profile
+                
+                # Link Google account to existing user
+                user_profile.google_id = google_user_data['google_id']
+                user_profile.google_email = google_user_data['email']
+                user_profile.google_picture = google_user_data['picture']
+                user_profile.is_google_user = True
+                user_profile.google_verified = google_user_data['email_verified']
+                user_profile.last_login_date = timezone.now()
+                user_profile.save()
+                
+                logger.info(f"Linked Google account to existing user: {user.email}")
+                
+            except User.DoesNotExist:
+                # Create new user
+                with transaction.atomic():
+                    # Create user
+                    user = User.objects.create_user(
+                        username=google_user_data['email'],  # Use email as username
+                        email=google_user_data['email'],
+                        first_name=google_user_data.get('given_name', ''),
+                        last_name=google_user_data.get('family_name', ''),
+                    )
+                    
+                    # Update or create user profile
+                    user_profile, created = UserProfile.objects.get_or_create(
+                        user=user,
+                        defaults={
+                            'role': 'buyer',  # Default role for new Google users
+                            'google_id': google_user_data['google_id'],
+                            'google_email': google_user_data['email'],
+                            'google_picture': google_user_data['picture'],
+                            'is_google_user': True,
+                            'google_verified': google_user_data['email_verified'],
+                            'is_verified': google_user_data['email_verified'],
+                            'last_login_date': timezone.now(),
+                        }
+                    )
+                    
+                    logger.info(f"Created new Google user: {user.email}")
+        
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        access_token = refresh.access_token
+        
+        # Prepare user data response
+        user_data = {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'profile': {
+                'role': user_profile.role,
+                'avatar': user_profile.avatar.url if user_profile.avatar else None,
+                'google_picture': user_profile.google_picture,
+                'is_google_user': user_profile.is_google_user,
+                'is_verified': user_profile.is_verified,
+            }
+        }
+        
+        return Response({
+            'access': str(access_token),
+            'refresh': str(refresh),
+            'user': user_data,
+            'message': 'Google OAuth2 login successful'
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        logger.error(f"Google OAuth2 login error: {str(e)}")
+        return Response(
+            {'error': 'Internal server error during Google OAuth2 login'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def link_google_account(request):
+    """
+    Link Google account to existing authenticated user
+    """
+    try:
+        id_token = request.data.get('id_token')
+        access_token = request.data.get('access_token')
+        
+        if not id_token and not access_token:
+            return Response(
+                {'error': 'Either id_token or access_token is required'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Verify Google token
+        google_user_data = None
+        if id_token:
+            google_user_data = get_google_user_data(id_token, 'id_token')
+        elif access_token:
+            google_user_data = get_google_user_data(access_token, 'access_token')
+        
+        if not google_user_data:
+            return Response(
+                {'error': 'Invalid Google token'}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        # Check if Google account is already linked to another user
+        if UserProfile.objects.filter(google_id=google_user_data['google_id']).exclude(user=request.user).exists():
+            return Response(
+                {'error': 'This Google account is already linked to another user'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Link Google account to current user
+        user_profile = request.user.profile
+        user_profile.google_id = google_user_data['google_id']
+        user_profile.google_email = google_user_data['email']
+        user_profile.google_picture = google_user_data['picture']
+        user_profile.is_google_user = True
+        user_profile.google_verified = google_user_data['email_verified']
+        user_profile.save()
+        
+        logger.info(f"Linked Google account to user: {request.user.email}")
+        
+        return Response({
+            'message': 'Google account linked successfully',
+            'google_email': google_user_data['email'],
+            'google_verified': google_user_data['email_verified']
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        logger.error(f"Google account linking error: {str(e)}")
+        return Response(
+            {'error': 'Internal server error during Google account linking'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def unlink_google_account(request):
+    """
+    Unlink Google account from authenticated user
+    """
+    try:
+        user_profile = request.user.profile
+        
+        if not user_profile.is_google_user:
+            return Response(
+                {'error': 'No Google account linked to this user'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Unlink Google account
+        user_profile.google_id = None
+        user_profile.google_email = None
+        user_profile.google_picture = None
+        user_profile.is_google_user = False
+        user_profile.google_verified = False
+        user_profile.save()
+        
+        logger.info(f"Unlinked Google account from user: {request.user.email}")
+        
+        return Response({
+            'message': 'Google account unlinked successfully'
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        logger.error(f"Google account unlinking error: {str(e)}")
+        return Response(
+            {'error': 'Internal server error during Google account unlinking'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

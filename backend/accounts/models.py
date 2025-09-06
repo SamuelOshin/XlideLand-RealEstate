@@ -23,6 +23,13 @@ class UserProfile(models.Model):
     joined_date = models.DateTimeField(auto_now_add=True)
     last_login_date = models.DateTimeField(null=True, blank=True)
     
+    # Google OAuth2 fields
+    google_id = models.CharField(max_length=100, blank=True, null=True, unique=True)
+    google_email = models.EmailField(blank=True, null=True)
+    google_picture = models.URLField(max_length=500, blank=True, null=True)
+    is_google_user = models.BooleanField(default=False)
+    google_verified = models.BooleanField(default=False)
+    
     def __str__(self):
         return f"{self.user.username} - {self.role}"
 
