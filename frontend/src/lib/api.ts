@@ -8,7 +8,9 @@ import {
   ContactFormData, ContactStats
 } from '@/types'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
+// API Base URL - Read from environment variable or use default
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000').replace(/\/api\/?$/, '')
+
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

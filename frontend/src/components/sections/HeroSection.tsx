@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import SearchForm from '@/components/SearchForm';
+import InstantLoadingLink from '@/components/ui/InstantLoadingLink';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -240,14 +241,16 @@ const HeroSection = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
               className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center"
-            >              <Button 
-                size="lg" 
-                className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold px-8 py-4 text-base group shadow-lg hover:shadow-xl transition-all duration-300 min-h-[52px] w-full sm:w-auto"
-                aria-label={`${currentSlideData.cta} - View available properties`}
-              >
-                {currentSlideData.cta}
-                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
+            >              <InstantLoadingLink href="/properties">
+                <Button 
+                  size="lg" 
+                  className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold px-8 py-4 text-base group shadow-lg hover:shadow-xl transition-all duration-300 min-h-[52px] w-full sm:w-auto"
+                  aria-label={`${currentSlideData.cta} - View available properties`}
+                >
+                  {currentSlideData.cta}
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </InstantLoadingLink>
               
               <Button 
                 variant="outline" 

@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import InstantLoadingLink from '@/components/ui/InstantLoadingLink';
 import { 
   CheckCircle, 
   ArrowRight, 
@@ -138,21 +139,16 @@ const AboutSection = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <Button 
-                size="lg" 
-                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold px-6 sm:px-8 py-3 group min-h-[48px] text-sm sm:text-base"
-              >
-                Learn More About Us
-                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
+              <InstantLoadingLink href="/about">
+                <Button 
+                  size="lg" 
+                  className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold px-6 sm:px-8 py-3 group min-h-[48px] text-sm sm:text-base"
+                >
+                  Learn More About Us
+                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </InstantLoadingLink>
               
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold px-8 py-4 text-base group shadow-lg hover:shadow-xl transition-all duration-300 min-h-[52px] w-full sm:w-auto"
-              >
-                Meet Our Team
-              </Button>
             </div>
           </motion.div>          {/* Right Content - Enhanced Interactive Panel */}
           <motion.div
@@ -303,10 +299,12 @@ const AboutSection = () => {
                 <p className="text-sm text-blue-100 mb-4">
                   Get your free property valuation and market analysis today.
                 </p>
-                <Button className="bg-white text-blue-600 hover:bg-blue-50 font-semibold w-full">
-                  Get Free Consultation
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                <InstantLoadingLink href="/contact">
+                  <Button className="bg-white text-blue-600 hover:bg-blue-50 font-semibold w-full">
+                    Get Free Consultation
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </InstantLoadingLink>
               </div>
             </motion.div>
           </motion.div>

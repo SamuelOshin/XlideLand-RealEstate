@@ -8,6 +8,7 @@ import { contactsAPI } from '@/lib/api';
 import { whatsApp } from '@/lib/whatsapp';
 import { validateContactForm, createFieldValidator, getFieldError, ValidationError } from '@/lib/validation';
 import { ContactFormData } from '@/types';
+import { useChat } from '@/components/providers/ChatProvider';
 import { 
   Phone,
   Mail,
@@ -103,6 +104,7 @@ const socialLinks = [
 ];
 
 const ContactPage = () => {
+  const chat = useChat();
   const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
@@ -782,7 +784,8 @@ const ContactPage = () => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="border-emerald-200 text-white hover:bg-emerald-700 font-semibold px-8 py-4 rounded-xl"
+                className="bg-white text-emerald-700 hover:bg-emerald-50 font-semibold px-8 py-4 rounded-xl shadow-sm"
+                onClick={chat.openChat}
               >
                 <MessageSquare className="h-5 w-5 mr-2" />
                 Start Live Chat
