@@ -1,6 +1,7 @@
 /**
  * Environment validation for Google OAuth2 configuration
  */
+import React from 'react'
 
 interface EnvironmentConfig {
   NEXTAUTH_URL: string

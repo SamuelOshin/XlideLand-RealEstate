@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
 import { useState } from "react";
 import "./globals.css";
 import Header from "@/components/layout/Header";
@@ -15,15 +14,14 @@ import LiveChat from "@/components/chat/LiveChat";
 import { ReactQueryProvider } from "@/components/providers/ReactQueryProvider";
 import ChatProvider from "@/components/providers/ChatProvider";
 
-const inter = Inter({
+// Fallback font variables for builds without Google Fonts access
+const inter = {
   variable: "--font-inter",
-  subsets: ["latin"],
-});
+};
 
-const playfair = Playfair_Display({
+const playfair = {
   variable: "--font-playfair",
-  subsets: ["latin"],
-});
+};
 
 export const metadata: Metadata = {
   title: "XlideLand - Premium Real Estate | Find Your Dream Home",

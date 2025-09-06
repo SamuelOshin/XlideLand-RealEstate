@@ -29,13 +29,13 @@ export const authConfig: NextAuthConfig = {
       }
       
       // Add Google profile information
-      if (profile) {
+      if (profile && profile.sub && profile.email && profile.name) {
         token.googleProfile = {
           id: profile.sub,
           email: profile.email,
           name: profile.name,
-          picture: profile.picture,
-          email_verified: profile.email_verified,
+          picture: profile.picture || undefined,
+          email_verified: profile.email_verified || false,
         }
       }
       

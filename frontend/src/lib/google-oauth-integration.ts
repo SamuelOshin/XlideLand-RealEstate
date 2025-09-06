@@ -2,6 +2,7 @@
  * Google OAuth2 integration utilities for connecting NextAuth sessions with Django backend
  */
 
+import React from 'react'
 import { authAPI } from '@/lib/api'
 import { toast } from 'sonner'
 

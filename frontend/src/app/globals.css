@@ -9,8 +9,6 @@
  * - Use Typography component when available for consistency
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -19,6 +17,8 @@
   --primary: #22c55e; /* XlideLand brand green */
   --secondary: #f59e0b; /* XlideLand orange */
   --radius: 0.75rem;
+  --font-inter: "Inter", system-ui, -apple-system, sans-serif;
+  --font-playfair: "Playfair Display", Georgia, serif;
 }
 
 @theme inline {
@@ -26,8 +26,8 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
-  --font-sans: "Inter", "Plus Jakarta Sans", system-ui, sans-serif;
-  --font-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-playfair);
 }
 
 

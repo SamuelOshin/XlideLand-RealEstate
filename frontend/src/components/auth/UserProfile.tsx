@@ -3,7 +3,7 @@
 import React from 'react'
 import { useSession } from 'next-auth/react'
 import { useAuth } from '@/contexts/AuthContext'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar'
+import { Avatar } from '@/components/ui/Avatar'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { authAPI } from '@/lib/api'
@@ -72,15 +72,13 @@ export function UserProfile({ className = '' }: UserProfileProps) {
     <div className={`bg-white rounded-xl p-6 shadow-sm border border-gray-200 ${className}`}>
       <div className="flex items-start gap-4">
         {/* Avatar */}
-        <Avatar className="h-16 w-16">
-          <AvatarImage 
-            src={googlePicture || userProfile?.avatar || ''} 
-            alt={user.first_name ? `${user.first_name} ${user.last_name}` : user.username}
-          />
-          <AvatarFallback className="bg-emerald-100 text-emerald-700 text-lg font-semibold">
-            {user.first_name ? user.first_name.charAt(0) : user.username.charAt(0)}
-          </AvatarFallback>
-        </Avatar>
+        <Avatar 
+          className="h-16 w-16"
+          src={googlePicture || userProfile?.avatar || ''} 
+          alt={user.first_name ? `${user.first_name} ${user.last_name}` : user.username}
+          fallback={user.first_name ? user.first_name.charAt(0) : user.username.charAt(0)}
+          size="xl"
+        />
 
         {/* User Info */}
         <div className="flex-1">
@@ -108,7 +106,10 @@ export function UserProfile({ className = '' }: UserProfileProps) {
           )}
           
           <Badge variant="outline" className="text-xs">
-            {userProfile?.role?.charAt(0).toUpperCase() + userProfile?.role?.slice(1) || 'Buyer'}
+            {userProfile?.role ? 
+              userProfile.role.charAt(0).toUpperCase() + userProfile.role.slice(1) : 
+              'Buyer'
+            }
           </Badge>
         </div>
 
