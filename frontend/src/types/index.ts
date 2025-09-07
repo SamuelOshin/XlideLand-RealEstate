@@ -303,6 +303,12 @@ export interface UserProfile {
   is_verified: boolean;
   joined_date: string;
   last_login_date?: string;
+  // Google OAuth2 fields
+  google_id?: string;
+  google_email?: string;
+  google_picture?: string;
+  is_google_user: boolean;
+  google_verified: boolean;
 }
 
 export interface UserFavorite {

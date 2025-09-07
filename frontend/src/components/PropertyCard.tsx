@@ -67,15 +67,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   };
 
   const getImageUrl = () => {
-    console.log('PropertyCard getImageUrl - Property ID:', property.id);
-    console.log('PropertyCard getImageUrl - Uploaded images:', uploadedImages);
-    console.log('PropertyCard getImageUrl - Property images:', property.images);
-    
     // First try to use uploaded images from Vercel Blob
     if (uploadedImages && uploadedImages.length > 0) {
       const mainImage = uploadedImages.find(img => img.is_main) || uploadedImages[0];
       if (mainImage?.blob_url && isValidUrl(mainImage.blob_url)) {
-        console.log('PropertyCard getImageUrl - Using blob URL:', mainImage.blob_url);
         return mainImage.blob_url;
       }
     }
@@ -97,7 +92,6 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
         
         // If it's already a full URL, validate and return it
         if (isValidUrl(photo)) {
-          console.log('PropertyCard getImageUrl - Using valid URL:', photo);
           return photo;
         }
         
@@ -106,7 +100,6 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
           const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000';
           const fullUrl = `${apiUrl}${photo.startsWith('/') ? '' : '/'}${photo}`;
           if (isValidUrl(fullUrl)) {
-            console.log('PropertyCard getImageUrl - Using constructed URL:', fullUrl);
             return fullUrl;
           }
         }
@@ -114,7 +107,6 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
     }
 
     // Ultimate fallback to placeholder
-    console.log('PropertyCard getImageUrl - Using placeholder');
     return '/img/mock-property/1.jpg';
   };
 
@@ -139,11 +131,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
             imageLoaded ? 'opacity-100' : 'opacity-0'
           }`}
           onLoad={() => {
-            console.log('PropertyCard SafeImage loaded successfully');
             setImageLoaded(true);
           }}
           onError={() => {
-            console.error('PropertyCard SafeImage failed to load');
             setImageLoaded(true);
           }}
           fallbackSrc="/img/mock-property/1.jpg"

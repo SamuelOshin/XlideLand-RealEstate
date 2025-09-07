@@ -67,8 +67,6 @@ export default function ListedPropertiesPage() {
       setLoading(true);
       setError(null);
       
-      console.log('Loading properties for user role:', role);
-      
       let realtorId = null;
       
       // For sellers, get their realtor ID first
@@ -76,7 +74,6 @@ export default function ListedPropertiesPage() {
         try {
           const realtorInfo = await authAPI.getUserRealtorInfo();
           realtorId = realtorInfo.realtor_id;
-          console.log('Found realtor ID:', realtorId);
         } catch (error) {
           console.error('Error getting realtor info:', error);
           setError('You need to have a realtor profile to view listings. Please contact support.');
@@ -91,8 +88,6 @@ export default function ListedPropertiesPage() {
         ...(role === 'seller' && realtorId && { realtor: realtorId }),
         ordering: '-list_date'
       });
-      
-      console.log('Listings API response:', response);
       
       if (!response || !response.results) {
         throw new Error('Invalid response format from listings API');
@@ -142,7 +137,6 @@ export default function ListedPropertiesPage() {
         favorites: 0,        daysOnMarket: 0,
       }));
       
-      console.log('Transformed properties:', transformedProperties);
       setProperties(transformedProperties);
     } catch (error: any) {
       console.error('Failed to load properties:', error);

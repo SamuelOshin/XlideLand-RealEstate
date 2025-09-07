@@ -279,3 +279,12 @@ LOGGING = {
 LOGS_DIR = os.path.join(BASE_DIR, 'logs')
 if not os.path.exists(LOGS_DIR):
     os.makedirs(LOGS_DIR)
+
+# Google OAuth2 Settings
+GOOGLE_OAUTH2_CLIENT_ID = os.getenv('GOOGLE_OAUTH2_CLIENT_ID')
+GOOGLE_OAUTH2_CLIENT_SECRET = os.getenv('GOOGLE_OAUTH2_CLIENT_SECRET')
+GOOGLE_OAUTH2_REDIRECT_URI = os.getenv('GOOGLE_OAUTH2_REDIRECT_URI', 'http://localhost:8000/auth/google/callback/')
+
+# Validate Google OAuth2 settings in production
+if not DEBUG and not GOOGLE_OAUTH2_CLIENT_ID:
+    raise RuntimeError('GOOGLE_OAUTH2_CLIENT_ID environment variable is required in production')

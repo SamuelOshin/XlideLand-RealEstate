@@ -186,7 +186,6 @@ export default function ReportsPage() {
   };
 
   const exportReport = (format: 'csv' | 'pdf') => {
-    console.log(`Exporting report as ${format.toUpperCase()}`);
     // Implement export functionality
   };
 
