@@ -109,14 +109,14 @@ const SearchForm: React.FC<SearchFormProps> = ({
               </div>
 
               {/* Property Type */}
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0">
                 <label className="text-sm font-medium text-gray-700">Property Type</label>
                 <div className="relative">
                   <Home className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-emerald-500" />                  
                   <select
                     value={filters.propertyType || ''}
                     onChange={(e) => handleInputChange('propertyType', e.target.value)}
-                    className="w-full pl-10 pr-4 h-12 sm:h-14 text-base border border-gray-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 bg-white text-gray-900 appearance-none"
+                    className="w-full min-w-0 max-w-full sm:max-w-xs md:max-w-[220px] pl-10 pr-8 h-12 sm:h-14 text-base border border-gray-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 bg-white text-gray-900 appearance-none"
                   >
                     <option value="">All Types</option>
                     {propertyTypes.map(type => (
@@ -125,12 +125,12 @@ const SearchForm: React.FC<SearchFormProps> = ({
                   </select>
                 </div>
               </div>              {/* Price Range */}
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0">
                 <label className="text-sm font-medium text-gray-700">Price Range</label>
                 <div className="relative">
                   <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-emerald-500" />                  <select
                     onChange={(e) => handlePriceRangeChange(e.target.value)}
-                    className="w-full pl-10 pr-4 h-12 sm:h-14 text-base border border-gray-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 bg-white text-gray-900 appearance-none"
+                    className="w-full min-w-0 max-w-full sm:max-w-xs md:max-w-[220px] pl-10 pr-8 h-12 sm:h-14 text-base border border-gray-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 bg-white text-gray-900 appearance-none"
                   >
                     <option value="">Any Price</option>
                     {priceRanges.map(range => (
@@ -142,7 +142,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
             </div>
 
             {/* Advanced Filters Toggle */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center justify-between gap-4">
               <Button
                 type="button"
                 variant="ghost"                

@@ -126,7 +126,7 @@ const PropertiesPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+  <div className="min-h-screen bg-gray-50 overflow-x-hidden">
       {/* Curved Hero Banner */}
       <section className="relative bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-800 text-white overflow-hidden">
         {/* Background Pattern */}
@@ -200,7 +200,7 @@ const PropertiesPage = () => {
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="border-emerald-200 text-emerald-700 hover:bg-emerald-700 font-semibold px-8"
+                  className="border-emerald-200 text-emerald-700 hover:bg-emerald-700 hover:text-white font-semibold px-8"
                 >
                   View Map
                 </Button>
@@ -327,7 +327,7 @@ const PropertiesPage = () => {
               </div>
 
               {/* Controls */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto min-w-0">
                 {/* View Mode Toggle */}
                 <div className="flex items-center bg-gray-100 rounded-xl p-1 w-full sm:w-auto">
                   <Button
@@ -376,7 +376,7 @@ const PropertiesPage = () => {
                 <select 
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all w-full sm:w-auto"
+                  className="bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all w-full sm:w-auto min-w-0 max-w-full sm:max-w-xs md:max-w-[240px]"
                 >
                   <option value="newest">Newest First</option>
                   <option value="price-low">Price: Low to High</option>
@@ -390,7 +390,7 @@ const PropertiesPage = () => {
                 <select 
                   value={pagination?.limit || 12}
                   onChange={(e) => handleLimitChange(parseInt(e.target.value))}
-                  className="bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all w-full sm:w-auto"
+                  className="bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all w-full sm:w-auto min-w-0 max-w-full sm:max-w-[180px] md:max-w-[200px]"
                 >
                   <option value={12}>12 per page</option>
                   <option value={24}>24 per page</option>
