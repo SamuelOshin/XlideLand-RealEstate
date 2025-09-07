@@ -65,7 +65,7 @@ const AboutSection = () => {
     {
       year: '2008',
       title: 'Company Founded',
-      description: 'Started with a vision to revolutionize real estate in Boston'
+      description: 'Started with a vision to revolutionize real estate in Lagos'
     },
     {
       year: '2012',
@@ -75,7 +75,7 @@ const AboutSection = () => {
     {
       year: '2016',
       title: 'Regional Expansion',
-      description: 'Extended services across Greater Boston area'
+  description: 'Extended services across Victoria Island, Lagos'
     },
     {
       year: '2020',
@@ -115,7 +115,7 @@ const AboutSection = () => {
               </p>
               
               <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                With over 15 years of experience in the Greater Boston real estate market, our team of dedicated 
+                With over 15 years of experience in the Greater Lagos real estate market, our team of dedicated 
                 professionals has helped thousands of families and investors achieve their property goals. From 
                 first-time homebuyers to seasoned investors, we provide personalized service that makes the 
                 complex world of real estate simple and accessible.
