@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
 import { useState } from "react";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { NextAuthProvider } from "@/components/providers/NextAuthProvider";
 import { NavigationLoadingProvider } from "@/contexts/NavigationLoadingContext";
 import { Toaster } from "sonner";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
@@ -14,15 +14,14 @@ import LiveChat from "@/components/chat/LiveChat";
 import { ReactQueryProvider } from "@/components/providers/ReactQueryProvider";
 import ChatProvider from "@/components/providers/ChatProvider";
 
-const inter = Inter({
+// Fallback font variables for builds without Google Fonts access
+const inter = {
   variable: "--font-inter",
-  subsets: ["latin"],
-});
+};
 
-const playfair = Playfair_Display({
+const playfair = {
   variable: "--font-playfair",
-  subsets: ["latin"],
-});
+};
 
 export const metadata: Metadata = {
   title: "XlideLand - Premium Real Estate | Find Your Dream Home",
@@ -68,33 +67,35 @@ export default function RootLayout({
         <NavigationLoadingProvider>
           <LoadingBar />
           <InstantLoadingBar />
-          <ReactQueryProvider>
-            <AuthProvider>
-              <ChatProvider>
-                <ConditionalLayout>
-                  {children}
-                </ConditionalLayout>
-                <Toaster 
-                  position="top-right" 
-                  toastOptions={{
-                    style: {
-                      background: 'white',
-                      border: '1px solid #d1fae5',
-                      color: '#065f46',
-                    },
-                  }}
-                />
-           
-                {/* Live Chat Widget */}
-                <LiveChat 
-                  enabled={true}
-                  position="bottom-right"
-                  primaryColor="#10b981"
-                  greetingMessage="Hi! 👋 Welcome to XlideLand. How can we help you find your perfect property today?"
-                />
-              </ChatProvider>
-            </AuthProvider>
-          </ReactQueryProvider>
+          <NextAuthProvider>
+            <ReactQueryProvider>
+              <AuthProvider>
+                <ChatProvider>
+                  <ConditionalLayout>
+                    {children}
+                  </ConditionalLayout>
+                  <Toaster 
+                    position="top-right" 
+                    toastOptions={{
+                      style: {
+                        background: 'white',
+                        border: '1px solid #d1fae5',
+                        color: '#065f46',
+                      },
+                    }}
+                  />
+             
+                  {/* Live Chat Widget */}
+                  <LiveChat 
+                    enabled={true}
+                    position="bottom-right"
+                    primaryColor="#10b981"
+                    greetingMessage="Hi! 👋 Welcome to XlideLand. How can we help you find your perfect property today?"
+                  />
+                </ChatProvider>
+              </AuthProvider>
+            </ReactQueryProvider>
+          </NextAuthProvider>
         </NavigationLoadingProvider>
       </body>
     </html>

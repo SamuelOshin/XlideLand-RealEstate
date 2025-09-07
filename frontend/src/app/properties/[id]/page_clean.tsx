@@ -180,7 +180,6 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
 
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Contact form submitted:', contactForm);
   };
 
   const formatPrice = (price: number) => {

@@ -68,16 +68,11 @@ export default function UserManagementPage() {
       setLoading(true);
       setError(null);
       
-      console.log('Loading users from API...');
-      
       // Fetch users and stats in parallel
       const [usersResponse, statsResponse] = await Promise.all([
         adminUserAPI.getAllUsers(),
         adminUserAPI.getUserStats()
       ]);
-      
-      console.log('Users API response:', usersResponse);
-      console.log('Stats API response:', statsResponse);
       
       setUsers(usersResponse.results);
       setUserStats(statsResponse);
