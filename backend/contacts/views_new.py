@@ -5,8 +5,12 @@ from rest_framework.response import Response
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db import models
+import logging
 from .models import Contact
 from .serializers import ContactSerializer, ContactCreateSerializer, ContactUpdateSerializer
+from .tasks import send_contact_notifications
+
+logger = logging.getLogger(__name__)
 
 
 class ContactCreateAPIView(generics.CreateAPIView):
@@ -23,52 +27,46 @@ class ContactCreateAPIView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         contact = serializer.save()
         
-        # Send email notification to the specified email
-        try:
-            # Build email content with all available information
-            email_subject = f'New Contact Inquiry - {contact.subject or contact.get_contact_type_display()}'
-            email_body = f"""
-New contact inquiry received:
-
-Name: {contact.name}
-Email: {contact.email}
-Phone: {contact.phone}
-Contact Type: {contact.get_contact_type_display()}
-
-Property Preferences:
-- Property Type: {contact.get_property_type_display() if contact.property_type else 'Not specified'}
-- Budget Range: {contact.get_budget_range_display() if contact.budget_range else 'Not specified'}
-- Timeline: {contact.get_timeline_display() if contact.timeline else 'Not specified'}
-
-Message: 
-{contact.message}
-
-Subject: {contact.subject or 'General Inquiry'}
-
-Property Reference: {contact.listing or 'General Contact'}
-Contact Date: {contact.contact_date.strftime('%B %d, %Y at %I:%M %p')}
-
-Please respond promptly to this inquiry.
-            """
-            
-            send_mail(
-
-                email_subject,
-                email_body,
-                settings.DEFAULT_FROM_EMAIL or 'noreply@xlideland.com',
-                ['Opeyemib117@gmail.com'],  # Send to specified email
-                fail_silently=True,
-            )
-        except Exception as e:
-            # Log error but don't fail the request
-            print(f"Email notification failed: {e}")
+        # Log the contact creation
+        logger.info(f"New contact created: #{contact.id} - {contact.name} ({contact.get_contact_type_display()})")
         
-        return Response(
-            {
-                'contact': ContactSerializer(contact).data,
-                'message': 'Contact inquiry submitted successfully'
-            },
-            status=status.HTTP_201_CREATED
+        # Send notifications asynchronously using Celery
+        try:
+            # Queue the notification task for background processing
+            send_contact_notifications.delay(contact.id)
+            logger.info(f"Notification task queued for contact #{contact.id}")
+        except Exception as e:
+            # If Celery is not available, fall back to synchronous notifications
+            logger.warning(f"Celery task failed, falling back to synchronous notifications: {str(e)}")
+            
+            try:
+                from .notifications import NotificationManager
+                NotificationManager.send_all_notifications(contact)
+            except Exception as sync_error:
+                logger.error(f"Synchronous notifications also failed for contact #{contact.id}: {str(sync_error)}")
+                # Don't fail the request even if notifications fail
+        
+        # Return success response
+        response_data = {
+            'contact': ContactSerializer(contact).data,
+            'message': self._get_success_message(contact),
+            'notification_status': 'queued'  # Indicates notifications are being processed
+        }
+        
+        return Response(response_data, status=status.HTTP_201_CREATED)
+    
+    def _get_success_message(self, contact) -> str:
+        """Get appropriate success message based on contact type"""
+        message_map = {
+            'consultation': f'Thank you {contact.name}! Your consultation request has been submitted successfully. Our team will contact you within 24 hours.',
+            'newsletter': f'Welcome {contact.name}! You have been successfully subscribed to our newsletter.',
+            'general': f'Thank you {contact.name}! Your inquiry has been submitted successfully. We will get back to you soon.',
+            'property_inquiry': f'Thank you {contact.name}! Your property inquiry has been submitted successfully. Our team will contact you shortly.',
+        }
+        
+        return message_map.get(
+            contact.contact_type,
+            f'Thank you {contact.name}! Your message has been submitted successfully.'
         )
 
 
