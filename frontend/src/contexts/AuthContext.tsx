@@ -5,6 +5,7 @@ import { User, UserProfile, LoginCredentials, RegisterData } from '@/types/index
 import { authAPI } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { useSession } from 'next-auth/react'
 
 export type UserRole = 'buyer' | 'seller' | 'admin'
 
@@ -40,6 +41,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const { data: session, status } = useSession()
 
   // Get role from user profile, with fallback logic
   const getUserRole = (profile: UserProfile | null, user: User | null): UserRole => {
@@ -71,33 +73,78 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const role = getUserRole(userProfile, user)
   const isAuthenticated = !!user
-  // Check for existing session on mount
+  // Check for existing session on mount and sync with NextAuth
   useEffect(() => {
     const checkAuth = async () => {
+      // First, check if we have a NextAuth session with Django tokens
+      if (session?.djangoUser && session?.djangoAccessToken) {
+        
+        // Ensure Django tokens are in localStorage for API calls
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('access_token', session.djangoAccessToken)
+          localStorage.setItem('refresh_token', session.djangoRefreshToken || '')
+          localStorage.setItem('user_data', JSON.stringify(session.djangoUser))
+        }
+        
+        setUser(session.djangoUser)
+        
+        // Try to get profile data
+        try {
+          const profileData = await authAPI.getUserProfileWithRole().catch(() => null)
+          setUserProfile(profileData)
+        } catch (profileError) {
+          console.warn('Could not fetch profile data from NextAuth session:', profileError)
+          // Still set user even if profile fetch fails
+        }
+        
+        setLoading(false)
+        return
+      }
+
+      // Fallback: Check for stored tokens from direct Django auth
       const token = localStorage.getItem('access_token')
+      const storedUserData = localStorage.getItem('user_data')
+      
       if (token) {
         try {
-          // Fetch both user data and profile with role
-          const [userData, profileData] = await Promise.all([
-            authAPI.getUserProfile(),
-            authAPI.getUserProfileWithRole().catch(() => null) // Fallback if profile endpoint fails
-          ])
-          
-          setUser(userData)
-          setUserProfile(profileData)
-          
-          console.log('Auth check success:', { userData, profileData, role: profileData?.role })
+          // If we have stored user data from Django auth, use it directly
+          if (storedUserData) {
+            const userData = JSON.parse(storedUserData)
+            setUser(userData)
+            
+            // Try to get profile data
+            try {
+              const profileData = await authAPI.getUserProfileWithRole().catch(() => null)
+              setUserProfile(profileData)
+            } catch (profileError) {
+              console.warn('Could not fetch profile data:', profileError)
+              // Still set user even if profile fetch fails
+            }
+          } else {
+            // Fallback: Fetch both user data and profile with role
+            const [userData, profileData] = await Promise.all([
+              authAPI.getUserProfile(),
+              authAPI.getUserProfileWithRole().catch(() => null) // Fallback if profile endpoint fails
+            ])
+            
+            setUser(userData)
+            setUserProfile(profileData)
+          }
         } catch (error) {
           console.error('Auth check failed:', error)
           localStorage.removeItem('access_token')
           localStorage.removeItem('refresh_token')
+          localStorage.removeItem('user_data')
         }
       }
       setLoading(false)
     }
 
-    checkAuth()
-  }, [])
+    // Only run checkAuth when NextAuth session status is determined
+    if (status !== 'loading') {
+      checkAuth()
+    }
+  }, [session, status])
   
   const login = async (credentials: LoginCredentials): Promise<boolean> => {
     try {
@@ -116,8 +163,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       setUser(userData)
       setUserProfile(profileData)
-      
-      console.log('Login success:', { userData, profileData, role: profileData?.role })
       
       // Get the stored redirect URL or default to dashboard
       const redirectUrl = localStorage.getItem('auth_redirect') || '/dashboard'
@@ -160,8 +205,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(userData)
       setUserProfile(profileData)
       
-      console.log('Registration success:', { userData, profileData, role: profileData?.role })
-      
       // Get the stored redirect URL or default to dashboard
       const redirectUrl = localStorage.getItem('auth_redirect') || '/dashboard'
       localStorage.removeItem('auth_redirect') // Clean up
@@ -181,9 +224,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = () => {
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
+    localStorage.removeItem('user_data')
     setUser(null)
     setUserProfile(null)
-    router.push('/')
+    
+    // Also sign out from NextAuth if it was used
+    if (session) {
+      import('next-auth/react').then(({ signOut }) => {
+        signOut({ callbackUrl: '/' })
+      })
+    } else {
+      router.push('/')
+    }
+    
     toast.success('Logged out successfully')
   }
 

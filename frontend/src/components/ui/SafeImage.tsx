@@ -82,7 +82,6 @@ const SafeImage: React.FC<SafeImageProps> = ({
   };
 
   const handleLoad = () => {
-    console.log('SafeImage: Successfully loaded:', imageSrc);
     onLoad?.();
   };
 

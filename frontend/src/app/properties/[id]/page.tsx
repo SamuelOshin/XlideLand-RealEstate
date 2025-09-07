@@ -133,7 +133,6 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
 
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Contact form submitted:', contactForm);
     // TODO: Integrate with real API
     
     // Show success message and offer WhatsApp follow-up

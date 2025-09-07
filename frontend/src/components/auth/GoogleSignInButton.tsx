@@ -1,10 +1,9 @@
 'use client'
 
 import React from 'react'
-import { signIn, useSession } from 'next-auth/react'
-import { useAuth } from '@/contexts/AuthContext'
+import { signIn } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
-import { authAPI } from '@/lib/api'
+import { getRedirectUrl } from '@/lib/navigation'
 import { toast } from 'sonner'
 
 interface GoogleSignInButtonProps {
@@ -39,61 +38,38 @@ export function GoogleSignInButton({
   variant = 'outline',
   className = ''
 }: GoogleSignInButtonProps) {
-  const { data: session } = useSession()
-  const { refreshUser } = useAuth()
   const [isLoading, setIsLoading] = React.useState(false)
 
   const handleGoogleSignIn = async () => {
     try {
       setIsLoading(true)
-      
-      // Use NextAuth to sign in with Google
+
+      // Get the appropriate redirect URL (last visited or homepage)
+      const redirectUrl = getRedirectUrl()
+
+      // Use NextAuth to sign in with Google - let it handle the redirect
       const result = await signIn('google', {
-        redirect: false, // Don't redirect automatically
+        callbackUrl: redirectUrl, // Redirect to last visited page or homepage
+        redirect: false, // Don't redirect automatically, handle it manually
       })
-      
+
       if (result?.error) {
-        toast.error('Google sign-in failed. Please try again.')
-        return
+        console.error('Sign in error:', result.error)
+        toast.error('Failed to sign in with Google. Please try again.')
+        setIsLoading(false)
+      } else if (result?.url) {
+        // Redirect to Google OAuth page
+        window.location.href = result.url
+      } else {
+        // The redirect will happen automatically
       }
-      
-      // If successful, the session will be updated automatically
-      // We can check for the updated session and handle backend integration
-      toast.success('Google sign-in successful!')
-      
+
     } catch (error) {
       console.error('Google sign-in error:', error)
       toast.error('Failed to sign in with Google. Please try again.')
-    } finally {
       setIsLoading(false)
     }
   }
-
-  // Handle session changes - integrate with backend when session is available
-  React.useEffect(() => {
-    const handleSessionChange = async () => {
-      if (session?.accessToken && session?.googleProfile) {
-        try {
-          // Send Google token to our backend for integration
-          const response = await authAPI.googleLogin({
-            access_token: session.accessToken as string
-          })
-          
-          // Refresh user data in AuthContext
-          await refreshUser()
-          
-          // Redirect to dashboard
-          window.location.href = '/dashboard'
-          
-        } catch (error) {
-          console.error('Backend Google OAuth integration error:', error)
-          toast.error('Failed to complete sign-in. Please try again.')
-        }
-      }
-    }
-
-    handleSessionChange()
-  }, [session])
 
   return (
     <Button

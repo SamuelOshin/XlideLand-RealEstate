@@ -87,8 +87,6 @@ export default function PropertyModerationPage() {
       // Fetch real moderation data from backend
       const response = await api.get('/api/listings/admin/moderation/');
       
-      console.log('Moderation API response:', response.data);
-      
       // Check if we have results (paginated response) or direct array
       const moderationData = response.data.results || response.data;
       
@@ -124,7 +122,6 @@ export default function PropertyModerationPage() {
         yearBuilt: item.listing.year_built
       }));
       
-      console.log('Transformed properties:', transformedProperties);
       setProperties(transformedProperties);
     } catch (error: any) {
       console.error('Failed to load moderation data:', error);

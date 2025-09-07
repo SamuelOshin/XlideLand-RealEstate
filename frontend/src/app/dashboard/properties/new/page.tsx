@@ -173,8 +173,6 @@ export default function NewPropertyPage() {
         submissionFormData.append('images', file);
       });
 
-      console.log('Submitting property with images...');
-
       // Single API call to /api/properties
       // authenticatedFetch will handle adding the Authorization header.
       // Content-Type for FormData is set automatically by the browser.
@@ -207,7 +205,6 @@ export default function NewPropertyPage() {
       }
 
       const result = await response.json();
-      console.log('Property submission successful:', result);
       
       toast.success('Property Created!', {
         description: 'Your property listing has been successfully created.',
@@ -243,12 +240,10 @@ export default function NewPropertyPage() {
   };
 
   const handleSaveDraft = () => {
-    console.log('Saving draft:', formData);
     // Implement draft saving logic
   };
 
   const handlePreview = () => {
-    console.log('Preview property:', formData);
     // Implement preview logic
   };
 
@@ -256,14 +251,17 @@ export default function NewPropertyPage() {
   const checkAuthState = () => {
     const token = localStorage.getItem('access_token');
     const refreshToken = localStorage.getItem('refresh_token');
-    console.log('Auth Debug:', {
-      hasToken: !!token,
-      tokenLength: token?.length,
-      hasRefreshToken: !!refreshToken,
-      user: user?.username,
-      role: role,
-      isAuthenticated
-    });
+    // Debug info only in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Auth Debug:', {
+        hasToken: !!token,
+        tokenLength: token?.length,
+        hasRefreshToken: !!refreshToken,
+        user: user?.username,
+        role: role,
+        isAuthenticated
+      });
+    }
   };
 
   // Call debug function when component mounts
@@ -317,8 +315,11 @@ export default function NewPropertyPage() {
                 size="sm"
                 variant="outline"
                 onClick={() => {
-                  console.log('Current localStorage:', Object.keys(localStorage));
-                  console.log('Auth context:', { user, isAuthenticated, role });
+                  // Debug info only in development
+                  if (process.env.NODE_ENV === 'development') {
+                    console.log('Current localStorage:', Object.keys(localStorage));
+                    console.log('Auth context:', { user, isAuthenticated, role });
+                  }
                 }}
               >
                 Log Auth State
