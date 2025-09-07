@@ -206,8 +206,6 @@ export default function InquiriesPage() {
       handleStatusUpdate(selectedInquiry.id, 'responded');
       setResponseText('');
       setSelectedInquiry(null);
-      
-      console.log('Response sent:', responseText);
     } catch (error) {
       console.error('Error sending response:', error);
     }

@@ -361,7 +361,6 @@ export default function SettingsPage() {
                               <FileUpload
                                 uploadType="avatar"
                                 onFilesUploaded={(files) => {
-                                  console.log('Avatar uploaded:', files);
                                   if (files[0]) {
                                     // Refetch avatar to update display
                                     refetchAvatar();

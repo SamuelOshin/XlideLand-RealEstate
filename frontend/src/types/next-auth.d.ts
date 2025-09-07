@@ -12,6 +12,9 @@ declare module "next-auth" {
       picture: string
       email_verified: boolean
     }
+    djangoAccessToken?: string
+    djangoRefreshToken?: string
+    djangoUser?: any
   }
 
   interface User extends DefaultUser {
@@ -31,5 +34,8 @@ declare module "next-auth/jwt" {
       picture: string
       email_verified: boolean
     }
+    djangoAccessToken?: string
+    djangoRefreshToken?: string
+    djangoUser?: any
   }
 }

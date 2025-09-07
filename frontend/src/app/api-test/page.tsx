@@ -24,9 +24,15 @@ export default function APITestPage() {
 
     for (const { name, test } of tests) {
       try {
-        console.log(`🧪 Running test: ${name}`)
+        // Debug info only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`🧪 Running test: ${name}`)
+        }
         const result = await test()
-        console.log(`✅ Test passed: ${name}`, result)
+        // Debug info only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`✅ Test passed: ${name}`, result)
+        }
         setTestResults(prev => [...prev, { name, status: 'success', data: result }])      } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
         console.error(`❌ Test failed: ${name}`, error)
