@@ -85,7 +85,7 @@ const StatsSection = () => {
   const achievements = [
     {
       title: 'Top Real Estate Agency',
-      subtitle: 'Boston Business Journal 2024',
+      subtitle: 'Lagos Property Review 2024',
       year: '2024'
     },
     {
@@ -100,7 +100,7 @@ const StatsSection = () => {
     },
     {
       title: 'Fastest Growing Agency',
-      subtitle: 'Massachusetts Real Estate Board',
+      subtitle: 'Nigerian Real Estate Association',
       year: '2022'
     }
   ];  return (

@@ -299,38 +299,49 @@ const SearchForm: React.FC<SearchFormProps> = ({
   // Inline variant - compact search for listings page
   if (variant === 'inline') {
     return (
-      <Card className={`w-full bg-white border border-gray-200 shadow-sm ${className}`}>
+      // Constrain the inline search card to a sensible max width and center it
+      <Card className={`w-full max-w-4xl mx-auto bg-white border border-gray-200 shadow-sm ${className}`}>
         <CardContent className="p-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex flex-wrap gap-3">
-              <div className="flex-1 min-w-64">
+              {/* Row 1: main search input */}
+              <div>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-emerald-500" />                  
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-emerald-500" />
                   <Input
                     placeholder="Search properties..."
                     value={filters.query || ''}
                     onChange={(e) => handleInputChange('query', e.target.value)}
-                    className="pl-10 bg-white border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-gray-900 placeholder:text-gray-500"
+                    className="w-full pl-10 bg-white border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-gray-900 placeholder:text-gray-500"
                   />
                 </div>
               </div>
-              
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="flex items-center space-x-2"
-              >
-                <Filter className="h-4 w-4" />
-                <span>Filters</span>
-                {getActiveFiltersCount() > 0 && (
-                  <Badge variant="secondary" className="ml-1">
-                    {getActiveFiltersCount()}
-                  </Badge>
-                )}
-              </Button>              <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-6">
-                Search
-              </Button>
+
+              {/* Row 2: actions - Filters toggle and Search button */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                    className="w-full flex items-center justify-center space-x-2"
+                  >
+                    <Filter className="h-4 w-4" />
+                    <span>Filters</span>
+                    {getActiveFiltersCount() > 0 && (
+                      <Badge variant="secondary" className="ml-1">
+                        {getActiveFiltersCount()}
+                      </Badge>
+                    )}
+                  </Button>
+                </div>
+
+                <div className="w-full sm:w-40">
+                  <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2">
+                    Search
+                  </Button>
+                </div>
+              </div>
             </div>
 
             {showAdvanced && (
