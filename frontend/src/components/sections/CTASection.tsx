@@ -1,11 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import InstantLoadingLink from '@/components/ui/InstantLoadingLink';
+import { contactsAPI } from '@/lib/api';
 import { whatsApp } from '@/lib/whatsapp';
+import { ContactFormData } from '@/types';
 import { 
   ArrowRight, 
   Phone, 
@@ -17,10 +19,146 @@ import {
   TrendingUp,
   Shield,
   Clock,
-  Award
+  Award,
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
 
 const CTASection = () => {
+  // Form state for consultation booking
+  const [consultationForm, setConsultationForm] = useState({
+    name: '',
+    email: '',
+    phone: ''
+  });
+  const [isSubmittingConsultation, setIsSubmittingConsultation] = useState(false);
+  const [consultationSubmitted, setConsultationSubmitted] = useState(false);
+  const [consultationError, setConsultationError] = useState<string | null>(null);
+
+  // Newsletter form state
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [isSubmittingNewsletter, setIsSubmittingNewsletter] = useState(false);
+  const [newsletterSubmitted, setNewsletterSubmitted] = useState(false);
+  const [newsletterError, setNewsletterError] = useState<string | null>(null);
+
+  // Handle newsletter form submission
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmittingNewsletter(true);
+    setNewsletterError(null);
+
+    // Basic validation
+    if (!newsletterEmail.trim()) {
+      setNewsletterError('Please enter your email address');
+      setIsSubmittingNewsletter(false);
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newsletterEmail)) {
+      setNewsletterError('Please enter a valid email address');
+      setIsSubmittingNewsletter(false);
+      return;
+    }
+
+    try {
+      // Create newsletter subscription contact data
+      const newsletterData: ContactFormData = {
+        name: 'Newsletter Subscriber',
+        email: newsletterEmail.trim(),
+        phone: '',
+        subject: 'Newsletter Subscription',
+        message: `Newsletter subscription requested for: ${newsletterEmail}`,
+        contact_type: 'newsletter'
+      };
+
+      await contactsAPI.createContact(newsletterData);
+
+      setIsSubmittingNewsletter(false);
+      setNewsletterSubmitted(true);
+
+      // Reset form after success
+      setTimeout(() => {
+        setNewsletterSubmitted(false);
+        setNewsletterEmail('');
+      }, 5000);
+
+    } catch (err: any) {
+      setIsSubmittingNewsletter(false);
+      const errorMessage = err.response?.data?.detail || 
+                          err.response?.data?.message || 
+                          'Failed to subscribe. Please try again.';
+      setNewsletterError(errorMessage);
+    }
+  };
+
+  // Handle consultation form submission
+  const handleConsultationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmittingConsultation(true);
+    setConsultationError(null);
+
+    // Basic validation
+    if (!consultationForm.name.trim() || !consultationForm.email.trim() || !consultationForm.phone.trim()) {
+      setConsultationError('Please fill in all fields');
+      setIsSubmittingConsultation(false);
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(consultationForm.email)) {
+      setConsultationError('Please enter a valid email address');
+      setIsSubmittingConsultation(false);
+      return;
+    }
+
+    try {
+      // Create consultation contact data
+      const consultationData: ContactFormData = {
+        name: consultationForm.name.trim(),
+        email: consultationForm.email.trim(),
+        phone: consultationForm.phone.trim(),
+        subject: 'Free Consultation Request',
+        message: `Free consultation requested by ${consultationForm.name}. Phone: ${consultationForm.phone}`,
+        contact_type: 'consultation'
+      };
+
+      await contactsAPI.createContact(consultationData);
+
+      setIsSubmittingConsultation(false);
+      setConsultationSubmitted(true);
+
+      // Reset form after success
+      setTimeout(() => {
+        setConsultationSubmitted(false);
+        setConsultationForm({
+          name: '',
+          email: '',
+          phone: ''
+        });
+      }, 5000);
+
+    } catch (err: any) {
+      setIsSubmittingConsultation(false);
+      const errorMessage = err.response?.data?.detail || 
+                          err.response?.data?.message || 
+                          'Failed to book consultation. Please try again.';
+      setConsultationError(errorMessage);
+    }
+  };
+
+  // Handle consultation form input changes
+  const handleConsultationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setConsultationForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user starts typing
+    if (consultationError) setConsultationError(null);
+  };
   const services = [
     {
       icon: Home,
@@ -167,14 +305,60 @@ const CTASection = () => {
                 Get exclusive property listings, market insights, and expert tips delivered to your inbox.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Input
-                  type="email"
-                  placeholder="Enter your email address"
-                  className="flex-1 bg-emerald-900/50 border-emerald-600/50 text-white placeholder:text-emerald-300 focus:border-emerald-400 focus:ring-emerald-400 py-3"
-                />
-                <Button className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-semibold px-8 py-3 whitespace-nowrap">
-                  Subscribe Now
-                </Button>
+                {newsletterSubmitted && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="sm:flex-1 bg-green-500/20 border border-green-500/50 rounded-lg p-4 flex items-center space-x-3"
+                  >
+                    <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
+                    <div>
+                      <p className="text-green-200 font-medium text-sm">Subscribed Successfully!</p>
+                      <p className="text-green-300 text-xs">Welcome to our newsletter.</p>
+                    </div>
+                  </motion.div>
+                )}
+
+                {newsletterError && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="sm:flex-1 bg-red-500/20 border border-red-500/50 rounded-lg p-4 flex items-center"
+                  >
+                    <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mr-3" />
+                    <p className="text-red-200 text-sm">{newsletterError}</p>
+                  </motion.div>
+                )}
+
+                {!newsletterSubmitted && !newsletterError && (
+                  <>
+                    <Input
+                      type="email"
+                      value={newsletterEmail}
+                      onChange={(e) => {
+                        setNewsletterEmail(e.target.value);
+                        if (newsletterError) setNewsletterError(null);
+                      }}
+                      placeholder="Enter your email address"
+                      className="flex-1 bg-emerald-900/50 border-emerald-600/50 text-white placeholder:text-emerald-300 focus:border-emerald-400 focus:ring-emerald-400 py-3"
+                      disabled={isSubmittingNewsletter}
+                    />
+                    <Button 
+                      onClick={handleNewsletterSubmit}
+                      disabled={isSubmittingNewsletter}
+                      className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 disabled:from-emerald-400 disabled:to-green-500 text-white font-semibold px-8 py-3 whitespace-nowrap"
+                    >
+                      {isSubmittingNewsletter ? (
+                        <div className="flex items-center space-x-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          <span>Subscribing...</span>
+                        </div>
+                      ) : (
+                        'Subscribe Now'
+                      )}
+                    </Button>
+                  </>
+                )}
               </div>
               <p className="text-xs text-emerald-300 mt-3">
                 No spam, unsubscribe at any time. We respect your privacy.
@@ -301,23 +485,73 @@ const CTASection = () => {
               </div>
               
               <div className="space-y-4">
-                <Input
-                  placeholder="Your Full Name"
-                  className="bg-emerald-900/50 border-emerald-600/50 text-white placeholder:text-emerald-300"
-                />
-                <Input
-                  type="email"
-                  placeholder="Email Address"
-                  className="bg-emerald-900/50 border-emerald-600/50 text-white placeholder:text-emerald-300"
-                />
-                <Input
-                  type="tel"
-                  placeholder="Phone Number"
-                  className="bg-emerald-900/50 border-emerald-600/50 text-white placeholder:text-emerald-300"
-                />
-                <Button className="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-semibold py-3">
-                  Book Free Consultation
-                </Button>
+                {consultationSubmitted && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-green-500/20 border border-green-500/50 rounded-lg p-4 flex items-center space-x-3"
+                  >
+                    <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
+                    <div>
+                      <p className="text-green-200 font-medium">Consultation Booked Successfully!</p>
+                      <p className="text-green-300 text-sm">We'll contact you within 24 hours to schedule your free consultation.</p>
+                    </div>
+                  </motion.div>
+                )}
+
+                {consultationError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 flex items-center space-x-3"
+                  >
+                    <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
+                    <p className="text-red-200">{consultationError}</p>
+                  </motion.div>
+                )}
+
+                <form onSubmit={handleConsultationSubmit}>
+                  <Input
+                    name="name"
+                    value={consultationForm.name}
+                    onChange={handleConsultationInputChange}
+                    placeholder="Your Full Name"
+                    className="bg-emerald-900/50 border-emerald-600/50 text-white placeholder:text-emerald-300 focus:border-emerald-400 focus:ring-emerald-400"
+                    disabled={isSubmittingConsultation}
+                  />
+                  <Input
+                    name="email"
+                    type="email"
+                    value={consultationForm.email}
+                    onChange={handleConsultationInputChange}
+                    placeholder="Email Address"
+                    className="bg-emerald-900/50 border-emerald-600/50 text-white placeholder:text-emerald-300 focus:border-emerald-400 focus:ring-emerald-400"
+                    disabled={isSubmittingConsultation}
+                  />
+                  <Input
+                    name="phone"
+                    type="tel"
+                    value={consultationForm.phone}
+                    onChange={handleConsultationInputChange}
+                    placeholder="Phone Number"
+                    className="bg-emerald-900/50 border-emerald-600/50 text-white placeholder:text-emerald-300 focus:border-emerald-400 focus:ring-emerald-400"
+                    disabled={isSubmittingConsultation}
+                  />
+                  <Button 
+                    type="submit"
+                    disabled={isSubmittingConsultation}
+                    className="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 disabled:from-emerald-400 disabled:to-green-500 text-white font-semibold py-3 transition-all duration-200"
+                  >
+                    {isSubmittingConsultation ? (
+                      <div className="flex items-center justify-center space-x-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <span>Booking...</span>
+                      </div>
+                    ) : (
+                      'Book Free Consultation'
+                    )}
+                  </Button>
+                </form>
               </div>
               
               <p className="text-xs text-emerald-300 text-center mt-4">
