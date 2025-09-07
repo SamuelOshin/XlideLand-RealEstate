@@ -80,7 +80,7 @@ const mockConversations: MockConversation[] = [
     propertyId: 'prop-1',
     property: {
       title: 'Modern Downtown Luxury Condo',
-      address: '123 Financial District, Boston, MA',
+      address: '123 Financial District, Victoria Island, Lagos',
       price: 750000
     },
     lastMessage: {
@@ -109,8 +109,8 @@ const mockConversations: MockConversation[] = [
     ],
     propertyId: 'prop-2',
     property: {
-      title: 'Charming Victorian Family Home',
-      address: '456 Beacon Hill, Boston, MA',
+      title: 'Charming Family Home',
+      address: '456 Ikoyi, Lagos',
       price: 950000
     },
     lastMessage: {
@@ -140,7 +140,7 @@ const mockConversations: MockConversation[] = [
     propertyId: 'prop-3',
     property: {
       title: 'Waterfront Penthouse Suite',
-      address: '789 Harbor View, Boston, MA',
+      address: '789 Victoria Island Waterfront, Lagos',
       price: 1250000
     },
     lastMessage: {

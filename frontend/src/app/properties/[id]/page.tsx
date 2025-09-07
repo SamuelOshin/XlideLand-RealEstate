@@ -210,10 +210,10 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
           <div className="absolute inset-0 bg-[url('/img/world-map-dotted.svg')] bg-center bg-no-repeat bg-cover"></div>
         </div>
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-            <div className="flex-1">
-              <nav className="flex items-center space-x-2 text-emerald-100 text-sm mb-6">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 lg:gap-8">
+            <div className="flex-1 order-2 lg:order-1">
+              <nav className="flex items-center space-x-2 text-emerald-100 text-sm mb-4 lg:mb-6">
                 <InstantLoadingLink href="/" className="hover:text-white transition-colors">
                   <Home className="h-4 w-4" />
                 </InstantLoadingLink>
@@ -225,35 +225,38 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
                 <span className="text-white font-medium truncate">
                   {property.title}
                 </span>
-              </nav>              
-              <div className="flex items-center space-x-3 mb-4">
-                <Badge className="bg-white/20 text-white border-white/30 hover:bg-white/30">
+              </nav>
+              
+              {/* Mobile-optimized badges */}
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <Badge className="bg-white/20 text-white border-white/30 hover:bg-white/30 text-xs">
                   {property.category?.name || property.property_type}
                 </Badge>
-                <Badge variant="outline" className="border-white/50 text-white hover:bg-white/10">
+                <Badge variant="outline" className="border-white/50 text-white hover:bg-white/10 text-xs">
                   For {property.listing_type}
                 </Badge>
                 {property.isFeatured && (
-                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs">
                     ⭐ Featured
                   </Badge>
-                )}                <Badge className="bg-emerald-500/30 text-white border-emerald-300">
+                )}
+                <Badge className="bg-emerald-500/30 text-white border-emerald-300 text-xs">
                   Listed {new Date(property.createdAt).toLocaleDateString()}
                 </Badge>
               </div>
               
-              <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+              <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 leading-tight">
                 {property.title}
               </h1>
               
-              <div className="flex items-center text-emerald-100 mb-6">
-                <MapPin className="h-5 w-5 mr-2" />
-                <span className="text-lg">
+              <div className="flex items-start lg:items-center text-emerald-100 mb-6">
+                <MapPin className="h-5 w-5 mr-2 mt-0.5 lg:mt-0 flex-shrink-0" />
+                <span className="text-base lg:text-lg">
                   {property.location.address}, {property.location.city}, {property.location.state} {property.location.zipCode}
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <div className="text-center">
                   <div className="flex items-center justify-center mb-1">
                     <Bed className="h-5 w-5 mr-2" />
@@ -271,10 +274,11 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
                 <div className="text-center">
                   <div className="flex items-center justify-center mb-1">
                     <Square className="h-5 w-5 mr-2" />
-                    <span className="text-2xl font-bold">{property.area.toLocaleString()}</span>
+                    <span className="text-xl lg:text-2xl font-bold">{property.area.toLocaleString()}</span>
                   </div>
                   <div className="text-emerald-100 text-sm">Sq Ft</div>
-                </div>                <div className="text-center">
+                </div>
+                <div className="text-center">
                   <div className="flex items-center justify-center mb-1">
                     <Car className="h-5 w-5 mr-2" />
                     <span className="text-2xl font-bold">2</span>
@@ -284,25 +288,25 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
               </div>
             </div>
 
-            <div className="lg:text-right pt-20">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6">
-                <div className="text-5xl lg:text-6xl font-bold mb-2">
+            <div className="order-1 lg:order-2 lg:text-right">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 lg:p-6 mb-6">
+                <div className="text-4xl lg:text-5xl xl:text-6xl font-bold mb-2">
                   {formatPrice(property.price)}
                 </div>
-                <div className="text-emerald-100 text-lg mb-4">
+                <div className="text-emerald-100 text-base lg:text-lg mb-4">
                   ₦{Math.round(property.price / property.area)}/sq ft
                 </div>
-                  <div className="grid grid-cols-3 gap-4 text-center border-t border-white/20 pt-4">
+                  <div className="grid grid-cols-3 gap-3 lg:gap-4 text-center border-t border-white/20 pt-4">
                   <div>
-                    <div className="text-xl font-bold">1,247</div>
+                    <div className="text-lg lg:text-xl font-bold">1,247</div>
                     <div className="text-emerald-100 text-xs">Views</div>
                   </div>
                   <div>
-                    <div className="text-xl font-bold">89</div>
+                    <div className="text-lg lg:text-xl font-bold">89</div>
                     <div className="text-emerald-100 text-xs">Saves</div>
                   </div>
                   <div>
-                    <div className="text-xl font-bold">127</div>
+                    <div className="text-lg lg:text-xl font-bold">127</div>
                     <div className="text-emerald-100 text-xs">Reviews</div>
                   </div>
                 </div>
@@ -357,17 +361,17 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 transform translate-x-full group-hover:translate-x-[-100%] transition-transform duration-700"></div>
                 </Button>
 
-                <div className="grid grid-cols-3 gap-3 mt-2">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/20">
-                    <div className="text-lg font-bold">🔥</div>
+                <div className="grid grid-cols-3 gap-2 lg:gap-3 mt-2">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2 lg:p-3 text-center border border-white/20">
+                    <div className="text-base lg:text-lg font-bold">🔥</div>
                     <div className="text-xs text-emerald-100">Hot Property</div>
                   </div>
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/20">
-                    <div className="text-lg font-bold">⚡</div>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2 lg:p-3 text-center border border-white/20">
+                    <div className="text-base lg:text-lg font-bold">⚡</div>
                     <div className="text-xs text-emerald-100">Quick Response</div>
                   </div>
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/20">
-                    <div className="text-lg font-bold">🏆</div>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2 lg:p-3 text-center border border-white/20">
+                    <div className="text-base lg:text-lg font-bold">🏆</div>
                     <div className="text-xs text-emerald-100">Premium Listing</div>
                   </div>
                 </div>
@@ -392,9 +396,10 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
           <div className="bg-white rounded-3xl overflow-hidden shadow-xl border border-gray-100">
-            <div className="grid grid-cols-4 gap-3 p-4 h-96 md:h-[500px]">
+            {/* Mobile-first responsive grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-4 h-96 md:h-[500px]">
               <div 
-                className="col-span-4 md:col-span-2 relative cursor-pointer group overflow-hidden rounded-2xl"
+                className="col-span-1 sm:col-span-2 lg:col-span-2 relative cursor-pointer group overflow-hidden rounded-2xl"
                 onClick={() => setIsGalleryOpen(true)}
               >
                 <img
@@ -448,9 +453,9 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
       </motion.section>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
+          <div className="xl:col-span-2 space-y-6 lg:space-y-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -458,25 +463,28 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
               className="bg-white rounded-2xl shadow-sm border border-gray-100"
             >
               <div className="border-b border-gray-200">
-                <div className="flex space-x-8 px-8">
-                  {[
-                    { id: 'overview', label: 'Overview' },
-                    { id: 'details', label: 'Details' },
-                    { id: 'features', label: 'Features' },
-                    { id: 'location', label: 'Location' }
-                  ].map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                        activeTab === tab.id
-                          ? 'border-emerald-500 text-emerald-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700'
-                      }`}
-                    >
-                      {tab.label}
-                    </button>
-                  ))}
+                {/* Mobile-responsive tab navigation */}
+                <div className="flex overflow-x-auto scrollbar-hide px-4 sm:px-8">
+                  <div className="flex space-x-6 sm:space-x-8 min-w-max">
+                    {[
+                      { id: 'overview', label: 'Overview' },
+                      { id: 'details', label: 'Details' },
+                      { id: 'features', label: 'Features' },
+                      { id: 'location', label: 'Location' }
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
+                          activeTab === tab.id
+                            ? 'border-emerald-500 text-emerald-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700'
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -491,11 +499,11 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
                     </div>
                     
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-4">Key Features</h3>                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">Key Features</h3>                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {property.features.slice(0, 6).map((feature, index: number) => (
-                          <div key={index} className="flex items-center space-x-2">
-                            <Check className="h-4 w-4 text-emerald-600" />
-                            <span className="text-gray-700">{feature.name}</span>
+                          <div key={index} className="flex items-center space-x-2 p-2">
+                            <Check className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+                            <span className="text-gray-700 text-sm">{feature.name}</span>
                           </div>
                         ))}
                       </div>
@@ -504,7 +512,7 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
                 )}
 
                 {activeTab === 'details' && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                     <div>
                       <h3 className="text-xl font-bold text-gray-900 mb-4">Property Details</h3>
                       <div className="space-y-3">                        <div className="flex justify-between">
@@ -558,7 +566,7 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
                   <div className="space-y-8">
                     <div>
                       <h3 className="text-xl font-bold text-gray-900 mb-4">Property Features</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">                        {property.features.map((feature: PropertyFeature, index: number) => (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">                        {property.features.map((feature: PropertyFeature, index: number) => (
                           <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                             <Check className="h-5 w-5 text-emerald-600" />
                             <span className="text-gray-700 font-medium">{feature.name}</span>
@@ -568,7 +576,7 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
                     </div>
                       <div>
                       <h3 className="text-xl font-bold text-gray-900 mb-4">Building Amenities</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="flex items-center space-x-3 p-3 bg-emerald-50 rounded-lg">
                           <Building2 className="h-5 w-5 text-emerald-600" />
                           <span className="text-gray-700 font-medium">Property amenities will be displayed here</span>
@@ -595,7 +603,7 @@ const PropertyDetailPage = ({ params }: PropertyDetailPageProps) => {
                         </div>
                       </div>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6">
                         <div className="text-center p-4 bg-emerald-50 rounded-xl">
                           <div className="text-2xl font-bold text-emerald-600 mb-1">9.2</div>
                           <div className="text-gray-600 text-sm">Walk Score</div>
