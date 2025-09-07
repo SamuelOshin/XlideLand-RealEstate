@@ -46,7 +46,7 @@ const teamMembers = [
     name: 'Michael Chen',
     role: 'Senior Real Estate Advisor',
     image: '/img/realtor-2.jpg',
-    bio: 'Specializing in residential properties and first-time homebuyers in the Greater Boston area.',
+  bio: 'Specializing in residential properties and first-time homebuyers in Victoria Island, Lagos.',
     specialties: ['Residential Sales', 'First-Time Buyers', 'Negotiation'],
     phone: '+234 907 661 4145',
     email: 'Opeyemib117@gmail.com',

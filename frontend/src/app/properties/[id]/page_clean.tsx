@@ -58,13 +58,13 @@ const propertyData = {
   area: 3200,
   yearBuilt: 2019,
   parking: 2,
-  location: {
+    location: {
     address: '123 Main St',
-    city: 'Boston',
-    state: 'MA',
-    zipCode: '02101',
-    neighborhood: 'Downtown',
-    coordinates: { lat: 42.3601, lng: -71.0589 }
+    city: 'Lagos',
+    state: 'Lagos State',
+    zipCode: '100001',
+    neighborhood: 'Victoria Island',
+    coordinates: { lat: 6.4551, lng: 3.3942 }
   },
   images: [
     '/img/property-1.jpg',

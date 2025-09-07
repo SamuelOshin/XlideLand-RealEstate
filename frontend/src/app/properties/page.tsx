@@ -157,33 +157,34 @@ const PropertiesPage = () => {
             <span className="text-white font-medium">Properties</span>
           </motion.nav>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Hero Content */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <h1 className="text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
                 Discover Your
                 <span className="block text-emerald-200">Dream Property</span>
               </h1>
-              <p className="text-xl text-emerald-100 mb-8 leading-relaxed">
+              <p className="text-lg md:text-xl text-emerald-100 mb-8 leading-relaxed">
                 Explore our exclusive collection of premium properties. From luxury penthouses 
-                to charming family homes, find your perfect match in Boston's finest neighborhoods.
+                to charming family homes, find your perfect match in Victoria Island, Lagos's finest neighborhoods.
               </p>
               
               {/* Quick Stats */}
-              <div className="flex items-center space-x-8 mb-8">
+              <div className="grid grid-cols-3 gap-4 md:flex md:flex-row md:space-x-8 mb-8">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-white">{properties.length}+</div>
+                  <div className="text-2xl md:text-3xl font-bold text-white">{properties.length}+</div>
                   <div className="text-emerald-200 text-sm">Active Listings</div>
-                </div>                <div className="text-center">
-                  <div className="text-3xl font-bold text-white">₦2.5M</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl md:text-3xl font-bold text-white">₦2.5M</div>
                   <div className="text-emerald-200 text-sm">Avg. Price</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-white">23</div>
+                  <div className="text-2xl md:text-3xl font-bold text-white">23</div>
                   <div className="text-emerald-200 text-sm">Days on Market</div>
                 </div>
               </div>
@@ -214,51 +215,51 @@ const PropertiesPage = () => {
               className="relative"
             >
               {/* Floating Stats Cards */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <motion.div 
-                  className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20"
+                  className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 md:p-6 border border-white/20"
                   whileHover={{ scale: 1.05 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <div className="flex items-center mb-3">
                     <div className="bg-emerald-400/20 rounded-lg p-2 mr-3">
-                      <TrendingUp className="h-6 w-6 text-emerald-200" />
+                      <TrendingUp className="h-5 w-5 md:h-6 md:w-6 text-emerald-200" />
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-white">+12%</div>
+                      <div className="text-xl md:text-2xl font-bold text-white">+12%</div>
                       <div className="text-emerald-200 text-sm">Price Growth</div>
                     </div>
                   </div>
                 </motion.div>
 
                 <motion.div 
-                  className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20"
+                  className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 md:p-6 border border-white/20"
                   whileHover={{ scale: 1.05 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <div className="flex items-center mb-3">
                     <div className="bg-emerald-400/20 rounded-lg p-2 mr-3">
-                      <Eye className="h-6 w-6 text-emerald-200" />
+                      <Eye className="h-5 w-5 md:h-6 md:w-6 text-emerald-200" />
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-white">2.8K</div>
+                      <div className="text-xl md:text-2xl font-bold text-white">2.8K</div>
                       <div className="text-emerald-200 text-sm">Views Today</div>
                     </div>
                   </div>
                 </motion.div>
 
                 <motion.div 
-                  className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 col-span-2"
+                  className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 md:p-6 border border-white/20 col-span-1 sm:col-span-2"
                   whileHover={{ scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-lg font-semibold text-white mb-1">Most Popular</div>
+                      <div className="text-base md:text-lg font-semibold text-white mb-1">Most Popular</div>
                       <div className="text-emerald-200 text-sm">Luxury Penthouses</div>
                     </div>
                     <div className="bg-emerald-400/20 rounded-lg p-2">
-                      <Home className="h-6 w-6 text-emerald-200" />
+                      <Home className="h-5 w-5 md:h-6 md:w-6 text-emerald-200" />
                     </div>
                   </div>
                 </motion.div>
@@ -298,20 +299,20 @@ const PropertiesPage = () => {
             animate={{ opacity: 1, y: 0 }}
             className="bg-white rounded-2xl p-6 mb-8 shadow-sm border border-gray-100"
           >
-            <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
               {/* Results Info */}
-              <div className="flex items-center space-x-6">
+              <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-6 w-full lg:w-auto">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
+                  <h2 className="text-xl md:text-2xl font-bold text-gray-900">
                     {properties.length} Properties
                   </h2>
                   <div className="flex items-center space-x-2 text-gray-600 mt-1">
                     <MapPin className="h-4 w-4" />
-                    <span>Greater Boston Area</span>
+                    <span>Victoria Island, Lagos</span>
                   </div>
                 </div>
                   {/* Quick Stats */}
-                <div className="hidden sm:flex items-center space-x-6 pl-6 border-l border-gray-200">
+                <div className="flex items-center space-x-4 sm:space-x-6 pl-0 sm:pl-6 border-l-0 sm:border-l border-gray-200">
                   <div className="text-center">
                     <div className="text-lg font-bold text-emerald-600">
                       ₦{averagePrice > 0 ? `${Math.round(averagePrice / 1000)}K` : '0'}
@@ -326,14 +327,14 @@ const PropertiesPage = () => {
               </div>
 
               {/* Controls */}
-              <div className="flex items-center space-x-4">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
                 {/* View Mode Toggle */}
-                <div className="flex items-center bg-gray-100 rounded-xl p-1">
+                <div className="flex items-center bg-gray-100 rounded-xl p-1 w-full sm:w-auto">
                   <Button
                     variant={viewMode === 'grid' ? 'default' : 'ghost'}
                     size="sm"
                     onClick={() => setViewMode('grid')}
-                    className={`px-4 py-2 rounded-lg transition-all ${
+                    className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg transition-all ${
                       viewMode === 'grid' 
                         ? 'bg-emerald-600 text-white shadow-sm' 
                         : 'text-gray-600 hover:text-gray-900'
@@ -346,7 +347,7 @@ const PropertiesPage = () => {
                     variant={viewMode === 'list' ? 'default' : 'ghost'}
                     size="sm"
                     onClick={() => setViewMode('list')}
-                    className={`px-4 py-2 rounded-lg transition-all ${
+                    className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg transition-all ${
                       viewMode === 'list' 
                         ? 'bg-emerald-600 text-white shadow-sm' 
                         : 'text-gray-600 hover:text-gray-900'
@@ -361,7 +362,7 @@ const PropertiesPage = () => {
                 <Button
                   variant="outline"
                   onClick={() => setShowFilters(!showFilters)}
-                  className={`flex items-center space-x-2 transition-all ${
+                  className={`flex items-center justify-center space-x-2 transition-all w-full sm:w-auto ${
                     showFilters 
                       ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
                       : 'hover:bg-gray-50'
@@ -375,7 +376,7 @@ const PropertiesPage = () => {
                 <select 
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-white border border-gray-200 rounded-xl px-4 py-2 text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                  className="bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all w-full sm:w-auto"
                 >
                   <option value="newest">Newest First</option>
                   <option value="price-low">Price: Low to High</option>
@@ -389,7 +390,7 @@ const PropertiesPage = () => {
                 <select 
                   value={pagination?.limit || 12}
                   onChange={(e) => handleLimitChange(parseInt(e.target.value))}
-                  className="bg-white border border-gray-200 rounded-xl px-4 py-2 text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                  className="bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all w-full sm:w-auto"
                 >
                   <option value={12}>12 per page</option>
                   <option value={24}>24 per page</option>
@@ -405,9 +406,9 @@ const PropertiesPage = () => {
               initial={{ opacity: 0, height: 0, y: -20 }}
               animate={{ opacity: 1, height: 'auto', y: 0 }}
               exit={{ opacity: 0, height: 0, y: -20 }}
-              className="bg-white rounded-2xl border border-gray-200 p-8 mb-8 shadow-sm"
+              className="bg-white rounded-2xl border border-gray-200 p-4 md:p-8 mb-8 shadow-sm"
             >
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
                 <h3 className="text-lg font-semibold text-gray-900">
                   Advanced Filters
                 </h3>
@@ -415,7 +416,7 @@ const PropertiesPage = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowFilters(false)}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-500 hover:text-gray-700 self-end sm:self-auto"
                 >
                   ✕
                 </Button>
@@ -514,13 +515,13 @@ const PropertiesPage = () => {
             <h2 className="text-4xl lg:text-5xl font-bold mb-6">
               Market Insights & Trends
             </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Stay ahead with real-time market data, trends, and insights from Boston's 
+              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Stay ahead with real-time market data, trends, and insights from Lagos' 
               most dynamic real estate landscape.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-16">
             {[
               {
                 icon: TrendingUp,
@@ -589,43 +590,43 @@ const PropertiesPage = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20"
           >
-            <div className="grid lg:grid-cols-2 gap-8 items-center">
+            <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
               <div>
-                <h3 className="text-2xl font-bold text-white mb-4">
+                <h3 className="text-xl md:text-2xl font-bold text-white mb-4">
                   Price Trends by Neighborhood
                 </h3>
                 <p className="text-gray-300 mb-6">
-                  Discover the hottest neighborhoods and emerging markets in the Boston area.
+                  Discover the hottest neighborhoods and emerging markets in Victoria Island, Lagos.
                 </p>
                 
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   {[
                     { area: "Back Bay", change: "+15.2%", price: "₦1.2M", trend: "up" },
                     { area: "Cambridge", change: "+12.8%", price: "₦950K", trend: "up" },
                     { area: "Beacon Hill", change: "+8.4%", price: "₦1.8M", trend: "up" },
                     { area: "South End", change: "+6.1%", price: "₦875K", trend: "up" }
                   ].map((neighborhood) => (
-                    <div key={neighborhood.area} className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                    <div key={neighborhood.area} className="flex items-center justify-between p-3 md:p-4 bg-white/5 rounded-xl">
                       <div className="flex items-center">
                         <div className="w-2 h-2 bg-emerald-400 rounded-full mr-3"></div>
-                        <span className="text-white font-medium">{neighborhood.area}</span>
+                        <span className="text-white font-medium text-sm md:text-base">{neighborhood.area}</span>
                       </div>
                       <div className="text-right">
-                        <div className="text-emerald-300 font-semibold">{neighborhood.change}</div>
-                        <div className="text-gray-400 text-sm">{neighborhood.price}</div>
+                        <div className="text-emerald-300 font-semibold text-sm md:text-base">{neighborhood.change}</div>
+                        <div className="text-gray-400 text-xs md:text-sm">{neighborhood.price}</div>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="bg-white/5 rounded-2xl p-6">
+              <div className="bg-white/5 rounded-2xl p-4 md:p-6">
                 <div className="text-center">
-                  <div className="text-4xl font-bold text-emerald-300 mb-2">
+                  <div className="text-3xl md:text-4xl font-bold text-emerald-300 mb-2">
                     ₦1.1M
                   </div>
-                  <div className="text-white text-lg mb-1">Average Home Price</div>
-                  <div className="text-gray-400 text-sm mb-6">Greater Boston Area</div>
+                  <div className="text-white text-base md:text-lg mb-1">Average Home Price</div>
+                  <div className="text-gray-400 text-sm mb-6">Victoria Island, Lagos</div>
                   
                   {/* Simple visual representation */}
                   <div className="space-y-3">
@@ -656,24 +657,24 @@ const PropertiesPage = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
               Ready to Find Your Dream Property?
             </h2>
-            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Let our expert team help you navigate Boston's competitive real estate market. 
+              <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+              Let our expert team help you navigate Lagos' competitive real estate market. 
               Get personalized recommendations and exclusive access to new listings.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md sm:max-w-none mx-auto">
               <Button 
                 size="lg" 
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8 py-4 rounded-xl shadow-sm"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 md:px-8 py-3 md:py-4 rounded-xl shadow-sm w-full sm:w-auto"
               >
                 Schedule Consultation
               </Button>
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 font-semibold px-8 py-4 rounded-xl"
+                className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 font-semibold px-6 md:px-8 py-3 md:py-4 rounded-xl w-full sm:w-auto"
               >
                 Browse All Listings
               </Button>
