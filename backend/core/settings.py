@@ -288,3 +288,36 @@ GOOGLE_OAUTH2_REDIRECT_URI = os.getenv('GOOGLE_OAUTH2_REDIRECT_URI', 'http://loc
 # Validate Google OAuth2 settings in production
 if not DEBUG and not GOOGLE_OAUTH2_CLIENT_ID:
     raise RuntimeError('GOOGLE_OAUTH2_CLIENT_ID environment variable is required in production')
+
+# Email Configuration
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'XlideLand <noreply@xlideland.com>')
+ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'Opeyemib117@gmail.com')
+
+# WhatsApp Business API Configuration
+WHATSAPP_BUSINESS_API_TOKEN = os.getenv('WHATSAPP_BUSINESS_API_TOKEN')
+WHATSAPP_BUSINESS_PHONE_NUMBER_ID = os.getenv('WHATSAPP_BUSINESS_PHONE_NUMBER_ID')
+WHATSAPP_WEBHOOK_VERIFY_TOKEN = os.getenv('WHATSAPP_WEBHOOK_VERIFY_TOKEN')
+
+# Notification Settings
+SEND_EMAIL_NOTIFICATIONS = os.getenv('SEND_EMAIL_NOTIFICATIONS', 'True').lower() == 'true'
+SEND_WHATSAPP_NOTIFICATIONS = os.getenv('SEND_WHATSAPP_NOTIFICATIONS', 'False').lower() == 'true'
+SEND_USER_CONFIRMATIONS = os.getenv('SEND_USER_CONFIRMATIONS', 'True').lower() == 'true'
+
+# Budget-friendly notification methods (choose one)
+USE_THREADING_NOTIFICATIONS = os.getenv('USE_THREADING_NOTIFICATIONS', 'True').lower() == 'true'
+USE_DATABASE_QUEUE = os.getenv('USE_DATABASE_QUEUE', 'False').lower() == 'true'
+# If both are False, uses synchronous processing
+
+# Celery Configuration for Async Tasks
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'

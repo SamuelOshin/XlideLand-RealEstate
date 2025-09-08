@@ -5,14 +5,16 @@ from . import views_new
 
 from . import views
 from . import views_new
+from . import views_budget
 
 urlpatterns = [
     # Modern REST API endpoints
-    path('api/contacts/', views_new.ContactCreateAPIView.as_view(), name='contact-create-api'),
-    path('api/contacts/list/', views_new.ContactListAPIView.as_view(), name='contact-list-api'),
-    path('api/contacts/<int:id>/', views_new.ContactDetailAPIView.as_view(), name='contact-detail-api'),
-    path('api/contacts/user/', views_new.user_contacts, name='user-contacts-api'),
-    path('api/contacts/stats/', views_new.contact_stats, name='contact-stats-api'),
+    # path('', views_new.ContactCreateAPIView.as_view(), name='contact-create-api'),
+    path('', views_budget.ContactCreateAPIView.as_view(), name='contact-create-api'),
+    path('list/', views_new.ContactListAPIView.as_view(), name='contact-list-api'),
+    path('<int:id>/', views_new.ContactDetailAPIView.as_view(), name='contact-detail-api'),
+    path('user/', views_new.user_contacts, name='user-contacts-api'),
+    path('stats/', views_new.contact_stats, name='contact-stats-api'),
     
     # Legacy endpoints for backwards compatibility
     path('contact', views.contact, name='contact'),

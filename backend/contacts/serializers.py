@@ -48,6 +48,14 @@ class ContactCreateSerializer(serializers.ModelSerializer):
             'contact_type', 'subject'
         ]
 
+    def create(self, validated_data):
+        """Create contact with proper timestamp"""
+        from django.utils import timezone
+        
+        # Ensure contact_date is set to current time
+        validated_data['contact_date'] = timezone.now()
+        return super().create(validated_data)
+
     def validate_email(self, value):
         """Validate email format"""
         if not value:
