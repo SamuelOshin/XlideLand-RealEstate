@@ -5,6 +5,7 @@ Choose your preferred method based on your needs
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 from django.conf import settings
 import logging
 
@@ -22,6 +23,7 @@ class ContactCreateAPIView(APIView):
     """
     Handle contact form submissions with budget-friendly notifications
     """
+    permission_classes = [AllowAny]  # Allow unauthenticated access
     
     def post(self, request):
         try:
@@ -38,7 +40,7 @@ class ContactCreateAPIView(APIView):
                     'email': contact.email,
                     'phone': contact.phone,
                     'message': contact.message,
-                    'created_at': contact.created_at.isoformat(),
+                    'contact_date': contact.contact_date.isoformat(),  # Use correct field name
                 }
                 
                 # Choose your notification method:

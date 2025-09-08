@@ -1,241 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thank You for Contacting XlideLand</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f8f9fa;
-        }
-        .container {
-            background: white;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .header {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            padding: 20px;
-            border-radius: 8px 8px 0 0;
-            margin: -30px -30px 30px -30px;
-            text-align: center;
-        }
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .welcome-section {
-            text-align: center;
-            margin: 30px 0;
-        }
-        .confirmation-box {
-            background: #f0f9ff;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-            border-left: 4px solid #0ea5e9;
-            text-align: center;
-        }
-        .next-steps {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-            border-left: 4px solid #10b981;
-        }
-        .step {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
-        .step-number {
-            background: #10b981;
-            color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 12px;
-            margin-right: 15px;
-            flex-shrink: 0;
-        }
-        .contact-info {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .social-links {
-            text-align: center;
-            margin: 30px 0;
-        }
-        .social-links a {
-            display: inline-block;
-            margin: 0 10px;
-            color: #10b981;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e5e7eb;
-            color: #6b7280;
-            font-size: 14px;
-        }
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background: #10b981;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            margin: 10px 5px;
-            font-weight: 600;
-        }
-        .btn:hover {
-            background: #059669;
-        }
-        .highlight {
-            background: #fef3c7;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: #92400e;
-            font-weight: 600;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XlideLand – Confirmation</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #ffffff;
+    }
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .highlight-link {
+      font-weight: 600;
+    }
+    .footer {
+      margin-top: 40px;
+      padding-top: 15px;
+      border-top: 1px solid #e9ecef;
+      font-size: 14px;
+      color: #6c757d;
+    }
+    .support {
+      margin: 20px 0;
+      padding: 15px;
+      background-color: #f1f3f5;
+      border-radius: 6px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">🏠 XlideLand</div>
-            <h1 style="margin: 0; font-size: 20px;">Thank You for Your Interest!</h1>
-        </div>
+  <p>Hello {{ contact.name }},</p>
 
-        <div class="welcome-section">
-            <h2 style="color: #059669; margin-bottom: 10px;">Hello {{ contact.name }}! 👋</h2>
-            <p style="font-size: 18px; color: #6b7280;">
-                We've received your {% if contact.contact_type == 'consultation' %}consultation request{% elif contact.contact_type == 'newsletter' %}newsletter subscription{% else %}inquiry{% endif %} and we're excited to help you find your dream property!
-            </p>
-        </div>
+  <p>
+    Thanks for reaching out to XlideLand! We’ve received your 
+    {% if contact.contact_type == 'consultation' %}
+      consultation request.
+    {% elif contact.contact_type == 'newsletter' %}
+      newsletter subscription.
+    {% else %}
+      inquiry.
+    {% endif %}
+  </p>
 
-        <div class="confirmation-box">
-            <h3 style="margin-top: 0; color: #0ea5e9;">✅ Your Request is Confirmed</h3>
-            <p style="margin-bottom: 0;">
-                <strong>Reference ID:</strong> #{{ contact.id }}<br>
-                <strong>Submitted:</strong> {{ contact.contact_date|date:"F d, Y \a\t g:i A" }}<br>
-                <strong>Type:</strong> {{ contact.get_contact_type_display }}
-            </p>
-        </div>
+  <p>
+    <strong>Reference ID:</strong> #{{ contact.id }}<br>
+    <strong>Submitted:</strong> {{ contact.contact_date|date:"F d, Y \a\t g:i A" }}<br>
+    <strong>Type:</strong> {{ contact.get_contact_type_display }}
+  </p>
 
-        {% if contact.contact_type == 'consultation' %}
-        <div class="next-steps">
-            <h3 style="margin-top: 0; color: #059669;">🚀 What Happens Next?</h3>
-            
-            <div class="step">
-                <div class="step-number">1</div>
-                <div>
-                    <strong>Expert Review</strong><br>
-                    Our real estate experts will review your requirements and prepare personalized recommendations.
-                </div>
-            </div>
-            
-            <div class="step">
-                <div class="step-number">2</div>
-                <div>
-                    <strong>Contact Within <span class="highlight">24 Hours</span></strong><br>
-                    A dedicated agent will reach out to schedule your free consultation at your convenience.
-                </div>
-            </div>
-            
-            <div class="step">
-                <div class="step-number">3</div>
-                <div>
-                    <strong>Personalized Service</strong><br>
-                    We'll match you with properties that meet your criteria and guide you through every step.
-                </div>
-            </div>
-        </div>
-        {% elif contact.contact_type == 'newsletter' %}
-        <div class="next-steps">
-            <h3 style="margin-top: 0; color: #059669;">📧 You're All Set!</h3>
-            <p>Welcome to the XlideLand family! You'll now receive:</p>
-            <ul>
-                <li>🏠 Exclusive property listings before they go public</li>
-                <li>📊 Weekly market insights and trends</li>
-                <li>💡 Expert tips for buyers, sellers, and investors</li>
-                <li>🎯 Personalized property recommendations</li>
-            </ul>
-        </div>
-        {% else %}
-        <div class="next-steps">
-            <h3 style="margin-top: 0; color: #059669;">🚀 What Happens Next?</h3>
-            <p>Our team will review your inquiry and get back to you <strong>within 24 hours</strong> with the information you need.</p>
-        </div>
-        {% endif %}
+  {% if contact.contact_type == 'consultation' %}
+  <p>
+    A member of our team will review your request and reach out within 
+    <strong>24 hours</strong> to schedule your free consultation and share personalized property suggestions.
+  </p>
+  {% elif contact.contact_type == 'newsletter' %}
+  <p>
+    You’re all set! Expect exclusive property listings, market insights, and expert tips in your inbox soon.
+  </p>
+  {% else %}
+  <p>
+    We’ll review your inquiry and get back to you within <strong>24 hours</strong> with the information you need.
+  </p>
+  {% endif %}
 
-        <div style="text-align: center; margin: 30px 0;">
-            <a href="https://xlideland.com/properties" class="btn">🔍 Browse Properties</a>
-            <a href="https://wa.me/2349076614145?text=Hi! I'm interested in XlideLand's real estate services." class="btn" style="background: #25d366;">
-                💬 Chat on WhatsApp
-            </a>
-        </div>
+  <p>
+    Want to explore now? Click here to <a href="https://xlideland.vercel.app/properties" class="highlight-link">browse our latest properties</a>.
+  </p>
 
-        <div class="contact-info">
-            <h3 style="margin-top: 0; color: #059669;">📞 Need Immediate Assistance?</h3>
-            <p style="margin-bottom: 15px;">Don't wait! Our team is ready to help you right now:</p>
-            
-            <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
-                <div style="flex: 1; min-width: 200px;">
-                    <strong>📞 Call Us:</strong><br>
-                    <a href="tel:+2349076614145" style="color: #10b981; text-decoration: none;">+234 907 661 4145</a>
-                </div>
-                <div style="flex: 1; min-width: 200px;">
-                    <strong>📧 Email Us:</strong><br>
-                    <a href="mailto:Opeyemib117@gmail.com" style="color: #10b981; text-decoration: none;">Opeyemib117@gmail.com</a>
-                </div>
-            </div>
-        </div>
+  <div class="support">
+    <p style="margin: 0 0 10px;"><strong>Need help right away?</strong></p>
+    <p style="margin: 0;">
+      Call us: <a href="tel:+2349076614145" class="highlight-link">Here</a><br>
+      Email us <a href="mailto:Opeyemib117@gmail.com" class="highlight-link">Here</a>
+    </p>
+  </div>
 
-        {% if contact.contact_type == 'consultation' %}
-        <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b; text-align: center;">
-            <h4 style="margin-top: 0; color: #92400e;">🎁 Special Consultation Bonus</h4>
-            <p style="margin-bottom: 0; color: #92400e;">
-                As a thank you for choosing XlideLand, your consultation includes a <strong>free property valuation</strong> 
-                and exclusive access to off-market listings!
-            </p>
-        </div>
-        {% endif %}
+  <p>Best regards,</p>
+  <p><strong>The XlideLand Team</strong></p>
 
-        <div class="social-links">
-            <p style="color: #6b7280; margin-bottom: 15px;">Follow us for daily property updates:</p>
-            <a href="#" style="color: #1877f2;">📘 Facebook</a>
-            <a href="#" style="color: #1da1f2;">🐦 Twitter</a>
-            <a href="#" style="color: #e4405f;">📷 Instagram</a>
-            <a href="#" style="color: #0077b5;">💼 LinkedIn</a>
-        </div>
-
-        <div class="footer">
-            <p><strong>XlideLand Real Estate</strong> - Your Trusted Property Partner</p>
-            <p style="margin: 10px 0;">📍 Victoria Island, Lagos, Nigeria</p>
-            <p style="font-size: 12px; color: #9ca3af;">
-                This is an automated confirmation. Please do not reply to this email directly.
-                For support, contact us at <a href="mailto:Opeyemib117@gmail.com" style="color: #10b981;">Opeyemib117@gmail.com</a>
-            </p>
-        </div>
-    </div>
+  <div class="footer">
+    <p>XlideLand Real Estate – Victoria Island, Lagos, Nigeria</p>
+    <p style="font-size: 12px;">
+      This is an automated confirmation. Please do not reply directly to this email.
+      For support, email us at 
+      <a href="mailto:opeyemib117@gmail.com">opeyemib117@gmail.com</a>.
+    </p>
+  </div>
 </body>
 </html>
