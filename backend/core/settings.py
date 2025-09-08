@@ -167,10 +167,10 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
-# JWT Settings - Optimized for free tier database
+# JWT Settings - Optimized for better UX and free tier database
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Shorter for security & storage
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=3),     # Reduced from 7 days
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),     # Increased from 15 minutes for better UX
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # Increased back to 7 days
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': True,

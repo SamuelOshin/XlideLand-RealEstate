@@ -14,6 +14,11 @@ import LiveChat from "@/components/chat/LiveChat";
 import { ReactQueryProvider } from "@/components/providers/ReactQueryProvider";
 import ChatProvider from "@/components/providers/ChatProvider";
 
+// Import auth debug utilities in development
+if (process.env.NODE_ENV === 'development') {
+  import('@/lib/auth-debug')
+}
+
 // Fallback font variables for builds without Google Fonts access
 const inter = {
   variable: "--font-inter",

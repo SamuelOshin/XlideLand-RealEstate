@@ -39,7 +39,7 @@ export const authConfig: NextAuthConfig = {
     }),
   ],
   callbacks: {
-    async jwt({ token, account, profile }) {
+    async jwt({ token, account, profile, trigger }) {
       // Persist Google OAuth tokens
       if (account) {
         token.accessToken = account.access_token
@@ -59,52 +59,50 @@ export const authConfig: NextAuthConfig = {
 
         // Call Django backend to authenticate and get JWT tokens
         try {
-          const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/accounts/google/login/`
+          const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000').replace(/\/api\/?$/, '')
           
-          const response = await fetch(apiUrl, {
+          const djangoResponse = await fetch(`${API_BASE_URL}/api/accounts/google/login/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              access_token: account?.access_token,
               id_token: account?.id_token,
-              email: profile.email,
-              name: profile.name,
-              google_id: profile.sub,
-              picture: profile.picture,
+              access_token: account?.access_token,
             }),
           })
 
-          if (response.ok) {
-            const data = await response.json()
+          if (djangoResponse.ok) {
+            const djangoData = await djangoResponse.json()
             
             // Store Django JWT tokens
-            token.djangoAccessToken = data.access
-            token.djangoRefreshToken = data.refresh
-            token.djangoUser = data.user
+            token.djangoAccessToken = djangoData.access
+            token.djangoRefreshToken = djangoData.refresh
+            token.djangoUser = djangoData.user
 
-            // Store in localStorage for AuthContext compatibility
+            // Store in localStorage for immediate API use
             if (typeof window !== 'undefined') {
-              localStorage.setItem('access_token', data.access)
-              localStorage.setItem('refresh_token', data.refresh)
-              localStorage.setItem('user_data', JSON.stringify(data.user))
+              localStorage.setItem('access_token', djangoData.access)
+              localStorage.setItem('refresh_token', djangoData.refresh || '')
+              localStorage.setItem('user_data', JSON.stringify(djangoData.user))
             }
+
+            console.log('✅ Django authentication successful')
           } else {
-            const errorText = await response.text()
-            console.error('Django authentication failed:', response.status, errorText)
+            const errorData = await djangoResponse.text()
+            console.error('❌ Django authentication failed:', errorData)
           }
         } catch (error) {
-          console.error('Error calling Django backend:', error)
+          console.error('❌ Error calling Django backend:', error)
         }
-      } else if (token.djangoAccessToken) {
-        // If we already have Django tokens, make sure they're in localStorage
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('access_token', token.djangoAccessToken)
-          localStorage.setItem('refresh_token', token.djangoRefreshToken || '')
-          if (token.djangoUser) {
-            localStorage.setItem('user_data', JSON.stringify(token.djangoUser))
-          }
+      }
+
+      // If we already have Django tokens, make sure they're in localStorage
+      if (token.djangoAccessToken && typeof window !== 'undefined') {
+        localStorage.setItem('access_token', token.djangoAccessToken)
+        localStorage.setItem('refresh_token', token.djangoRefreshToken || '')
+        if (token.djangoUser) {
+          localStorage.setItem('user_data', JSON.stringify(token.djangoUser))
         }
       } else {
         // Check if tokens exist in localStorage but not in token (session restoration)
@@ -119,7 +117,11 @@ export const authConfig: NextAuthConfig = {
             try {
               token.djangoUser = JSON.parse(existingUserData)
             } catch (e) {
-              // Failed to parse user data from localStorage
+              console.error('Failed to parse user data from localStorage:', e)
+              // Clear corrupted data
+              localStorage.removeItem('access_token')
+              localStorage.removeItem('refresh_token')
+              localStorage.removeItem('user_data')
             }
           }
         }
@@ -127,6 +129,7 @@ export const authConfig: NextAuthConfig = {
 
       return token
     },
+
     async session({ session, token }) {
       // Send properties to the client
       session.accessToken = token.accessToken as string
@@ -149,19 +152,15 @@ export const authConfig: NextAuthConfig = {
 
       return session
     },
-    async signIn({ account, profile, user }) {
-      // Verify Google profile
-      if (account?.provider === "google") {
-        if (!profile?.email || !profile?.email_verified) {
-          return false
-        }
 
-        // Additional security checks can be added here
+    async signIn({ account, profile, user }) {
+      // Allow sign in for Google provider
+      if (account?.provider === 'google' && profile?.email) {
         return true
       }
-
-      return true
+      return false
     },
+
     async redirect({ url, baseUrl }) {
       // Allows relative callback URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`
@@ -170,15 +169,26 @@ export const authConfig: NextAuthConfig = {
       return baseUrl
     },
   },
+  
+  events: {
+    async signOut() {
+      // Clear Django tokens on sign out
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('access_token')
+        localStorage.removeItem('refresh_token')
+        localStorage.removeItem('user_data')
+      }
+    },
+  },
+  
+  session: {
+    maxAge: 24 * 60 * 60, // 24 hours
+  },
+  
   pages: {
     signIn: '/auth/login',
     error: '/auth/error',
   },
-  session: {
-    strategy: "jwt",
-    maxAge: 24 * 60 * 60, // 24 hours
-  },
-  secret: process.env.NEXTAUTH_SECRET,
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authConfig)
