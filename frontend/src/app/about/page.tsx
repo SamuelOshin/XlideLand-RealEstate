@@ -29,16 +29,16 @@ import {
 const teamMembers = [
   {
     id: 1,
-    name: 'Adunni Okafor',
-    role: 'Founder & CEO',
-    image: '/img/realtor-1.jpg',
-    bio: 'With over 15 years in luxury real estate, Adunni founded XlideLand to revolutionize property experiences in the Lagos market.',
+    name: 'Opeyemi',
+    role: 'Founder & CEO (XlideLand & XlideCreatives)',
+    image: '/img/founder.jpg',
+    bio: 'With over 10 years in luxury real estate, Opeyemi founded XlideLand to revolutionize property experiences in the Lagos market.',
     specialties: ['Luxury Properties', 'Investment Strategy', 'Market Analysis', 'First-Time Buyers'],
-    phone: '+234 803 555 0123',
-    email: 'adunni@xlideland.ng',
-    sales: '₦18B+',
-    experience: '15+ Years'
-  }
+    phone: '+234 907 661 4145',
+    email: 'opeyemib117@gmail.com',
+    sales: '₦180M+',
+    experience: '5+ Years'
+  },
   // Future team members - uncomment when ready to add:
   /*
   {
@@ -84,8 +84,8 @@ const teamMembers = [
 const companyStats = [
   { label: 'Properties Sold', value: '3,250', icon: Building2, color: 'emerald' },
   { label: 'Happy Clients', value: '2,180', icon: Users, color: 'blue' },
-  { label: 'Years Experience', value: '20+', icon: Award, color: 'purple' },
-  { label: 'Total Sales', value: '₦125B+', icon: TrendingUp, color: 'orange' }
+  { label: 'Years Experience', value: '5+', icon: Award, color: 'purple' },
+  { label: 'Total Sales', value: '₦125M+', icon: TrendingUp, color: 'orange' }
 ];
 
 // Core values
@@ -166,7 +166,7 @@ const AboutPage = () => {
                 Redefining
                 <span className="block text-emerald-200">Real Estate Excellence</span>
               </h1>              <p className="text-xl text-emerald-100 mb-8 leading-relaxed">
-                Since 2004, XlideLand has been Lagos's premier real estate agency, 
+                Since 2019, XlideLand has been Lagos's premier real estate agency, 
                 helping thousands of families find their perfect homes and investment opportunities across Nigeria.
                 <span className="block mt-4 font-semibold">Learn more about us, meet our Team</span>
               </p>
@@ -180,9 +180,8 @@ const AboutPage = () => {
                   Get free consultation
                 </Button>
                 <Button 
-                  variant="outline" 
                   size="lg" 
-                  className="border-emerald-200 text-white hover:bg-emerald-700 font-semibold px-8"
+                  className="bg-white text-emerald-700 hover:bg-emerald-50 font-semibold px-8"
                 >
                   <Mail className="h-5 w-5 mr-2" />
                   Contact Us
@@ -228,17 +227,17 @@ const AboutPage = () => {
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >              <h2 className="text-4xl font-bold text-gray-900 mb-6">
-                Our Story: 20 Years of Excellence
+                Our Story: 7 Years of Excellence
               </h2>
               <div className="space-y-6 text-gray-600 leading-relaxed">
                 <p className="text-lg">
-                  Founded in 2004 by Adunni Okafor, XlideLand began as a boutique agency 
+                  Founded in 2018 by Opeyemi, XlideLand began as a boutique agency 
                   with a simple mission: to provide unparalleled service in Lagos's rapidly 
                   growing real estate market.
                 </p>
                 <p>
-                  Over the past 20 years, we've grown from a single-agent operation to Nigeria's 
-                  most trusted real estate firm, handling over ₦125 billion in transactions while 
+                  Over the past 7 years, we've grown from a single-agent operation to Nigeria's 
+                  most trusted real estate firm, handling over ₦125 Million in transactions while 
                   maintaining our commitment to personalized service across Lagos, Abuja, and Port Harcourt.
                 </p>
                 <p>
@@ -250,10 +249,10 @@ const AboutPage = () => {
               
               {/* Timeline */}              <div className="mt-8 space-y-4">
                 {[
-                  { year: '2004', event: 'XlideLand founded in Victoria Island, Lagos' },
-                  { year: '2009', event: 'Expanded to luxury market in Ikoyi & Lekki' },
-                  { year: '2015', event: 'Launched digital platform & mobile app' },
-                  { year: '2020', event: 'Achieved ₦100B in total sales' },
+                  { year: '2018', event: 'XlideLand founded in Victoria Island, Lagos' },
+                  { year: '2020', event: 'Expanded to luxury market in Ikoyi & Lekki' },
+                  { year: '2021', event: 'Launched digital platform & mobile app' },
+                  { year: '2023', event: 'Achieved ₦100M in total sales' },
                   { year: '2024', event: 'Named Top Agency in Lagos State' }
                 ].map((milestone, index) => (
                   <motion.div
@@ -421,6 +420,7 @@ const AboutPage = () => {
                     <Button 
                       size="sm" 
                       className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                      onClick={() => window.open(`tel:${member.phone}`)}
                     >
                       <Phone className="h-4 w-4 mr-1" />
                       Call
@@ -429,6 +429,7 @@ const AboutPage = () => {
                       variant="outline" 
                       size="sm" 
                       className="flex-1 border-emerald-600 text-emerald-600 hover:bg-emerald-50"
+                      onClick={() => window.open(`mailto:${member.email}`)}
                     >
                       <Mail className="h-4 w-4 mr-1" />
                       Email

@@ -6,6 +6,7 @@ import { authAPI } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useSession } from 'next-auth/react'
+import { useTokenRefresh } from '@/hooks/useTokenRefresh'
 
 export type UserRole = 'buyer' | 'seller' | 'admin'
 
@@ -42,6 +43,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const { data: session, status } = useSession()
+  
+  // Add proactive token refresh
+  useTokenRefresh()
 
   // Get role from user profile, with fallback logic
   const getUserRole = (profile: UserProfile | null, user: User | null): UserRole => {
@@ -76,41 +80,42 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Check for existing session on mount and sync with NextAuth
   useEffect(() => {
     const checkAuth = async () => {
-      // First, check if we have a NextAuth session with Django tokens
-      if (session?.djangoUser && session?.djangoAccessToken) {
-        
-        // Ensure Django tokens are in localStorage for API calls
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('access_token', session.djangoAccessToken)
-          localStorage.setItem('refresh_token', session.djangoRefreshToken || '')
-          localStorage.setItem('user_data', JSON.stringify(session.djangoUser))
+      try {
+        // First, check if we have a NextAuth session with Django tokens
+        if (session?.djangoUser && session?.djangoAccessToken) {
+          
+          // Ensure Django tokens are in localStorage for API calls
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('access_token', session.djangoAccessToken)
+            localStorage.setItem('refresh_token', session.djangoRefreshToken || '')
+            localStorage.setItem('user_data', JSON.stringify(session.djangoUser))
+          }
+          
+          setUser(session.djangoUser)
+          
+          // Try to get profile data
+          try {
+            const profileData = await authAPI.getUserProfileWithRole().catch(() => null)
+            setUserProfile(profileData)
+          } catch (profileError) {
+            console.warn('Could not fetch profile data from NextAuth session:', profileError)
+            // Still set user even if profile fetch fails
+          }
+          
+          setLoading(false)
+          return
         }
-        
-        setUser(session.djangoUser)
-        
-        // Try to get profile data
-        try {
-          const profileData = await authAPI.getUserProfileWithRole().catch(() => null)
-          setUserProfile(profileData)
-        } catch (profileError) {
-          console.warn('Could not fetch profile data from NextAuth session:', profileError)
-          // Still set user even if profile fetch fails
-        }
-        
-        setLoading(false)
-        return
-      }
 
-      // Fallback: Check for stored tokens from direct Django auth
-      const token = localStorage.getItem('access_token')
-      const storedUserData = localStorage.getItem('user_data')
-      
-      if (token) {
-        try {
-          // If we have stored user data from Django auth, use it directly
-          if (storedUserData) {
-            const userData = JSON.parse(storedUserData)
-            setUser(userData)
+        // Fallback: Check for stored tokens from direct Django auth
+        const token = localStorage.getItem('access_token')
+        const refreshToken = localStorage.getItem('refresh_token')
+        const storedUserData = localStorage.getItem('user_data')
+        
+        if (token && refreshToken) {
+          try {
+            // Verify token is still valid by making a test API call
+            const response = await authAPI.getUserProfile()
+            setUser(response)
             
             // Try to get profile data
             try {
@@ -118,25 +123,38 @@ export function AuthProvider({ children }: AuthProviderProps) {
               setUserProfile(profileData)
             } catch (profileError) {
               console.warn('Could not fetch profile data:', profileError)
-              // Still set user even if profile fetch fails
             }
-          } else {
-            // Fallback: Fetch both user data and profile with role
-            const [userData, profileData] = await Promise.all([
-              authAPI.getUserProfile(),
-              authAPI.getUserProfileWithRole().catch(() => null) // Fallback if profile endpoint fails
-            ])
+          } catch (error: any) {
+            console.warn('Token validation failed, attempting refresh...')
             
-            setUser(userData)
-            setUserProfile(profileData)
+            // Token might be expired, the interceptor will handle refresh
+            // If refresh fails, user will be redirected to login
+            if (storedUserData) {
+              try {
+                const userData = JSON.parse(storedUserData)
+                setUser(userData)
+                
+                // Try to get fresh profile data (might trigger token refresh)
+                const profileData = await authAPI.getUserProfileWithRole().catch(() => null)
+                setUserProfile(profileData)
+              } catch (parseError) {
+                console.error('Failed to parse stored user data:', parseError)
+                // Clear invalid data
+                localStorage.removeItem('access_token')
+                localStorage.removeItem('refresh_token')
+                localStorage.removeItem('user_data')
+              }
+            }
           }
-        } catch (error) {
-          console.error('Auth check failed:', error)
-          localStorage.removeItem('access_token')
-          localStorage.removeItem('refresh_token')
-          localStorage.removeItem('user_data')
         }
+      } catch (error) {
+        console.error('Auth check failed:', error)
+        // Clear potentially corrupted auth data
+        localStorage.removeItem('access_token')
+        localStorage.removeItem('refresh_token')
+        localStorage.removeItem('user_data')
       }
+      
       setLoading(false)
     }
 
@@ -222,6 +240,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
   const logout = () => {
+    console.log('🚪 Logging out user...')
+    
+    // Clear all authentication data
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
     localStorage.removeItem('user_data')
@@ -230,6 +251,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     
     // Also sign out from NextAuth if it was used
     if (session) {
+      console.log('🔄 Signing out from NextAuth...')
       import('next-auth/react').then(({ signOut }) => {
         signOut({ callbackUrl: '/' })
       })

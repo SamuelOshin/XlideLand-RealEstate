@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Tooltip from '@/components/ui/tooltip';
 import InstantLoadingLink from '@/components/ui/InstantLoadingLink';
-import { useAllPropertyImages } from '@/hooks/usePropertyImages';
 import { 
   Heart, 
   Share2, 
@@ -41,8 +40,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   const [isFavorited, setIsFavorited] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   
-  // Use the property images hook
-  const { images: uploadedImages, loading: imagesLoading } = useAllPropertyImages(property.id?.toString() || null);
+  // Extract images from property data (no need for additional API calls)
+  const propertyImages = property.images || []; // Use the images array that's already populated
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-NG', {
@@ -67,41 +66,29 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   };
 
   const getImageUrl = () => {
-    // First try to use uploaded images from Vercel Blob
-    if (uploadedImages && uploadedImages.length > 0) {
-      const mainImage = uploadedImages.find(img => img.is_main) || uploadedImages[0];
-      if (mainImage?.blob_url && isValidUrl(mainImage.blob_url)) {
-        return mainImage.blob_url;
+    // Use property images that are already included in the listings API response
+    if (propertyImages && propertyImages.length > 0) {
+      const mainPhoto = propertyImages[0]; // First image is the main photo
+      if (mainPhoto && isValidUrl(mainPhoto)) {
+        return mainPhoto;
       }
     }
 
-    // Fallback to traditional property photos
+    // Fallback for backward compatibility
     if (property.images && property.images.length > 0) {
-      // Filter out empty, null, or invalid images
-      const validImages = property.images.filter(img => 
-        img && 
-        typeof img === 'string' && 
-        img.trim().length > 0 &&
-        img !== 'null' &&
-        img !== 'undefined' &&
-        !img.includes('None')
-      );
+      const photo = property.images[0];
       
-      if (validImages.length > 0) {
-        const photo = validImages[0];
-        
-        // If it's already a full URL, validate and return it
-        if (isValidUrl(photo)) {
-          return photo;
-        }
-        
-        // If it's a relative path, construct the full URL
-        if (!photo.startsWith('http')) {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000';
-          const fullUrl = `${apiUrl}${photo.startsWith('/') ? '' : '/'}${photo}`;
-          if (isValidUrl(fullUrl)) {
-            return fullUrl;
-          }
+      // If it's already a full URL, validate and return it
+      if (isValidUrl(photo)) {
+        return photo;
+      }
+      
+      // If it's a relative path, construct the full URL
+      if (!photo.startsWith('http')) {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000';
+        const fullUrl = `${apiUrl}${photo.startsWith('/') ? '' : '/'}${photo}`;
+        if (isValidUrl(fullUrl)) {
+          return fullUrl;
         }
       }
     }

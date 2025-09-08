@@ -1,228 +1,287 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Contact Inquiry - XlideLand</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f8f9fa;
-        }
-        .container {
-            background: white;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .header {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            padding: 20px;
-            border-radius: 8px 8px 0 0;
-            margin: -30px -30px 30px -30px;
-            text-align: center;
-        }
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .contact-info {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-            border-left: 4px solid #10b981;
-        }
-        .info-row {
-            display: flex;
-            margin-bottom: 15px;
-            align-items: flex-start;
-        }
-        .info-label {
-            font-weight: bold;
-            color: #059669;
-            min-width: 120px;
-            margin-right: 15px;
-        }
-        .info-value {
-            flex: 1;
-            color: #374151;
-        }
-        .message-section {
-            background: #f0f9ff;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-            border-left: 4px solid #0ea5e9;
-        }
-        .priority-badge {
-            display: inline-block;
-            padding: 5px 15px;
-            background: #dc2626;
-            color: white;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        .consultation-badge {
-            background: #7c3aed;
-        }
-        .newsletter-badge {
-            background: #059669;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e5e7eb;
-            color: #6b7280;
-            font-size: 14px;
-        }
-        .action-buttons {
-            text-align: center;
-            margin: 30px 0;
-        }
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background: #10b981;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            margin: 0 10px;
-            font-weight: 600;
-        }
-        .btn:hover {
-            background: #059669;
-        }
-        .btn-secondary {
-            background: #6b7280;
-        }
-        .btn-secondary:hover {
-            background: #4b5563;
-        }
-    </style>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Contact Inquiry - XlideLand</title>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">🏠 XlideLand</div>
-            <h1 style="margin: 0; font-size: 20px;">New Contact Inquiry Received</h1>
-        </div>
+<body style="margin: 0; padding: 0; background-color: #f8f9fa; font-family: Arial, sans-serif; line-height: 1.6; color: #333333;">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f8f9fa;">
+    <tr>
+      <td align="center" style="padding: 20px;">
+        <table width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+          <!-- Header -->
+          <tr>
+            <td style="background-color: #10b981; color: #ffffff; padding: 20px; text-align: center;">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="font-size: 24px; font-weight: bold; padding-bottom: 10px;">
+                    🏠 XlideLand
+                  </td>
+                </tr>
+                <tr>
+                  <td style="font-size: 20px; font-weight: bold;">
+                    New Contact Inquiry Received
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-        <div style="margin-bottom: 20px;">
-            <span class="priority-badge {% if contact.contact_type == 'consultation' %}consultation-badge{% elif contact.contact_type == 'newsletter' %}newsletter-badge{% endif %}">
-                {{ contact.get_contact_type_display|upper }}
-            </span>
-        </div>
+          <!-- Priority Badge -->
+          <tr>
+            <td style="padding: 20px;">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="text-align: center; padding-bottom: 20px;">
+                    {% if contact.contact_type == 'consultation' %}
+                      <span style="display: inline-block; padding: 5px 15px; background-color: #7c3aed; color: #ffffff; font-size: 12px; font-weight: bold; text-transform: uppercase;">CONSULTATION</span>
+                    {% elif contact.contact_type == 'newsletter' %}
+                      <span style="display: inline-block; padding: 5px 15px; background-color: #059669; color: #ffffff; font-size: 12px; font-weight: bold; text-transform: uppercase;">NEWSLETTER</span>
+                    {% else %}
+                      <span style="display: inline-block; padding: 5px 15px; background-color: #dc2626; color: #ffffff; font-size: 12px; font-weight: bold; text-transform: uppercase;">INQUIRY</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-        <div class="contact-info">
-            <h3 style="margin-top: 0; color: #059669;">👤 Contact Information</h3>
-            
-            <div class="info-row">
-                <span class="info-label">Name:</span>
-                <span class="info-value">{{ contact.name }}</span>
-            </div>
-            
-            <div class="info-row">
-                <span class="info-label">Email:</span>
-                <span class="info-value"><a href="mailto:{{ contact.email }}" style="color: #0ea5e9;">{{ contact.email }}</a></span>
-            </div>
-            
-            <div class="info-row">
-                <span class="info-label">Phone:</span>
-                <span class="info-value"><a href="tel:{{ contact.phone }}" style="color: #0ea5e9;">{{ contact.phone }}</a></span>
-            </div>
-            
-            <div class="info-row">
-                <span class="info-label">Contact Date:</span>
-                <span class="info-value">{{ contact.contact_date|date:"F d, Y \a\t g:i A" }}</span>
-            </div>
-            
-            <div class="info-row">
-                <span class="info-label">Subject:</span>
-                <span class="info-value">{{ contact.subject|default:"General Inquiry" }}</span>
-            </div>
-        </div>
+          <!-- Contact Information -->
+          <tr>
+            <td style="padding: 0 20px 20px 20px;">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f8f9fa; padding: 20px; border-left: 4px solid #10b981;">
+                <tr>
+                  <td style="font-size: 18px; font-weight: bold; color: #059669; padding-bottom: 15px;">
+                    👤 Contact Information
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td style="font-weight: bold; color: #059669; min-width: 120px; padding-bottom: 15px;">
+                          Name:
+                        </td>
+                        <td style="padding-bottom: 15px; color: #374151;">
+                          {{ contact.name }}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="font-weight: bold; color: #059669; padding-bottom: 15px;">
+                          Email:
+                        </td>
+                        <td style="padding-bottom: 15px;">
+                          <a href="mailto:{{ contact.email }}" style="color: #0ea5e9; text-decoration: none;">{{ contact.email }}</a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="font-weight: bold; color: #059669; padding-bottom: 15px;">
+                          Phone:
+                        </td>
+                        <td style="padding-bottom: 15px;">
+                          <a href="tel:{{ contact.phone }}" style="color: #0ea5e9; text-decoration: none;">{{ contact.phone }}</a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="font-weight: bold; color: #059669; padding-bottom: 15px;">
+                          Contact Date:
+                        </td>
+                        <td style="padding-bottom: 15px; color: #374151;">
+                          {{ contact.contact_date|date:"F d, Y \a\t g:i A" }}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="font-weight: bold; color: #059669; padding-bottom: 15px;">
+                          Subject:
+                        </td>
+                        <td style="padding-bottom: 15px; color: #374151;">
+                          {{ contact.subject|default:"General Inquiry" }}
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-        {% if contact.property_type or contact.budget_range or contact.timeline %}
-        <div class="contact-info">
-            <h3 style="margin-top: 0; color: #059669;">🏘️ Property Preferences</h3>
-            
-            {% if contact.property_type %}
-            <div class="info-row">
-                <span class="info-label">Property Type:</span>
-                <span class="info-value">{{ contact.get_property_type_display }}</span>
-            </div>
-            {% endif %}
-            
-            {% if contact.budget_range %}
-            <div class="info-row">
-                <span class="info-label">Budget Range:</span>
-                <span class="info-value">{{ contact.get_budget_range_display }}</span>
-            </div>
-            {% endif %}
-            
-            {% if contact.timeline %}
-            <div class="info-row">
-                <span class="info-label">Timeline:</span>
-                <span class="info-value">{{ contact.get_timeline_display }}</span>
-            </div>
-            {% endif %}
-        </div>
-        {% endif %}
+          <!-- Property Preferences -->
+          {% if contact.property_type or contact.budget_range or contact.timeline %}
+          <tr>
+            <td style="padding: 0 20px 20px 20px;">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f8f9fa; padding: 20px; border-left: 4px solid #10b981;">
+                <tr>
+                  <td style="font-size: 18px; font-weight: bold; color: #059669; padding-bottom: 15px;">
+                    🏘️ Property Preferences
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                      {% if contact.property_type %}
+                      <tr>
+                        <td style="font-weight: bold; color: #059669; min-width: 120px; padding-bottom: 15px;">
+                          Property Type:
+                        </td>
+                        <td style="padding-bottom: 15px; color: #374151;">
+                          {{ contact.get_property_type_display }}
+                        </td>
+                      </tr>
+                      {% endif %}
+                      {% if contact.budget_range %}
+                      <tr>
+                        <td style="font-weight: bold; color: #059669; padding-bottom: 15px;">
+                          Budget Range:
+                        </td>
+                        <td style="padding-bottom: 15px; color: #374151;">
+                          {{ contact.get_budget_range_display }}
+                        </td>
+                      </tr>
+                      {% endif %}
+                      {% if contact.timeline %}
+                      <tr>
+                        <td style="font-weight: bold; color: #059669; padding-bottom: 15px;">
+                          Timeline:
+                        </td>
+                        <td style="padding-bottom: 15px; color: #374151;">
+                          {{ contact.get_timeline_display }}
+                        </td>
+                      </tr>
+                      {% endif %}
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          {% endif %}
 
-        {% if contact.message %}
-        <div class="message-section">
-            <h3 style="margin-top: 0; color: #0ea5e9;">💬 Message</h3>
-            <p style="margin-bottom: 0; white-space: pre-line;">{{ contact.message }}</p>
-        </div>
-        {% endif %}
+          <!-- Message Section -->
+          {% if contact.message %}
+          <tr>
+            <td style="padding: 0 20px 20px 20px;">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f0f9ff; padding: 20px; border-left: 4px solid #0ea5e9;">
+                <tr>
+                  <td style="font-size: 18px; font-weight: bold; color: #0ea5e9; padding-bottom: 15px;">
+                    💬 Message
+                  </td>
+                </tr>
+                <tr>
+                  <td style="color: #374151; white-space: pre-line;">
+                    {{ contact.message }}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          {% endif %}
 
-        {% if contact.listing %}
-        <div class="contact-info">
-            <h3 style="margin-top: 0; color: #059669;">🏠 Property Reference</h3>
-            <div class="info-row">
-                <span class="info-label">Listing:</span>
-                <span class="info-value">{{ contact.listing }}</span>
-            </div>
-        </div>
-        {% endif %}
+          <!-- Property Reference -->
+          {% if contact.listing %}
+          <tr>
+            <td style="padding: 0 20px 20px 20px;">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f8f9fa; padding: 20px; border-left: 4px solid #10b981;">
+                <tr>
+                  <td style="font-size: 18px; font-weight: bold; color: #059669; padding-bottom: 15px;">
+                    🏠 Property Reference
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td style="font-weight: bold; color: #059669; min-width: 120px;">
+                          Listing:
+                        </td>
+                        <td style="color: #374151;">
+                          {{ contact.listing }}
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          {% endif %}
 
-        <div class="action-buttons">
-            <a href="mailto:{{ contact.email }}?subject=Re: {{ contact.subject|default:'Your Inquiry' }}" class="btn">
-                📧 Reply via Email
-            </a>
-            <a href="tel:{{ contact.phone }}" class="btn btn-secondary">
-                📞 Call Now
-            </a>
-        </div>
+          <!-- Action Buttons -->
+          <tr>
+            <td style="padding: 20px; text-align: center;">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td align="center">
+                    <table border="0" cellspacing="0" cellpadding="0" style="margin: 0 auto;">
+                      <tr>
+                        <td style="padding: 0 10px;">
+                          <a href="mailto:{{ contact.email }}?subject=Re: {{ contact.subject|default:'Your Inquiry' }}" style="display: inline-block; padding: 12px 24px; background-color: #10b981; color: #ffffff; text-decoration: none; font-weight: bold;">
+                            📧 Reply via Email
+                          </a>
+                        </td>
+                        <td style="padding: 0 10px;">
+                          <a href="tel:{{ contact.phone }}" style="display: inline-block; padding: 12px 24px; background-color: #6b7280; color: #ffffff; text-decoration: none; font-weight: bold;">
+                            📞 Call Now
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-        <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
-            <strong style="color: #92400e;">⚡ Action Required:</strong>
-            <p style="margin: 5px 0 0 0; color: #92400e;">
-                {% if contact.contact_type == 'consultation' %}
-                    Please respond to this consultation request within 24 hours to maintain service quality.
-                {% elif contact.contact_type == 'newsletter' %}
-                    New newsletter subscription - verify and add to mailing list.
-                {% else %}
-                    Please respond promptly to this inquiry.
-                {% endif %}
-            </p>
-        </div>
+          <!-- Action Required Alert -->
+          <tr>
+            <td style="padding: 0 20px 20px 20px;">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fef3c7; padding: 15px; border-left: 4px solid #f59e0b;">
+                <tr>
+                  <td>
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td style="font-weight: bold; color: #92400e; padding-bottom: 5px;">
+                          ⚡ Action Required:
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="color: #92400e;">
+                          {% if contact.contact_type == 'consultation' %}
+                            Please respond to this consultation request within 24 hours to maintain service quality.
+                          {% elif contact.contact_type == 'newsletter' %}
+                            New newsletter subscription - verify and add to mailing list.
+                          {% else %}
+                            Please respond promptly to this inquiry.
+                          {% endif %}
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-        <div class="footer">
-            <p>This is an automated notification from XlideLand Real Estate Platform</p>
-            <p>Contact ID: #{{ contact.id }} | Received: {{ contact.contact_date|date:"Y-m-d H:i:s" }} UTC</p>
-        </div>
-    </div>
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 14px;">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="padding-bottom: 10px;">
+                    This is an automated notification from XlideLand Real Estate Platform
+                  </td>
+                </tr>
+                <tr>
+                  <td style="font-size: 12px;">
+                    Contact ID: #{{ contact.id }} | Received: {{ contact.contact_date|date:"Y-m-d H:i:s" }} UTC
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>

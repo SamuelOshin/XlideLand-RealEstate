@@ -49,18 +49,48 @@ api.interceptors.response.use(
         
         if (refreshToken) {
           try {
+            console.log('🔄 Attempting token refresh...')
             const response = await axios.post(`${API_BASE_URL}/api/auth/refresh/`, {
               refresh: refreshToken,
             })
             
-            const { access } = response.data
+            const { access, refresh: newRefreshToken } = response.data
+            
+            // Update both tokens (Django rotates refresh tokens)
             localStorage.setItem('access_token', access)
+            if (newRefreshToken) {
+              localStorage.setItem('refresh_token', newRefreshToken)
+            }
+            
+            console.log('✅ Token refresh successful')
+            
+            // Update the original request with new token
+            original.headers.Authorization = `Bearer ${access}`
             
             return api(original)
-          } catch (refreshError) {
+          } catch (refreshError: any) {
+            console.error('❌ Token refresh failed:', refreshError?.response?.data || refreshError.message)
+            
+            // Clear all auth data
             localStorage.removeItem('access_token')
             localStorage.removeItem('refresh_token')
-            window.location.href = '/auth/login'
+            localStorage.removeItem('user_data')
+            
+            // Clear NextAuth session if it exists
+            if (typeof window !== 'undefined' && window.location.pathname !== '/auth/login') {
+              // Avoid infinite redirect loop
+              window.location.href = '/auth/login?error=session_expired'
+            }
+          }
+        } else {
+          console.warn('⚠️ No refresh token available')
+          // No refresh token, redirect to login
+          localStorage.removeItem('access_token')
+          localStorage.removeItem('refresh_token')
+          localStorage.removeItem('user_data')
+          
+          if (typeof window !== 'undefined' && window.location.pathname !== '/auth/login') {
+            window.location.href = '/auth/login?error=no_token'
           }
         }
       }
@@ -149,6 +179,26 @@ export const authAPI = {
 
   unlinkGoogleAccount: async (): Promise<{ message: string }> => {
     const response = await api.post('/api/accounts/google/unlink/')
+    return response.data
+  },
+
+  // Token refresh method
+  refreshToken: async (): Promise<{ access: string; refresh?: string }> => {
+    const refreshToken = localStorage.getItem('refresh_token')
+    if (!refreshToken) {
+      throw new Error('No refresh token available')
+    }
+
+    const response = await axios.post(`${API_BASE_URL}/api/auth/refresh/`, {
+      refresh: refreshToken,
+    })
+
+    // Update stored tokens
+    localStorage.setItem('access_token', response.data.access)
+    if (response.data.refresh) {
+      localStorage.setItem('refresh_token', response.data.refresh)
+    }
+
     return response.data
   },
 }
