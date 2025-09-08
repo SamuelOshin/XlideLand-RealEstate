@@ -1,5 +1,5 @@
 from django.db import models
-from datetime import datetime
+from django.utils import timezone
 
 class Contact(models.Model):
   # Contact type choices
@@ -60,7 +60,7 @@ class Contact(models.Model):
   email = models.CharField(max_length=100)
   phone = models.CharField(max_length=100)
   message = models.TextField(blank=True)
-  contact_date = models.DateTimeField(default=datetime.now, blank=True)
+  contact_date = models.DateTimeField(default=timezone.now)
   user_id = models.IntegerField(blank=True, null=True)
 
 
