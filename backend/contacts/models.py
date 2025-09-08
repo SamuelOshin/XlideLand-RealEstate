@@ -86,3 +86,63 @@ class Contact(models.Model):
 
   def __str__(self):
     return f"{self.name} - {self.get_contact_type_display()}" if self.contact_type else self.name
+
+
+class NotificationQueue(models.Model):
+    """
+    Simple database-based task queue for notifications
+    Alternative to Redis/Celery for budget-friendly setup
+    """
+    TASK_TYPES = [
+        ('email_admin', 'Email Admin'),
+        ('email_user', 'Email User Confirmation'),
+        ('whatsapp', 'WhatsApp Notification'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+    ]
+    
+    task_type = models.CharField(max_length=20, choices=TASK_TYPES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    contact_data = models.JSONField()  # Store contact form data
+    created_at = models.DateTimeField(auto_now_add=True)
+    processed_at = models.DateTimeField(null=True, blank=True)
+    error_message = models.TextField(blank=True)
+    retry_count = models.IntegerField(default=0)
+    max_retries = models.IntegerField(default=3)
+    
+    class Meta:
+        ordering = ['created_at']
+        verbose_name = "Notification Task"
+        verbose_name_plural = "Notification Tasks"
+        indexes = [
+            models.Index(fields=['status', 'created_at']),
+            models.Index(fields=['task_type', 'status']),
+        ]
+    
+    def __str__(self):
+        return f"{self.get_task_type_display()} - {self.get_status_display()} - {self.created_at}"
+    
+    def mark_completed(self):
+        """Mark task as completed"""
+        from django.utils import timezone
+        self.status = 'completed'
+        self.processed_at = timezone.now()
+        self.save()
+    
+    def mark_failed(self, error_message):
+        """Mark task as failed"""
+        from django.utils import timezone
+        self.status = 'failed'
+        self.processed_at = timezone.now()
+        self.error_message = error_message
+        self.retry_count += 1
+        self.save()
+    
+    def should_retry(self):
+        """Check if task should be retried"""
+        return self.retry_count < self.max_retries and self.status == 'failed'

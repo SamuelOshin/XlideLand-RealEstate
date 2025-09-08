@@ -309,6 +309,11 @@ SEND_EMAIL_NOTIFICATIONS = os.getenv('SEND_EMAIL_NOTIFICATIONS', 'True').lower()
 SEND_WHATSAPP_NOTIFICATIONS = os.getenv('SEND_WHATSAPP_NOTIFICATIONS', 'False').lower() == 'true'
 SEND_USER_CONFIRMATIONS = os.getenv('SEND_USER_CONFIRMATIONS', 'True').lower() == 'true'
 
+# Budget-friendly notification methods (choose one)
+USE_THREADING_NOTIFICATIONS = os.getenv('USE_THREADING_NOTIFICATIONS', 'True').lower() == 'true'
+USE_DATABASE_QUEUE = os.getenv('USE_DATABASE_QUEUE', 'False').lower() == 'true'
+# If both are False, uses synchronous processing
+
 # Celery Configuration for Async Tasks
 CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
