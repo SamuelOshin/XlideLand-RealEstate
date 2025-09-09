@@ -246,6 +246,7 @@ export default function MessagesPage() {
   const [newMessage, setNewMessage] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [filter, setFilter] = useState('all') // 'all' | 'unread' | 'archived'
+  const [showSidebar, setShowSidebar] = useState(false) // Mobile sidebar toggle
 
   const selectedConversation = conversations.find(c => c.id === selectedConversationId)
   const conversationMessages = selectedConversationId ? messages[selectedConversationId] || [] : []
@@ -327,38 +328,36 @@ export default function MessagesPage() {
     ))
   }
 
-  const ConversationItem = ({ conversation }: { conversation: MockConversation }) => {
+  const ConversationItem = ({ conversation, onSelect }: { conversation: MockConversation, onSelect: () => void }) => {
     const agent = conversation.participants[0]
     const isSelected = conversation.id === selectedConversationId
     const hasUnread = conversation.unreadCount > 0
 
     return (
       <div
-        onClick={() => {
-          setSelectedConversationId(conversation.id)
-          if (hasUnread) markAsRead(conversation.id)
-        }}
-        className={`p-4 border-b border-gray-100 cursor-pointer transition-colors hover:bg-gray-50 ${
+        onClick={onSelect}
+        className={`p-3 md:p-4 border-b border-gray-100 cursor-pointer transition-colors hover:bg-gray-50 ${
           isSelected ? 'bg-emerald-50 border-r-2 border-r-emerald-500' : ''
         }`}
       >
-        <div className="flex items-start space-x-3">
+        <div className="flex items-start space-x-2 md:space-x-3">
           {/* Avatar */}
-          <div className="relative">            <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold">
+          <div className="relative flex-shrink-0">
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
               {agent.name.split(' ').map((n: string) => n[0]).join('')}
             </div>
             {agent.online && (
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+              <div className="absolute -bottom-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-green-500 border-2 border-white rounded-full"></div>
             )}
           </div>
 
           <div className="flex-1 min-w-0">
             {/* Header */}
             <div className="flex items-center justify-between mb-1">
-              <h3 className={`text-sm font-medium truncate ${hasUnread ? 'text-gray-900' : 'text-gray-700'}`}>
+              <h3 className={`text-sm md:text-sm font-medium truncate ${hasUnread ? 'text-gray-900' : 'text-gray-700'}`}>
                 {agent.name}
               </h3>
-              <div className="flex items-center space-x-2 ml-2">
+              <div className="flex items-center space-x-1 md:space-x-2 ml-2 flex-shrink-0">
                 {hasUnread && (
                   <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
                 )}
@@ -369,11 +368,11 @@ export default function MessagesPage() {
             </div>
 
             {/* Property */}
-            <div className="flex items-center text-xs text-gray-500 mb-2">
-              <Building2 className="h-3 w-3 mr-1" />
+            <div className="flex items-center text-xs text-gray-500 mb-1 md:mb-2">
+              <Building2 className="h-3 w-3 mr-1 flex-shrink-0" />
               <span className="truncate">{conversation.property.title}</span>
-              <span className="mx-1">•</span>
-              <span>{formatPrice(conversation.property.price)}</span>
+              <span className="mx-1 hidden md:inline">•</span>
+              <span className="hidden md:inline">{formatPrice(conversation.property.price)}</span>
             </div>
 
             {/* Last Message */}
@@ -397,14 +396,86 @@ export default function MessagesPage() {
   }
 
   const MessageBubble = ({ message, isOwn }: { message: MockMessage, isOwn: boolean }) => {
+    const [isDragging, setIsDragging] = useState(false)
+    const [position, setPosition] = useState({ x: 0, y: 0 })
+    const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+
+    useEffect(() => {
+      const handleMouseMove = (e: MouseEvent) => {
+        if (!isDragging) return
+        setPosition({
+          x: e.clientX - dragStart.x,
+          y: e.clientY - dragStart.y
+        })
+      }
+
+      const handleMouseUp = () => {
+        setIsDragging(false)
+      }
+
+      const handleTouchMove = (e: TouchEvent) => {
+        if (!isDragging) return
+        const touch = e.touches[0]
+        setPosition({
+          x: touch.clientX - dragStart.x,
+          y: touch.clientY - dragStart.y
+        })
+      }
+
+      const handleTouchEnd = () => {
+        setIsDragging(false)
+      }
+
+      if (isDragging) {
+        document.addEventListener('mousemove', handleMouseMove)
+        document.addEventListener('mouseup', handleMouseUp)
+        document.addEventListener('touchmove', handleTouchMove, { passive: false })
+        document.addEventListener('touchend', handleTouchEnd)
+      }
+
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('mouseup', handleMouseUp)
+        document.removeEventListener('touchmove', handleTouchMove)
+        document.removeEventListener('touchend', handleTouchEnd)
+      }
+    }, [isDragging, dragStart])
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+      setIsDragging(true)
+      setDragStart({
+        x: e.clientX - position.x,
+        y: e.clientY - position.y
+      })
+    }
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+      setIsDragging(true)
+      const touch = e.touches[0]
+      setDragStart({
+        x: touch.clientX - position.x,
+        y: touch.clientY - position.y
+      })
+    }
+
     return (
-      <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-4`}>
-        <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-          isOwn 
-            ? 'bg-emerald-600 text-white' 
-            : 'bg-gray-100 text-gray-900'
-        }`}>
-          <p className="text-sm">{message.content}</p>
+      <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-3 md:mb-4`}>
+        <div
+          className={`max-w-[280px] md:max-w-xs lg:max-w-md px-3 md:px-4 py-2 md:py-2 rounded-lg cursor-move select-none transition-transform ${
+            isDragging ? 'scale-105 shadow-lg z-10' : ''
+          } ${
+            isOwn
+              ? 'bg-emerald-600 text-white'
+              : 'bg-gray-100 text-gray-900'
+          }`}
+          style={{
+            transform: `translate(${position.x}px, ${position.y}px)`,
+            userSelect: 'none'
+          }}
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
+        >
+          <p className="text-sm md:text-sm leading-relaxed">{message.content}</p>
           <div className={`flex items-center justify-end mt-1 space-x-1 ${
             isOwn ? 'text-emerald-100' : 'text-gray-500'
           }`}>
@@ -424,35 +495,55 @@ export default function MessagesPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 relative">
+        {/* Mobile Sidebar Toggle - Outside chat card */}
+        <div className="md:hidden absolute top-20 right-4 z-10">
+          <button
+            onClick={() => setShowSidebar(!showSidebar)}
+            className="p-2 bg-emerald-600 text-white rounded-lg shadow-lg hover:bg-emerald-700 transition-colors"
+          >
+            <MessageCircle className="h-5 w-5" />
+          </button>
+        </div>
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
+            <h1 className="text-2xl md:text-2xl font-bold text-gray-900">Messages</h1>
             <p className="mt-1 text-sm text-gray-500">
               Communicate with agents and manage your property inquiries
             </p>
           </div>
           
-          <div className="mt-4 sm:mt-0 flex items-center space-x-3">
+          <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-              <span>{conversations.filter(c => c.unreadCount > 0).length} unread</span>
+              <span className="hidden sm:inline">{conversations.filter(c => c.unreadCount > 0).length} unread</span>
+              <span className="sm:hidden">{conversations.filter(c => c.unreadCount > 0).length}</span>
             </div>
           </div>
         </div>
 
         {/* Messages Interface */}
-        <div className="h-[calc(100vh-200px)] bg-white rounded-xl border border-gray-200 overflow-hidden flex">
+        <div className="h-[calc(100vh-200px)] bg-white rounded-xl border border-gray-200 overflow-hidden relative">
           {/* Conversations Sidebar */}
-          <div className="w-1/3 border-r border-gray-200 flex flex-col">
+          <div className={`${
+            showSidebar ? 'translate-x-0' : '-translate-x-full'
+          } md:translate-x-0 fixed md:static inset-y-0 left-0 z-20 w-80 md:w-1/3 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 ease-in-out overflow-y-auto`}>
             {/* Header */}
-            <div className="p-4 border-b border-gray-200">
+            <div className="p-4 border-b border-gray-200 bg-white sticky top-18 md:top-0 z-10">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">Messages</h2>
-                <button className="p-2 text-gray-400 hover:text-emerald-600 transition-colors">
-                  <MoreHorizontal className="h-5 w-5" />
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button 
+                    onClick={() => setShowSidebar(false)}
+                    className="md:hidden p-2 text-gray-400 hover:text-emerald-600 transition-colors"
+                  >
+                    <RefreshCw className="h-5 w-5" />
+                  </button>
+                  <button className="p-2 text-gray-400 hover:text-emerald-600 transition-colors">
+                    <MoreHorizontal className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
               
               {/* Search */}
@@ -468,7 +559,7 @@ export default function MessagesPage() {
               </div>
 
               {/* Filter Tabs */}
-              <div className="flex items-center space-x-1 mt-3">
+              <div className="flex items-center space-x-1 mt-3 overflow-x-auto">
                 {[
                   { key: 'all', label: 'All' },
                   { key: 'unread', label: 'Unread' },
@@ -477,7 +568,7 @@ export default function MessagesPage() {
                   <button
                     key={tab.key}
                     onClick={() => setFilter(tab.key)}
-                    className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                    className={`px-3 py-1 text-xs font-medium rounded-full transition-colors whitespace-nowrap ${
                       filter === tab.key
                         ? 'bg-emerald-100 text-emerald-800'
                         : 'text-gray-600 hover:text-emerald-600'
@@ -495,10 +586,18 @@ export default function MessagesPage() {
             </div>
 
             {/* Conversations List */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 pt-16 md:pt-0">
               {filteredConversations.length > 0 ? (
                 filteredConversations.map(conversation => (
-                  <ConversationItem key={conversation.id} conversation={conversation} />
+                  <ConversationItem 
+                    key={conversation.id} 
+                    conversation={conversation} 
+                    onSelect={() => {
+                      setSelectedConversationId(conversation.id)
+                      if (conversation.unreadCount > 0) markAsRead(conversation.id)
+                      setShowSidebar(false) // Close sidebar on mobile after selection
+                    }}
+                  />
                 ))
               ) : (
                 <div className="p-8 text-center">
@@ -512,46 +611,57 @@ export default function MessagesPage() {
             </div>
           </div>
 
+          {/* Mobile Overlay */}
+          {showSidebar && (
+            <div 
+              className="md:hidden fixed inset-0 backdrop-blur-sm bg-white/20 z-10"
+              onClick={() => setShowSidebar(false)}
+            />
+          )}
+
           {/* Chat Area */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-w-0">
             {selectedConversation ? (
               <>
                 {/* Chat Header */}
-                <div className="p-4 border-b border-gray-200 bg-gray-50">
+                <div className="p-3 md:p-4 border-b border-gray-200 bg-gray-50">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="relative">                        <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold">
+                    <div className="flex items-center space-x-2 md:space-x-3 min-w-0 flex-1">
+                      <div className="relative flex-shrink-0">
+                        <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                           {selectedConversation.participants[0].name.split(' ').map((n: string) => n[0]).join('')}
                         </div>
                         {selectedConversation.participants[0].online && (
                           <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
                         )}
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">{selectedConversation.participants[0].name}</h3>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <Building2 className="h-3 w-3 mr-1" />
-                          <span>{selectedConversation.property.title}</span>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-gray-900 text-sm md:text-base truncate">
+                          {selectedConversation.participants[0].name}
+                        </h3>
+                        <div className="flex items-center text-xs md:text-sm text-gray-500">
+                          <Building2 className="h-3 w-3 mr-1 flex-shrink-0" />
+                          <span className="truncate">{selectedConversation.property.title}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-1 md:space-x-2 flex-shrink-0">
                       <button className="p-2 text-gray-400 hover:text-emerald-600 transition-colors">
-                        <Phone className="h-5 w-5" />
+                        <Phone className="h-4 w-4 md:h-5 md:w-5" />
                       </button>
                       <button className="p-2 text-gray-400 hover:text-emerald-600 transition-colors">
-                        <Video className="h-5 w-5" />
+                        <Video className="h-4 w-4 md:h-5 md:w-5" />
                       </button>
                       <button className="p-2 text-gray-400 hover:text-emerald-600 transition-colors">
-                        <MoreHorizontal className="h-5 w-5" />
+                        <MoreHorizontal className="h-4 w-4 md:h-5 md:w-5" />
                       </button>
                     </div>
                   </div>
                 </div>
 
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4">
                   {conversationMessages.map((message: MockMessage) => (
                     <MessageBubble 
                       key={message.id} 
@@ -562,37 +672,37 @@ export default function MessagesPage() {
                 </div>
 
                 {/* Message Input */}
-                <div className="p-4 border-t border-gray-200">
+                <div className="p-3 md:p-4 border-t border-gray-200">
                   <div className="flex items-center space-x-2">
-                    <button className="p-2 text-gray-400 hover:text-emerald-600 transition-colors">
-                      <Paperclip className="h-5 w-5" />
+                    <button className="p-2 text-gray-400 hover:text-emerald-600 transition-colors flex-shrink-0">
+                      <Paperclip className="h-4 w-4 md:h-5 md:w-5" />
                     </button>
-                    <div className="flex-1 relative">
+                    <div className="flex-1 relative min-w-0">
                       <input
                         type="text"
                         placeholder="Type a message..."
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        className="w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                       />
                     </div>
                     <button
                       onClick={sendMessage}
                       disabled={!newMessage.trim()}
-                      className="p-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="p-2 md:p-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                     >
-                      <Send className="h-5 w-5" />
+                      <Send className="h-4 w-4 md:h-5 md:w-5" />
                     </button>
                   </div>
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center">
+              <div className="flex-1 flex items-center justify-center p-8">
                 <div className="text-center">
-                  <MessageCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Select a conversation</h3>
-                  <p className="text-gray-600">Choose a conversation from the sidebar to start messaging</p>
+                  <MessageCircle className="h-12 w-12 md:h-16 md:w-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-2">Select a conversation</h3>
+                  <p className="text-sm md:text-base text-gray-600">Choose a conversation from the sidebar to start messaging</p>
                 </div>
               </div>
             )}
