@@ -556,7 +556,7 @@ export default function MessagesPage() {
             showSidebar ? 'translate-x-0' : '-translate-x-full'
           } md:translate-x-0 fixed md:static inset-y-0 left-0 z-20 w-80 md:w-1/3 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 ease-in-out overflow-y-auto`}>
             {/* Header */}
-            <div className="p-4 border-b border-gray-200 bg-white sticky top-18 md:top-0 z-10">
+            <div className="p-4 border-b border-gray-200 bg-white sticky top-16 md:top-0 z-10">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">Messages</h2>
                 <div className="flex items-center space-x-2">

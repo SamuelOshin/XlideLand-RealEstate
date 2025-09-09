@@ -440,12 +440,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               >
                 <Menu className="h-5 w-5" />
               </Button>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, {user?.first_name || user?.username || 'User'}! 👋
-                </h1>
-                <p className="text-gray-600">Welcome back to your {role} dashboard</p>
-              </div>
+              {/* Hide greeting on mobile messages page */}
+              {!(pathname === '/dashboard/messages' && window.innerWidth < 768) && (
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, {user?.first_name || user?.username || 'User'}! 👋
+                  </h1>
+                  <p className="text-gray-600">Welcome back to your {role} dashboard</p>
+                </div>
+              )}
             </div>            <div className="flex items-center space-x-3">
               {/* Mobile Search Toggle */}
               <Button
