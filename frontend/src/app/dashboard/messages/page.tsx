@@ -247,6 +247,91 @@ export default function MessagesPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filter, setFilter] = useState('all') // 'all' | 'unread' | 'archived'
   const [showSidebar, setShowSidebar] = useState(false) // Mobile sidebar toggle
+  const [sidebarButtonPosition, setSidebarButtonPosition] = useState({ x: 0, y: 0 })
+  const [isDraggingButton, setIsDraggingButton] = useState(false)
+  const [dragDistance, setDragDistance] = useState(0)
+  const [buttonDragStart, setButtonDragStart] = useState({ x: 0, y: 0 })
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDraggingButton) return
+      const newX = e.clientX - buttonDragStart.x
+      const newY = e.clientY - buttonDragStart.y
+      // Keep button within viewport bounds
+      const maxX = window.innerWidth - 60 // button width + padding
+      const maxY = window.innerHeight - 60 // button height + padding
+      const clampedX = Math.max(0, Math.min(newX, maxX))
+      const clampedY = Math.max(0, Math.min(newY, maxY))
+      setSidebarButtonPosition({
+        x: clampedX,
+        y: clampedY
+      })
+      // Track drag distance
+      const distance = Math.sqrt((clampedX - sidebarButtonPosition.x) ** 2 + (clampedY - sidebarButtonPosition.y) ** 2)
+      setDragDistance(prev => prev + distance)
+    }
+
+    const handleMouseUp = () => {
+      setIsDraggingButton(false)
+      // Don't reset drag distance here - let click handler decide
+    }
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isDraggingButton) return
+      const touch = e.touches[0]
+      const newX = touch.clientX - buttonDragStart.x
+      const newY = touch.clientY - buttonDragStart.y
+      const maxX = window.innerWidth - 60
+      const maxY = window.innerHeight - 60
+      const clampedX = Math.max(0, Math.min(newX, maxX))
+      const clampedY = Math.max(0, Math.min(newY, maxY))
+      setSidebarButtonPosition({
+        x: clampedX,
+        y: clampedY
+      })
+      // Track drag distance
+      const distance = Math.sqrt((clampedX - sidebarButtonPosition.x) ** 2 + (clampedY - sidebarButtonPosition.y) ** 2)
+      setDragDistance(prev => prev + distance)
+    }
+
+    const handleTouchEnd = () => {
+      setIsDraggingButton(false)
+      // Don't reset drag distance here - let click handler decide
+    }
+
+    if (isDraggingButton) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+      document.addEventListener('touchmove', handleTouchMove, { passive: false })
+      document.addEventListener('touchend', handleTouchEnd)
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+      document.removeEventListener('touchmove', handleTouchMove)
+      document.removeEventListener('touchend', handleTouchEnd)
+    }
+  }, [isDraggingButton, buttonDragStart])
+
+  const handleButtonMouseDown = (e: React.MouseEvent) => {
+    setIsDraggingButton(true)
+    setDragDistance(0) // Reset drag distance when starting new interaction
+    setButtonDragStart({
+      x: e.clientX - sidebarButtonPosition.x,
+      y: e.clientY - sidebarButtonPosition.y
+    })
+  }
+
+  const handleButtonTouchStart = (e: React.TouchEvent) => {
+    setIsDraggingButton(true)
+    setDragDistance(0) // Reset drag distance when starting new interaction
+    const touch = e.touches[0]
+    setButtonDragStart({
+      x: touch.clientX - sidebarButtonPosition.x,
+      y: touch.clientY - sidebarButtonPosition.y
+    })
+  }
 
   const selectedConversation = conversations.find(c => c.id === selectedConversationId)
   const conversationMessages = selectedConversationId ? messages[selectedConversationId] || [] : []
@@ -396,84 +481,14 @@ export default function MessagesPage() {
   }
 
   const MessageBubble = ({ message, isOwn }: { message: MockMessage, isOwn: boolean }) => {
-    const [isDragging, setIsDragging] = useState(false)
-    const [position, setPosition] = useState({ x: 0, y: 0 })
-    const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
-
-    useEffect(() => {
-      const handleMouseMove = (e: MouseEvent) => {
-        if (!isDragging) return
-        setPosition({
-          x: e.clientX - dragStart.x,
-          y: e.clientY - dragStart.y
-        })
-      }
-
-      const handleMouseUp = () => {
-        setIsDragging(false)
-      }
-
-      const handleTouchMove = (e: TouchEvent) => {
-        if (!isDragging) return
-        const touch = e.touches[0]
-        setPosition({
-          x: touch.clientX - dragStart.x,
-          y: touch.clientY - dragStart.y
-        })
-      }
-
-      const handleTouchEnd = () => {
-        setIsDragging(false)
-      }
-
-      if (isDragging) {
-        document.addEventListener('mousemove', handleMouseMove)
-        document.addEventListener('mouseup', handleMouseUp)
-        document.addEventListener('touchmove', handleTouchMove, { passive: false })
-        document.addEventListener('touchend', handleTouchEnd)
-      }
-
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove)
-        document.removeEventListener('mouseup', handleMouseUp)
-        document.removeEventListener('touchmove', handleTouchMove)
-        document.removeEventListener('touchend', handleTouchEnd)
-      }
-    }, [isDragging, dragStart])
-
-    const handleMouseDown = (e: React.MouseEvent) => {
-      setIsDragging(true)
-      setDragStart({
-        x: e.clientX - position.x,
-        y: e.clientY - position.y
-      })
-    }
-
-    const handleTouchStart = (e: React.TouchEvent) => {
-      setIsDragging(true)
-      const touch = e.touches[0]
-      setDragStart({
-        x: touch.clientX - position.x,
-        y: touch.clientY - position.y
-      })
-    }
-
     return (
       <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-3 md:mb-4`}>
         <div
-          className={`max-w-[280px] md:max-w-xs lg:max-w-md px-3 md:px-4 py-2 md:py-2 rounded-lg cursor-move select-none transition-transform ${
-            isDragging ? 'scale-105 shadow-lg z-10' : ''
-          } ${
+          className={`max-w-[280px] md:max-w-xs lg:max-w-md px-3 md:px-4 py-2 md:py-2 rounded-lg ${
             isOwn
               ? 'bg-emerald-600 text-white'
               : 'bg-gray-100 text-gray-900'
           }`}
-          style={{
-            transform: `translate(${position.x}px, ${position.y}px)`,
-            userSelect: 'none'
-          }}
-          onMouseDown={handleMouseDown}
-          onTouchStart={handleTouchStart}
         >
           <p className="text-sm md:text-sm leading-relaxed">{message.content}</p>
           <div className={`flex items-center justify-end mt-1 space-x-1 ${
@@ -497,10 +512,21 @@ export default function MessagesPage() {
     <DashboardLayout>
       <div className="space-y-6 relative">
         {/* Mobile Sidebar Toggle - Outside chat card */}
-        <div className="md:hidden absolute top-20 right-4 z-10">
+        <div className="md:hidden absolute z-10" style={{ transform: `translate(${sidebarButtonPosition.x}px, ${sidebarButtonPosition.y}px)` }}>
           <button
-            onClick={() => setShowSidebar(!showSidebar)}
-            className="p-2 bg-emerald-600 text-white rounded-lg shadow-lg hover:bg-emerald-700 transition-colors"
+            onClick={() => {
+              // Only toggle sidebar if drag distance is minimal (less than 5px)
+              if (dragDistance < 5) {
+                setShowSidebar(!showSidebar)
+              }
+              // Reset drag distance after click decision
+              setDragDistance(0)
+            }}
+            onMouseDown={handleButtonMouseDown}
+            onTouchStart={handleButtonTouchStart}
+            className={`p-2 bg-emerald-600 text-white rounded-lg shadow-lg hover:bg-emerald-700 transition-colors cursor-move select-none ${
+              isDraggingButton ? 'scale-110 shadow-xl' : ''
+            }`}
           >
             <MessageCircle className="h-5 w-5" />
           </button>
