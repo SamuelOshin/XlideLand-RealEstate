@@ -10,7 +10,7 @@ def verify_current_hero():
         page_desktop = context_desktop.new_page()
 
         try:
-            page_desktop.goto("http://localhost:3000")
+            page_desktop.goto("http://localhost:3003")
             # The selector changed because I removed the role="banner" attribute
             page_desktop.wait_for_selector('section', timeout=10000)
             # Take a screenshot of the hero section
@@ -24,7 +24,7 @@ def verify_current_hero():
         page_mobile = context_mobile.new_page()
 
         try:
-            page_mobile.goto("http://localhost:3000")
+            page_mobile.goto("http://localhost:3003")
             page_mobile.wait_for_selector('section', timeout=10000)
             # Take a screenshot of the hero section
             page_mobile.screenshot(path="verification/new_hero_mobile.png")

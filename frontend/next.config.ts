@@ -46,16 +46,21 @@ const nextConfig: NextConfig = {
         hostname: '*.public.blob.vercel-storage.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'randomuser.me',
+        pathname: '/**',
+      },
     ],
-    domains: ['127.0.0.1', 'localhost', 'uyfoz23z622dkniz.public.blob.vercel-storage.com'],
+    domains: ['127.0.0.1', 'localhost', 'uyfoz23z622dkniz.public.blob.vercel-storage.com', 'randomuser.me'],
   },
 
   // Configure experimental features including Turbopack
   experimental: {
     turbo: {
       // Turbopack configuration
-      loaders: {
-        // Add any custom loaders here if needed
+      rules: {
+         "*.mdx": ["mdx-loader"]
       },
       resolveAlias: {
         // Add any path aliases here if needed

@@ -20,9 +20,10 @@ const HeroSection = () => {
           src="/img/hero-5.jpg"
           alt="Modern luxury home"
           fill
+          sizes="100vw"
           className="object-cover object-center"
           priority
-          quality={95}
+          quality={90}
         />
         {/* Gradient Overlay: Transparent center to dark emerald/black bottom */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/90" />
@@ -30,7 +31,7 @@ const HeroSection = () => {
       </div>
 
       {/* Hero Content */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center min-h-screen pt-24 pb-12">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center min-h-screen pt-24 pb-20">
 
         <div className="flex-grow flex flex-col justify-center max-w-4xl space-y-6 sm:space-y-8">
           {/* Tagline Pill */}
@@ -48,7 +49,7 @@ const HeroSection = () => {
           </h1>
 
           {/* Subtext */}
-          <p className="text-lg sm:text-xl text-gray-200 max-w-2xl leading-relaxed font-light">
+          <p className="text-lg sm:text-xl text-gray-200 max-w-2xl leading-relaxed font-light drop-shadow-md">
             Find your perfect sanctuary across prime locations. We provide a curated network of luxury homes designed for comfort, style, and your future.
           </p>
 
@@ -66,10 +67,14 @@ const HeroSection = () => {
             {/* Social Proof */}
             <div className="flex items-center gap-4 bg-black/20 backdrop-blur-sm p-2 rounded-xl sm:bg-transparent sm:backdrop-blur-none sm:p-0">
               <div className="flex -space-x-3">
-                 {[1, 2, 3].map((i) => (
+                 {[
+                   'https://randomuser.me/api/portraits/women/44.jpg',
+                   'https://randomuser.me/api/portraits/men/32.jpg',
+                   'https://randomuser.me/api/portraits/women/68.jpg'
+                 ].map((src, i) => (
                   <div key={i} className="w-10 h-10 rounded-full border-2 border-white/20 overflow-hidden relative bg-gray-700">
                     <Image
-                      src={`/img/hero-${i}.png`}
+                      src={src}
                       alt="User"
                       fill
                       className="object-cover"
@@ -107,15 +112,15 @@ const HeroSection = () => {
           </div>
 
           {/* Stats Grid */}
-          <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-4 lg:gap-12 pb-2">
+          <div className="lg:col-span-7 grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-8 lg:gap-12 pb-2">
             {[
               { label: 'Properties Sold', value: '2.5k+' },
               { label: 'Cities Covered', value: '50+' },
               { label: 'Years of Excellence', value: '15+' }
             ].map((stat, idx) => (
-              <div key={idx} className={`text-white ${idx !== 0 ? 'lg:border-l lg:border-white/20 lg:pl-12' : ''}`}>
+              <div key={idx} className={`text-white ${idx !== 0 ? 'lg:border-l lg:border-white/20 lg:pl-12' : ''} ${idx === 2 ? 'text-left lg:text-left col-span-2 lg:col-span-1' : ''}`}>
                 <div className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-1">{stat.value}</div>
-                <div className="text-emerald-100/80 text-xs sm:text-sm font-medium uppercase tracking-wider">{stat.label}</div>
+                <div className="text-emerald-100/80 text-[10px] sm:text-sm font-medium uppercase tracking-wider leading-tight">{stat.label}</div>
               </div>
             ))}
           </div>
