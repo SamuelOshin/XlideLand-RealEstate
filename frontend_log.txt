@@ -1,0 +1,121 @@
+
+> frontend@0.1.0 dev
+> next dev -p 3000
+
+   ▲ Next.js 15.3.4
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.2:3000
+
+ ✓ Starting...
+ ⚠ experimental.turbo.loaders is now deprecated. Please update next.config.js to use experimental.turbo.rules as soon as possible.
+The new option is similar, but the key should be a glob instead of an extension.
+Example: loaders: { ".mdx": ["mdx-loader"] } -> rules: { "*.mdx": ["mdx-loader"] }" }
+See more info here https://nextjs.org/docs/app/api-reference/next-config-js/turbo
+ ⚠ The config property `experimental.turbo` is deprecated. Move this setting to `config.turbopack` as Turbopack is now stable.
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+ ✓ Ready in 1963ms
+ ○ Compiling / ...
+ ✓ Compiled / in 12.4s (2088 modules)
+ ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET / 200 in 14382ms
+ ⚠ The "images.domains" configuration is deprecated. Please use "images.remotePatterns" configuration instead.
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1161ms (2092 modules)
+ ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /img/client-2.jpg 404 in 1926ms
+ GET /img/client-3.jpg 404 in 1941ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 1931ms (2226 modules)
+ ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET / 200 in 803ms
+ GET /img/client-2.jpg 404 in 538ms
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/lib/utils/assert.js:66:16)
+    at Auth (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/index.js:91:95)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async AppRouteRouteModule.do (/app/frontend/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+ GET /api/auth/session 500 in 4479ms
+ GET /img/client-3.jpg 404 in 236ms
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/lib/utils/assert.js:66:16)
+    at Auth (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/index.js:91:95)
+    at async AppRouteRouteModule.do (/app/frontend/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+ GET /api/auth/session 500 in 101ms
+ ✓ Compiled in 1756ms (2081 modules)
+ ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET / 200 in 883ms
+ ✓ Compiled /_not-found in 473ms (1141 modules)
+ ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /img/client-3.jpg 404 in 1128ms
+ GET /img/client-2.jpg 404 in 1132ms
+ ✓ Compiled /api/auth/[...nextauth] in 469ms (1289 modules)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/lib/utils/assert.js:66:16)
+    at Auth (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/index.js:91:95)
+    at async AppRouteRouteModule.do (/app/frontend/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+ GET /api/auth/session 500 in 929ms
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/lib/utils/assert.js:66:16)
+    at Auth (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/index.js:91:95)
+    at async AppRouteRouteModule.do (/app/frontend/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+ GET /api/auth/session 500 in 21ms
+ ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /img/client-2.jpg 404 in 388ms
+ GET / 200 in 454ms
+ GET /img/client-2.jpg 404 in 155ms
+ GET /img/client-3.jpg 404 in 252ms
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/lib/utils/assert.js:66:16)
+    at Auth (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/index.js:91:95)
+    at async AppRouteRouteModule.do (/app/frontend/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+ GET /api/auth/session 500 in 34ms
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/lib/utils/assert.js:66:16)
+    at Auth (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/index.js:91:95)
+    at async AppRouteRouteModule.do (/app/frontend/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+ GET /api/auth/session 500 in 23ms
+ GET /img/client-3.jpg 404 in 134ms
+ GET /img/client-2.jpg 404 in 167ms
+ GET / 200 in 391ms
+ GET /img/client-3.jpg 404 in 312ms
+ GET /img/client-2.jpg 404 in 314ms
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/lib/utils/assert.js:66:16)
+    at Auth (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/index.js:91:95)
+    at async AppRouteRouteModule.do (/app/frontend/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+ GET /api/auth/session 500 in 71ms
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/lib/utils/assert.js:66:16)
+    at Auth (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/index.js:91:95)
+    at async AppRouteRouteModule.do (/app/frontend/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+ GET /api/auth/session 500 in 56ms
+ GET / 200 in 625ms
+ GET /img/client-3.jpg 404 in 514ms
+ GET /img/client-2.jpg 404 in 524ms
+ ✓ Compiled in 980ms (2081 modules)
+ ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET / 200 in 599ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 684ms (1141 modules)
+ ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /img/client-3.jpg 404 in 1132ms
+ GET /img/client-2.jpg 404 in 1134ms
+ ✓ Compiled /api/auth/[...nextauth] in 456ms (1289 modules)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/lib/utils/assert.js:66:16)
+    at Auth (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/index.js:91:95)
+    at async AppRouteRouteModule.do (/app/frontend/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+ GET /api/auth/session 500 in 619ms
+ ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/lib/utils/assert.js:66:16)
+    at Auth (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/index.js:91:95)
+    at async AppRouteRouteModule.do (/app/frontend/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+ GET /api/auth/session 500 in 834ms
+ GET / 200 in 918ms
+ GET /img/client-2.jpg 404 in 322ms
+ GET /img/client-3.jpg 404 in 303ms
