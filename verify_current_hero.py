@@ -11,9 +11,10 @@ def verify_current_hero():
 
         try:
             page_desktop.goto("http://localhost:3003")
-            # The selector changed because I removed the role="banner" attribute
-            page_desktop.wait_for_selector('section', timeout=10000)
-            # Take a screenshot of the hero section
+            # Wait for the H1 to be visible (animations fade it in)
+            page_desktop.wait_for_selector('h1', state='visible', timeout=10000)
+            # Wait extra time for all staggered animations to finish (0.6s duration + delays)
+            time.sleep(2)
             page_desktop.screenshot(path="verification/new_hero_desktop.png")
             print("Desktop screenshot captured.")
         except Exception as e:
@@ -25,8 +26,8 @@ def verify_current_hero():
 
         try:
             page_mobile.goto("http://localhost:3003")
-            page_mobile.wait_for_selector('section', timeout=10000)
-            # Take a screenshot of the hero section
+            page_mobile.wait_for_selector('h1', state='visible', timeout=10000)
+            time.sleep(2)
             page_mobile.screenshot(path="verification/new_hero_mobile.png")
             print("Mobile screenshot captured.")
         except Exception as e:
